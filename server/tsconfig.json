@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020", "DOM", "ESNext"],
+    "outDir": "dist",
+    "rootDir": ".",
+    "noImplicitAny": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "allowJs": true
+  },
+  "include": [
+    "scripts/**/*.ts", // 包含 scripts 目录下所有 .ts 文件
+    "src/**/*.js", // <-- 新增：包含 src 目录下所有 .js 文件
+    "src/**/*.ts" // <-- 新增：包含 src 目录下所有 .ts 文件
+  ]
+}
