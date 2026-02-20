@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+:root {
+  --admin-bg: #f3f6fb;
+  --admin-header-bg: #ffffff;
+  --admin-content-bg: #ffffff;
+  --admin-border: #e6ebf4;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: radial-gradient(circle at top right, #ecf2ff, #f7f9fc 55%);
+  color: var(--admin-text);
+}
+
+.admin-center-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-bg);
+}
+
+.admin-shell {
+  min-height: 100vh;
+}
+
+.admin-brand {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.admin-brand-text {
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--admin-header-bg);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--admin-border);
+  background: #f8fbff;
+}
+
+.admin-user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.admin-content {
+  margin: 16px;
+  padding: 16px;
+  min-height: calc(100vh - 96px);
+  background: var(--admin-content-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+}
+
+.admin-content-loading {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-muted);
+  margin: 8px 0;
+}
+
+.admin-page-title {
+  margin-bottom: 16px;
+}
+
+.admin-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.admin-permission-row {
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
