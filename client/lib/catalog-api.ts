@@ -20,7 +20,7 @@ export type CategoryProductFilters = {
   subcategory?: string;
   inStock?: boolean;
   wllRange?: "3000-5000" | "5000-10000" | "10000+";
-  sort?: "position" | "name" | "price" | "weight";
+  priceSort?: "asc" | "desc";
 };
 
 export type ProductSearchFilters = CategoryProductFilters & {
@@ -132,11 +132,6 @@ function getWllValue(product: Product) {
   return extractNumber(raw);
 }
 
-function getWeightValue(product: Product) {
-  const raw = getSpecValue(product, "Weight") ?? "";
-  return extractNumber(raw);
-}
-
 function getPriceValue(product: Product) {
   return extractNumber(product.price);
 }
@@ -162,7 +157,7 @@ function isWithinWllRange(
 
 function applyClientFilters(
   source: Product[],
-  filters: Pick<CategoryProductFilters, "subcategory" | "wllRange" | "sort">,
+  filters: Pick<CategoryProductFilters, "subcategory" | "wllRange" | "priceSort">,
 ) {
   let filtered = source.filter((product) => {
     if (filters.subcategory && product.subcategory !== filters.subcategory) {
@@ -179,12 +174,10 @@ function applyClientFilters(
     return true;
   });
 
-  if (filters.sort === "name") {
-    filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
-  } else if (filters.sort === "price") {
+  if (filters.priceSort === "asc") {
     filtered = filtered.sort((a, b) => getPriceValue(a) - getPriceValue(b));
-  } else if (filters.sort === "weight") {
-    filtered = filtered.sort((a, b) => getWeightValue(a) - getWeightValue(b));
+  } else if (filters.priceSort === "desc") {
+    filtered = filtered.sort((a, b) => getPriceValue(b) - getPriceValue(a));
   }
 
   return filtered;

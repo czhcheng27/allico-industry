@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { CategoryPage } from "@/components/catalog/category-page";
 import {
   type CategoryProductFilters,
-  fetchCategories,
   fetchCategoryBySlug,
   fetchProductsByCategoryWithFilters,
 } from "@/lib/catalog-api";
@@ -16,6 +15,7 @@ type CategoryRouteProps = {
 };
 
 const CATEGORY_PAGE_SIZE = 9;
+type ProductViewMode = "grid" | "list";
 
 function toSingleValue(value: string | string[] | undefined) {
   if (!value) {
@@ -40,28 +40,32 @@ function parseFilters(
   const subcategory = toSingleValue(searchParams.subcategory);
   const inStock = toSingleValue(searchParams.inStock) === "1";
   const wllRangeRaw = toSingleValue(searchParams.wllRange);
-  const sortRaw = toSingleValue(searchParams.sort);
+  const priceSortRaw = toSingleValue(searchParams.priceSort);
 
   const wllRange =
     wllRangeRaw === "3000-5000" || wllRangeRaw === "5000-10000" || wllRangeRaw === "10000+"
       ? wllRangeRaw
       : undefined;
 
-  const sort =
-    sortRaw === "position" ||
-    sortRaw === "name" ||
-    sortRaw === "price" ||
-    sortRaw === "weight"
-      ? sortRaw
-      : "position";
+  const priceSort =
+    priceSortRaw === "asc" || priceSortRaw === "desc"
+      ? priceSortRaw
+      : undefined;
 
   return {
     keyword: keyword?.trim() || undefined,
     subcategory: subcategory || undefined,
     inStock,
     wllRange,
-    sort,
+    priceSort,
   };
+}
+
+function parseView(
+  searchParams: Record<string, string | string[] | undefined>,
+): ProductViewMode {
+  const viewRaw = toSingleValue(searchParams.view);
+  return viewRaw === "list" ? "list" : "grid";
 }
 
 export default async function CategoryRoutePage({
@@ -71,16 +75,14 @@ export default async function CategoryRoutePage({
   const { category: categorySlug } = await params;
   const parsedSearchParams = await searchParams;
   const page = parsePage(toSingleValue(parsedSearchParams.page));
-  const [category, categories] = await Promise.all([
-    fetchCategoryBySlug(categorySlug),
-    fetchCategories(),
-  ]);
+  const category = await fetchCategoryBySlug(categorySlug);
 
   if (!category) {
     notFound();
   }
 
   const filters = parseFilters(parsedSearchParams);
+  const viewMode = parseView(parsedSearchParams);
   const filteredProducts = await fetchProductsByCategoryWithFilters(
     category.slug,
     filters,
@@ -93,13 +95,13 @@ export default async function CategoryRoutePage({
 
   return (
     <CategoryPage
-      categories={categories}
       category={category}
       products={products}
       totalProducts={totalProducts}
       currentPage={currentPage}
       totalPages={totalPages}
       selectedFilters={filters}
+      viewMode={viewMode}
     />
   );
 }

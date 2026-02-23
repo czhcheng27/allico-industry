@@ -1,12 +1,11 @@
 type HeaderSearchBarProps = {
   keyword?: string;
-  searchAction: string;
 };
 
-function HeaderSearchBar({ keyword, searchAction }: HeaderSearchBarProps) {
+function HeaderSearchBar({ keyword }: HeaderSearchBarProps) {
   return (
     <div className="mx-6 hidden max-w-md grow items-center md:flex">
-      <form action={searchAction} className="relative w-full" method="get">
+      <form action="/products" className="relative w-full" method="get">
         <input
           className="w-full rounded-sm border border-zinc-700 bg-zinc-800 px-4 py-3 pr-10 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           placeholder="Search SKU, Product Name..."

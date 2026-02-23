@@ -33,7 +33,8 @@ function buildBackHref(
   const subcategory = toSingleValue(searchParams.subcategory)?.trim();
   const inStock = toSingleValue(searchParams.inStock);
   const wllRange = toSingleValue(searchParams.wllRange);
-  const sort = toSingleValue(searchParams.sort);
+  const priceSort = toSingleValue(searchParams.priceSort);
+  const view = toSingleValue(searchParams.view);
   const pageRaw = toSingleValue(searchParams.page);
   const page = Number.parseInt(String(pageRaw || ""), 10);
 
@@ -49,10 +50,11 @@ function buildBackHref(
   if (wllRange === "3000-5000" || wllRange === "5000-10000" || wllRange === "10000+") {
     params.set("wllRange", wllRange);
   }
-  if (sort === "position" || sort === "name" || sort === "price" || sort === "weight") {
-    if (sort !== "position") {
-      params.set("sort", sort);
-    }
+  if (priceSort === "asc" || priceSort === "desc") {
+    params.set("priceSort", priceSort);
+  }
+  if (view === "list") {
+    params.set("view", "list");
   }
   if (Number.isFinite(page) && page > 1) {
     params.set("page", String(page));

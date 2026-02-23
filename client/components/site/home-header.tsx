@@ -9,13 +9,11 @@ import { HeaderSearchBar } from "@/components/site/header/header-search-bar";
 type HomeHeaderProps = {
   activeCategory?: CategorySlug;
   keyword?: string;
-  searchAction?: string;
 };
 
 async function HomeHeader({
   activeCategory,
   keyword,
-  searchAction = "/products",
 }: HomeHeaderProps = {}) {
   const categories = await fetchCategories();
 
@@ -24,7 +22,7 @@ async function HomeHeader({
       <div className="container mx-auto flex h-24 items-center justify-between px-4">
         <HeaderBrand />
         <HeaderDesktopNav categories={categories} activeCategory={activeCategory} />
-        <HeaderSearchBar keyword={keyword} searchAction={searchAction} />
+        <HeaderSearchBar keyword={keyword} />
 
         <div className="flex items-center space-x-4">
           <button className="text-white md:hidden">

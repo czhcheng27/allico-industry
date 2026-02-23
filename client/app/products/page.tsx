@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+import { FilterLayout } from "@/components/catalog/shared/filter-layout";
 import { ProductListCard } from "@/components/catalog/shared/product-list-card";
+import { ProductListRow } from "@/components/catalog/shared/product-list-row";
 import { HomeFooter } from "@/components/site/home-footer";
 import { HomeHeader } from "@/components/site/home-header";
+import { getProductHref, type Product } from "@/lib/catalog";
 import {
-  fetchCategories,
   fetchProductsWithFilters,
   type ProductSearchFilters,
 } from "@/lib/catalog-api";
@@ -12,6 +14,7 @@ import {
 type ProductsRoutePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+type ProductViewMode = "grid" | "list";
 
 function toSingleValue(value: string | string[] | undefined) {
   if (!value) {
@@ -25,11 +28,9 @@ function parseFilters(
   searchParams: Record<string, string | string[] | undefined>,
 ): ProductSearchFilters {
   const keyword = toSingleValue(searchParams.keyword);
-  const category = toSingleValue(searchParams.category);
-  const subcategory = toSingleValue(searchParams.subcategory);
   const inStock = toSingleValue(searchParams.inStock) === "1";
   const wllRangeRaw = toSingleValue(searchParams.wllRange);
-  const sortRaw = toSingleValue(searchParams.sort);
+  const priceSortRaw = toSingleValue(searchParams.priceSort);
 
   const wllRange =
     wllRangeRaw === "3000-5000" ||
@@ -38,22 +39,68 @@ function parseFilters(
       ? wllRangeRaw
       : undefined;
 
-  const sort =
-    sortRaw === "position" ||
-    sortRaw === "name" ||
-    sortRaw === "price" ||
-    sortRaw === "weight"
-      ? sortRaw
-      : "position";
+  const priceSort =
+    priceSortRaw === "asc" || priceSortRaw === "desc"
+      ? priceSortRaw
+      : undefined;
 
   return {
     keyword: keyword?.trim() || undefined,
-    category: category?.trim() || undefined,
-    subcategory: subcategory?.trim() || undefined,
+    category: undefined,
+    subcategory: undefined,
     inStock,
     wllRange,
-    sort,
+    priceSort,
   };
+}
+
+function parseView(
+  searchParams: Record<string, string | string[] | undefined>,
+): ProductViewMode {
+  const viewRaw = toSingleValue(searchParams.view);
+  return viewRaw === "list" ? "list" : "grid";
+}
+
+function buildSearchParams(
+  filters: ProductSearchFilters,
+  viewMode: ProductViewMode,
+) {
+  const params = new URLSearchParams();
+
+  if (filters.keyword) {
+    params.set("keyword", filters.keyword);
+  }
+  if (filters.inStock) {
+    params.set("inStock", "1");
+  }
+  if (filters.wllRange) {
+    params.set("wllRange", filters.wllRange);
+  }
+  if (filters.priceSort) {
+    params.set("priceSort", filters.priceSort);
+  }
+  if (viewMode === "list") {
+    params.set("view", "list");
+  }
+
+  return params;
+}
+
+function buildPageHref(filters: ProductSearchFilters, viewMode: ProductViewMode) {
+  const params = buildSearchParams(filters, viewMode);
+  const query = params.toString();
+  return query ? `/products?${query}` : "/products";
+}
+
+function buildProductLinkHref(
+  product: Product,
+  filters: ProductSearchFilters,
+  viewMode: ProductViewMode,
+) {
+  const params = buildSearchParams(filters, viewMode);
+  const query = params.toString();
+  const base = getProductHref(product);
+  return query ? `${base}?${query}` : base;
 }
 
 export default async function ProductsRoutePage({
@@ -61,15 +108,17 @@ export default async function ProductsRoutePage({
 }: ProductsRoutePageProps) {
   const parsedSearchParams = await searchParams;
   const filters = parseFilters(parsedSearchParams);
-  const [categories, products] = await Promise.all([
-    fetchCategories(),
-    fetchProductsWithFilters(filters),
-  ]);
-
-  const activeCategory = categories.find(
-    (category) => category.slug === filters.category,
-  );
-  const title = filters.keyword ? `Results for "${filters.keyword}"` : "All Products";
+  const viewMode = parseView(parsedSearchParams);
+  const products = await fetchProductsWithFilters(filters);
+  const title = filters.keyword
+    ? `Results for "${filters.keyword}"`
+    : "All Products";
+  const priceSortLabel =
+    filters.priceSort === "asc"
+      ? "Low to High"
+      : filters.priceSort === "desc"
+        ? "High to Low"
+        : "Default";
 
   return (
     <div className="bg-background-light text-text-light">
@@ -100,116 +149,91 @@ export default async function ProductsRoutePage({
           </ol>
         </nav>
 
-        <div className="mb-6 border border-gray-200 bg-white p-4 md:p-5">
-          <form className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-6" method="get">
-            <input
-              className="rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-black focus:ring-black lg:col-span-2"
-              defaultValue={filters.keyword ?? ""}
-              name="keyword"
-              placeholder="Search by SKU or product name"
-              type="text"
-            />
-            <select
-              className="rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:ring-black"
-              defaultValue={filters.category ?? ""}
-              name="category"
-            >
-              <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category.slug} value={category.slug}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:ring-black"
-              defaultValue={filters.subcategory ?? ""}
-              name="subcategory"
-            >
-              <option value="">All Subcategories</option>
-              {(activeCategory?.subcategories || []).map((subcategory) => (
-                <option key={subcategory.slug} value={subcategory.slug}>
-                  {subcategory.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:ring-black"
-              defaultValue={filters.wllRange ?? ""}
-              name="wllRange"
-            >
-              <option value="">Any WLL</option>
-              <option value="3000-5000">3,000 - 5,000 lbs</option>
-              <option value="5000-10000">5,000 - 10,000 lbs</option>
-              <option value="10000+">10,000+ lbs</option>
-            </select>
-            <select
-              className="rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:ring-black"
-              defaultValue={filters.sort ?? "position"}
-              name="sort"
-            >
-              <option value="position">Position</option>
-              <option value="name">Name</option>
-              <option value="price">Price</option>
-              <option value="weight">Weight</option>
-            </select>
-
-            <label className="flex items-center gap-2 text-sm text-gray-700">
-              <input
-                className="rounded-sm border-gray-300 text-black focus:ring-black"
-                defaultChecked={Boolean(filters.inStock)}
-                name="inStock"
-                type="checkbox"
-                value="1"
-              />
-              In Stock only
-            </label>
-
-            <div className="flex gap-2 lg:col-span-2">
-              <button
-                className="w-full rounded-sm bg-black py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-zinc-800"
-                type="submit"
-              >
-                Apply
-              </button>
-              <Link
-                className="w-full rounded-sm border border-gray-300 py-2 text-center text-xs font-bold uppercase tracking-wide text-gray-700 transition hover:border-black hover:text-black"
-                href="/products"
-              >
-                Reset
-              </Link>
+        <FilterLayout
+          selectedFilters={filters}
+          totalProducts={products.length}
+          preserveKeyword={filters.keyword}
+          resetHref="/products"
+          showCategoryInfo={false}
+          showSubcategory={false}
+        >
+          <div className="mb-6 flex flex-col gap-3 border border-gray-200 bg-white p-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="font-display text-2xl font-black uppercase text-gray-900 md:text-3xl">
+                Product Search
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">{title}</p>
             </div>
-          </form>
-        </div>
+            <div className="flex items-center gap-3">
+              <div className="text-sm font-medium text-gray-600">
+                {products.length} item{products.length === 1 ? "" : "s"}
+              </div>
+              <div className="hidden items-center gap-2 text-sm text-gray-600 sm:flex">
+                <span className="font-semibold text-black">Price:</span>
+                <span className="rounded-sm border border-gray-200 bg-gray-50 px-2.5 py-1 font-medium">
+                  {priceSortLabel}
+                </span>
+              </div>
+              <div className="flex overflow-hidden rounded-sm border border-gray-200">
+                <Link
+                  aria-label="Grid view"
+                  className={
+                    viewMode === "grid"
+                      ? "inline-flex items-center justify-center bg-black px-2.5 py-1.5 text-white"
+                      : "inline-flex items-center justify-center bg-white px-2.5 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-black"
+                  }
+                  href={buildPageHref(filters, "grid")}
+                >
+                  <span className="material-symbols-outlined text-lg">grid_view</span>
+                </Link>
+                <Link
+                  aria-label="List view"
+                  className={
+                    viewMode === "list"
+                      ? "inline-flex items-center justify-center bg-black px-2.5 py-1.5 text-white"
+                      : "inline-flex items-center justify-center bg-white px-2.5 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-black"
+                  }
+                  href={buildPageHref(filters, "list")}
+                >
+                  <span className="material-symbols-outlined text-lg">view_list</span>
+                </Link>
+              </div>
+            </div>
+          </div>
 
-        <div className="mb-6 flex flex-col gap-2 border-b border-gray-200 pb-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-display text-2xl font-black uppercase text-gray-900 md:text-3xl">
-              Product Search
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">{title}</p>
-          </div>
-          <div className="text-sm font-medium text-gray-600">
-            {products.length} item{products.length === 1 ? "" : "s"}
-          </div>
-        </div>
-
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {products.map((product) => (
-              <ProductListCard key={product.slug} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-            <p className="font-display text-lg font-bold uppercase text-gray-900">
-              No products found
-            </p>
-            <p className="mt-2 text-sm text-gray-500">
-              Try changing keyword, category, or other filters.
-            </p>
-          </div>
-        )}
+          {products.length > 0 ? (
+            viewMode === "grid" ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {products.map((product) => (
+                  <ProductListCard
+                    key={product.slug}
+                    href={buildProductLinkHref(product, filters, viewMode)}
+                    product={product}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {products.map((product) => (
+                  <ProductListRow
+                    key={product.slug}
+                    href={buildProductLinkHref(product, filters, viewMode)}
+                    product={product}
+                  />
+                ))}
+              </div>
+            )
+          ) : (
+            <div className="rounded border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+              <p className="font-display text-lg font-bold uppercase text-gray-900">
+                No products found
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                Try changing category scope in header navigation or adjust filters.
+              </p>
+            </div>
+          )}
+        </FilterLayout>
       </main>
 
       <HomeFooter />
