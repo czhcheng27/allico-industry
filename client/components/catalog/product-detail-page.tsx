@@ -16,9 +16,15 @@ type ProductDetailPageProps = {
   category: Category;
   product: Product;
   relatedProducts: Product[];
+  backHref?: string;
 };
 
-function ProductDetailPage({ category, product, relatedProducts }: ProductDetailPageProps) {
+function ProductDetailPage({
+  category,
+  product,
+  relatedProducts,
+  backHref,
+}: ProductDetailPageProps) {
   const detailContent = product.detail ?? {
     series: product.sku,
     headline: product.name,
@@ -46,17 +52,29 @@ function ProductDetailPage({ category, product, relatedProducts }: ProductDetail
 
       <div className="border-b border-gray-200 bg-surface-light">
         <div className="container mx-auto px-4 py-3">
-          <nav className="flex flex-wrap items-center text-xs text-gray-500">
-            <Link className="transition hover:text-primary" href="/">
-              Home
+          <div className="flex items-center justify-between gap-4">
+            <nav className="flex min-w-0 items-center text-xs text-gray-500">
+              <Link className="transition hover:text-primary" href="/">
+                Home
+              </Link>
+              <span className="material-symbols-outlined mx-1 text-xs text-gray-400">chevron_right</span>
+              <Link className="transition hover:text-primary" href={getCategoryHref(category.slug)}>
+                {category.name}
+              </Link>
+              <span className="material-symbols-outlined mx-1 text-xs text-gray-400">chevron_right</span>
+              <span className="truncate font-semibold text-gray-700">{detailContent.headline}</span>
+            </nav>
+
+            <Link
+              className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-black hover:text-black"
+              href={backHref || getCategoryHref(category.slug)}
+            >
+              <span className="material-symbols-outlined text-sm transition group-hover:-translate-x-0.5">
+                west
+              </span>
+              Back to results
             </Link>
-            <span className="material-symbols-outlined mx-1 text-xs">chevron_right</span>
-            <Link className="transition hover:text-primary" href={getCategoryHref(category.slug)}>
-              {category.name}
-            </Link>
-            <span className="material-symbols-outlined mx-1 text-xs">chevron_right</span>
-            <span className="font-semibold text-gray-800">{detailContent.headline}</span>
-          </nav>
+          </div>
         </div>
       </div>
 

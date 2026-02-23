@@ -4,15 +4,18 @@ import { getProductHref, type Product } from "@/lib/catalog";
 
 type ProductListCardProps = {
   product: Product;
+  href?: string;
 };
 
-function ProductListCard({ product }: ProductListCardProps) {
+function ProductListCard({ product, href }: ProductListCardProps) {
+  const productHref = href || getProductHref(product);
+
   return (
     <div className="group relative flex flex-col border border-gray-200 bg-white transition-colors hover:border-primary">
       <Link
         aria-label={`View details for ${product.name}`}
         className="relative block aspect-[4/3] border-b border-gray-100 bg-white p-4"
-        href={getProductHref(product)}
+        href={productHref}
       >
         {product.badge ? (
           <span className="absolute left-2 top-2 z-10 bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
@@ -43,7 +46,7 @@ function ProductListCard({ product }: ProductListCardProps) {
         </div>
 
         <h3 className="mb-2 font-display text-base font-bold leading-tight text-gray-900">
-          <Link className="transition-colors hover:text-primary" href={getProductHref(product)}>
+          <Link className="transition-colors hover:text-primary" href={productHref}>
             {product.name}
           </Link>
         </h3>

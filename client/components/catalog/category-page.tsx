@@ -6,6 +6,7 @@ import { CatalogFooter } from "@/components/site/catalog-footer";
 import { CatalogHeader } from "@/components/site/catalog-header";
 import {
   type Category,
+  getProductHref,
   type Product,
 } from "@/lib/catalog";
 import { type CategoryProductFilters } from "@/lib/catalog-api";
@@ -20,8 +21,7 @@ type CategoryPageProps = {
   selectedFilters: CategoryProductFilters;
 };
 
-function buildPageHref(
-  categorySlug: string,
+function buildSearchParams(
   selectedFilters: CategoryProductFilters,
   page: number,
 ) {
@@ -46,8 +46,28 @@ function buildPageHref(
     params.set("page", String(page));
   }
 
+  return params;
+}
+
+function buildPageHref(
+  categorySlug: string,
+  selectedFilters: CategoryProductFilters,
+  page: number,
+) {
+  const params = buildSearchParams(selectedFilters, page);
   const query = params.toString();
   return query ? `/category/${categorySlug}?${query}` : `/category/${categorySlug}`;
+}
+
+function buildProductHref(
+  product: Product,
+  selectedFilters: CategoryProductFilters,
+  page: number,
+) {
+  const params = buildSearchParams(selectedFilters, page);
+  const query = params.toString();
+  const base = getProductHref(product);
+  return query ? `${base}?${query}` : base;
 }
 
 function CategoryPage({
@@ -124,7 +144,11 @@ function CategoryPage({
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
               {products.map((product) => (
-                <ProductListCard key={product.slug} product={product} />
+                <ProductListCard
+                  key={product.slug}
+                  product={product}
+                  href={buildProductHref(product, selectedFilters, currentPage)}
+                />
               ))}
             </div>
 
