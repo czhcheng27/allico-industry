@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { categories, getCategoryHref, getProductsByCategory, getProductHref } from "@/lib/catalog";
+import { categories, getCategoryHref, getSubcategoryHref } from "@/lib/catalog";
 
 function HomeHeader() {
   return (
@@ -22,9 +22,11 @@ function HomeHeader() {
         <nav className="mr-auto hidden h-full items-center lg:flex">
           <ul className="flex h-full items-center space-x-6 font-display text-sm font-bold uppercase tracking-wide">
             {categories.map((category) => {
-              const categoryProducts = getProductsByCategory(category.slug);
               return (
-                <li key={category.slug} className="group relative flex h-full items-center">
+                <li
+                  key={category.slug}
+                  className="group relative flex h-full items-center"
+                >
                   <Link
                     className="flex cursor-pointer items-center py-8 transition hover:text-primary"
                     href={getCategoryHref(category.slug)}
@@ -38,45 +40,41 @@ function HomeHeader() {
                   </Link>
 
                   {category.subcategories.length > 0 ? (
-                    <div className="mega-menu invisible absolute left-0 top-full z-50 w-[800px] translate-y-2 border-t-2 border-primary bg-zinc-900 opacity-0 shadow-2xl transition-all duration-200">
-                      <div className="p-8">
-                        <div className="grid grid-cols-4 gap-8">
-                          {category.subcategories.map((subcategory) => {
-                            const scopedProducts = categoryProducts
-                              .filter((product) => product.subcategory === subcategory.slug)
-                              .slice(0, 4);
+                    <div className="mega-menu invisible absolute left-0 top-full z-50 w-160 translate-y-2 rounded-b-md border border-zinc-700 border-t-2 border-t-primary bg-zinc-900/95 opacity-0 shadow-2xl backdrop-blur transition-all duration-200">
+                      <div className="border-b border-zinc-700/80 px-6 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                          Browse {category.name}
+                        </p>
+                        <Link
+                          className="mt-1 inline-flex items-center text-base font-semibold normal-case text-primary transition hover:text-yellow-300"
+                          href={getCategoryHref(category.slug)}
+                        >
+                          View all {category.name}
+                          <span className="material-symbols-outlined ml-1 text-base">
+                            arrow_forward
+                          </span>
+                        </Link>
+                      </div>
 
-                            return (
-                              <div key={subcategory.slug}>
-                                <h4 className="mb-4 border-b border-zinc-700 pb-2 text-lg text-primary">
-                                  {subcategory.name}
-                                </h4>
-                                <ul className="space-y-2 font-body text-sm font-normal normal-case text-gray-400">
-                                  {scopedProducts.length > 0 ? (
-                                    scopedProducts.map((product) => (
-                                      <li key={product.slug}>
-                                        <Link
-                                          className="block transition-transform hover:translate-x-1 hover:text-white"
-                                          href={getProductHref(product)}
-                                        >
-                                          {product.name}
-                                        </Link>
-                                      </li>
-                                    ))
-                                  ) : (
-                                    <li>
-                                      <Link
-                                        className="block transition-transform hover:translate-x-1 hover:text-white"
-                                        href={getCategoryHref(category.slug)}
-                                      >
-                                        View All
-                                      </Link>
-                                    </li>
-                                  )}
-                                </ul>
-                              </div>
-                            );
-                          })}
+                      <div className="p-4">
+                        <div className="grid grid-cols-2 gap-3">
+                          {category.subcategories.map((subcategory) => (
+                            <Link
+                              key={subcategory.slug}
+                              className="group/item flex items-center justify-between rounded-md border border-zinc-700 bg-zinc-800/70 px-4 py-3 text-left normal-case transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-zinc-800"
+                              href={getSubcategoryHref(
+                                category.slug,
+                                subcategory.slug,
+                              )}
+                            >
+                              <span className="font-body text-sm font-semibold text-zinc-200 transition group-hover/item:text-white">
+                                {subcategory.name}
+                              </span>
+                              <span className="material-symbols-outlined text-base text-zinc-500 transition group-hover/item:text-primary">
+                                chevron_right
+                              </span>
+                            </Link>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -112,7 +110,9 @@ function HomeHeader() {
               Call for Quote
             </span>
             <div className="flex items-center font-display text-lg font-black leading-none">
-              <span className="material-symbols-outlined mr-1 text-base">phone</span>
+              <span className="material-symbols-outlined mr-1 text-base">
+                phone
+              </span>
               (888) 555-0199
             </div>
           </Link>

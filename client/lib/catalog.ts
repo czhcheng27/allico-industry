@@ -502,6 +502,10 @@ export function getCategoryHref(category: CategorySlug) {
   return `/category/${category}`;
 }
 
+export function getSubcategoryHref(category: CategorySlug, subcategory: string) {
+  return `${getCategoryHref(category)}?subcategory=${encodeURIComponent(subcategory)}`;
+}
+
 export function getProductHref(product: Product) {
   return `/category/${product.category}/product/${encodeURIComponent(product.sku)}`;
 }
