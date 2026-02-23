@@ -3,9 +3,10 @@ import Link from "next/link";
 import { FilterPanel } from "@/components/catalog/shared/filter-panel";
 import { ProductListCard } from "@/components/catalog/shared/product-list-card";
 import { CatalogFooter } from "@/components/site/catalog-footer";
-import { CatalogHeader } from "@/components/site/catalog-header";
+import { HomeHeader } from "@/components/site/home-header";
 import {
   type Category,
+  getCategoryHref,
   getProductHref,
   type Product,
 } from "@/lib/catalog";
@@ -85,7 +86,11 @@ function CategoryPage({
 
   return (
     <div className="flex min-h-screen flex-col bg-background-light font-body text-text-light">
-      <CatalogHeader activeCategory={category.slug} keyword={selectedFilters.keyword} />
+      <HomeHeader
+        activeCategory={category.slug}
+        keyword={selectedFilters.keyword}
+        searchAction={getCategoryHref(category.slug)}
+      />
 
       <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-8 md:px-8">
         <nav aria-label="Breadcrumb" className="mb-8 flex text-sm text-gray-500">

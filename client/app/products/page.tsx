@@ -73,7 +73,7 @@ export default async function ProductsRoutePage({
 
   return (
     <div className="bg-background-light text-text-light">
-      <HomeHeader />
+      <HomeHeader keyword={filters.keyword} />
 
       <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-black">
         Live Product Catalog | Data Synced From Admin Backend
