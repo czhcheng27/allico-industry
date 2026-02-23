@@ -36,6 +36,25 @@ export type RoleRecord = {
   updatedAt: string;
 };
 
+export type CategorySubcategory = {
+  slug: string;
+  name: string;
+};
+
+export type CategoryRecord = {
+  id: string;
+  slug: string;
+  name: string;
+  shortName?: string;
+  description?: string;
+  cardImage?: string;
+  icon?: string;
+  sortOrder: number;
+  subcategories: CategorySubcategory[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 async function unwrap<T>(
   request: Promise<AxiosResponse<ApiResponse<T>>>,
 ): Promise<ApiResponse<T>> {
@@ -98,6 +117,27 @@ export const upsertRoleApi = (params: {
 
 export const deleteRoleApi = (id: string) =>
   unwrap<null>(http.delete(`/roles/deleteRole/${id}`));
+
+export const getCategoryListApi = (params?: { keyword?: string }) =>
+  unwrap<{
+    categories: CategoryRecord[];
+    total: number;
+  }>(http.get("/categories/getCategoryList", { params }));
+
+export const upsertCategoryApi = (params: {
+  id?: string;
+  slug: string;
+  name: string;
+  shortName?: string;
+  description?: string;
+  cardImage?: string;
+  icon?: string;
+  sortOrder?: number;
+  subcategories: CategorySubcategory[];
+}) => unwrap<CategoryRecord>(http.post("/categories/upsertCategory", params));
+
+export const deleteCategoryApi = (id: string) =>
+  unwrap<null>(http.delete(`/categories/deleteCategory/${id}`));
 
 export const getProductListApi = (params: {
   page: number;

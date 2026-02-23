@@ -3,7 +3,12 @@
 /* 更新说明（2026-02-20）： 已显式拆分路由可见性（hasRouteAccess）与动作能力（hasRouteAction）两类权限判断。 */
 
 import { createElement } from "react";
-import { DashboardOutlined, DatabaseOutlined, TeamOutlined } from "@ant-design/icons";
+import {
+  AppstoreOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import type { Permission } from "@/types/auth";
 import type { MenuItem } from "@/types/menu";
 
@@ -20,6 +25,7 @@ export function getMenuConfig(): MenuItem[] {
   return [
     createMenuItem("Dashboard", "/dashboard", createElement(DashboardOutlined)),
     createMenuItem("Products", "/products", createElement(DatabaseOutlined)),
+    createMenuItem("Categories", "/categories", createElement(AppstoreOutlined)),
     createMenuItem("System Management", "/system-management", createElement(TeamOutlined), [
       createMenuItem("Users", "/system-management/user"),
       createMenuItem("Roles", "/system-management/role"),

@@ -7,6 +7,7 @@ import permissionRoutes from "./routes/permission.route.js";
 import userRoutes from "./routes/user.route.js";
 import roleRoutes from "./routes/role.route.js";
 import productRoutes from "./routes/product.route.js";
+import categoryRoutes from "./routes/category.route.js";
 
 const app = express();
 
@@ -52,5 +53,6 @@ app.use("/api/permission", permissionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 
 export default app;

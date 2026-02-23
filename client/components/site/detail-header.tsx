@@ -1,8 +1,11 @@
 import Link from "next/link";
 
-import { categories, getCategoryHref } from "@/lib/catalog";
+import { getCategoryHref } from "@/lib/catalog";
+import { fetchCategories } from "@/lib/catalog-api";
 
-function DetailHeader() {
+async function DetailHeader() {
+  const categories = await fetchCategories();
+
   return (
     <header className="bg-allico-blue text-white shadow-md">
       <div className="container mx-auto flex items-center justify-between border-b border-blue-900/50 px-4 py-2 text-xs text-gray-300">
@@ -46,16 +49,20 @@ function DetailHeader() {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <div className="relative hidden sm:block">
+          <form action="/products" className="relative hidden sm:block" method="get">
             <input
               className="w-48 rounded border border-blue-800 bg-blue-900/50 px-4 py-2 text-sm text-white placeholder-blue-300 transition-all focus:w-64 focus:border-primary focus:ring-1 focus:ring-primary"
               placeholder="Search part number..."
+              name="keyword"
               type="text"
             />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-300 hover:text-white">
+            <button
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-300 hover:text-white"
+              type="submit"
+            >
               <span className="material-symbols-outlined text-lg">search</span>
             </button>
-          </div>
+          </form>
           <button className="relative text-white hover:text-primary">
             <span className="material-symbols-outlined">shopping_cart</span>
             <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-black">

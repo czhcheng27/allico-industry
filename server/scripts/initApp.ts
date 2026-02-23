@@ -8,9 +8,11 @@ import { User } from "../src/models/user.model.js";
 import { Role } from "../src/models/role.model.js";
 import { Permission } from "../src/models/permission.model.js";
 import { Product } from "../src/models/product.model.js";
+import { Category } from "../src/models/category.model.js";
 import { hashPassword } from "../src/lib/hash.js";
 import { routeConfig } from "../src/config/route.config";
 import { productSeedList } from "../src/config/product.seed.js";
+import { categorySeedList } from "../src/config/category.seed.js";
 
 const rawMongoUrl = process.env.MONGO_URL;
 const MONGO_URL = rawMongoUrl
@@ -113,6 +115,16 @@ async function seedProducts() {
   }
 }
 
+async function seedCategories() {
+  for (const item of categorySeedList) {
+    await Category.updateOne(
+      { slug: item.slug },
+      { $set: item },
+      { upsert: true, setDefaultsOnInsert: true },
+    );
+  }
+}
+
 async function initApp() {
   try {
     if (mongoose.connection.readyState === 0) {
@@ -126,9 +138,10 @@ async function initApp() {
     const allPermissions = await getAllPermissions();
     await ensureAdminRole(allPermissions);
     await ensureAdminUser(allPermissions);
+    await seedCategories();
     await seedProducts();
 
-    console.log("Init completed: admin role/user and products are ready");
+    console.log("Init completed: admin role/user, categories and products are ready");
   } catch (error) {
     console.error("Init failed:", error);
   } finally {

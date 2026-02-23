@@ -19,3 +19,10 @@ yarn dev
 ## 说明
 - 请保持 client 与 admin 的 UI 逻辑和权限逻辑隔离。
 - API 地址与运行时配置建议仅通过 `client` 目录下的环境变量维护。
+
+## 环境变量
+在 `client/.env` 中至少配置：
+
+```env
+CATALOG_API_BASE_URL=http://localhost:9001/api
+```

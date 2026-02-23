@@ -2,10 +2,15 @@ import Link from "next/link";
 
 import { HomeFooter } from "@/components/site/home-footer";
 import { HomeHeader } from "@/components/site/home-header";
-import { categories, getCategoryHref, getFeaturedProducts, getProductHref, siteMedia } from "@/lib/catalog";
+import { type Product, getCategoryHref, getProductHref, siteMedia } from "@/lib/catalog";
+import { fetchCategories } from "@/lib/catalog-api";
 
-function HomePage() {
-  const featuredProducts = getFeaturedProducts();
+type HomePageProps = {
+  featuredProducts: Product[];
+};
+
+async function HomePage({ featuredProducts }: HomePageProps) {
+  const categories = await fetchCategories();
 
   return (
     <>

@@ -6,21 +6,26 @@ import { CatalogFooter } from "@/components/site/catalog-footer";
 import { CatalogHeader } from "@/components/site/catalog-header";
 import {
   type Category,
-  categories,
   type Product,
 } from "@/lib/catalog";
 import { type CategoryProductFilters } from "@/lib/catalog-api";
 
 type CategoryPageProps = {
+  categories: Category[];
   category: Category;
   products: Product[];
   selectedFilters: CategoryProductFilters;
 };
 
-function CategoryPage({ category, products, selectedFilters }: CategoryPageProps) {
+function CategoryPage({
+  categories,
+  category,
+  products,
+  selectedFilters,
+}: CategoryPageProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background-light font-body text-text-light">
-      <CatalogHeader activeCategory={category.slug} />
+      <CatalogHeader activeCategory={category.slug} keyword={selectedFilters.keyword} />
 
       <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-8 md:px-8">
         <nav aria-label="Breadcrumb" className="mb-8 flex text-sm text-gray-500">

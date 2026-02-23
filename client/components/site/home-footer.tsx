@@ -1,8 +1,11 @@
 import Link from "next/link";
 
-import { categories, getCategoryHref } from "@/lib/catalog";
+import { getCategoryHref } from "@/lib/catalog";
+import { fetchCategories } from "@/lib/catalog-api";
 
-function HomeFooter() {
+async function HomeFooter() {
+  const categories = await fetchCategories();
+
   return (
     <footer className="border-t border-black bg-zinc-900 pb-8 pt-16 text-white">
       <div className="container mx-auto px-4">

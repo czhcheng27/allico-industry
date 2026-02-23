@@ -1,3 +1,32 @@
+const images = {
+  towingChain:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuADuwYXypvQWwLaAS1nkN4StaFmxqPE2VoD3sKrVU1ttFHTZkWP8WIR_P4H-YCP-91aMJVeSSBd4tO_Lzlwx6fRln2dVFn1OYsN_C68PBBJQr-Ydtaei-K1Jpi3BdfjsPQUobUNkpwvl2f5y7Z5qXJKbrnTC6ODexTWE6181yCIPUnR3TiI9x7QDzHKf9Z1B2moo3D-tIGK3Hfp5ZzYvkOcfFG4M6b-j1_5tXTx_HMmLFfUDp0fleIb8qEtRqmiCihLyTVVCp0jxbE",
+  ratchetStrap:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuDXKHWdpwC1dLdR8tZ3awCMk8E3vgUYzvcZIFJGxWzNnAec0riWKq1SrSvsXQs2M65aicAtD-6I41o9GsDDG4lGBJlEm5YwXa3XhD93UWZNGBBk-d9Y0NEpd7PURdsi6ITs3kxcx-nBCJwtyindBJrxQfjFT2bJW9Xc6q3Z-5MuXJ-tgCjIJUMMiJG6LBa_2B4clmxRmy-iJJ0cY_HyRhVZrvoVmaIVsmw-RoFCCOAba3E4kSN5kqbcyLVeNh2iz3aRJklpx1AxdIM",
+  winchCable:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAefcw5jrSi6IUudk8z-xdLUICdeHeJjUgkjiC3H-GxV_NuePD7LIgqHBL44WANDhWLaA88cBfiwxMqgrrqV5CRlqEPfGtm2T_szYRHhNFVMiv3JCgYaAX33jLWMAXkNMjdOmt7megSspEvVfJMaydnlyCCnZ6w-7mN06g89_bIrxpR3tRWi584zfX7O-KJh0_w4GuA8dn-xTNiHbKVuJ-glwa6DwZfPj1SakEQ8Brt_NFXDl0ATLJj3vJGvd4RwFuZvhc_Elz6DEg",
+  snatchBlock:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuC7F8R1Ca7ds1798xj8HqKB2NjUtmDOBxMPdFoSbPFnxCLuuBTLzMMrO4pKZPaEWNu1v1eLa_yLPbuUVPzIElBzVBZpPQ4cP2ih3_BsxQNf-3X5lDDOj1taMXqhhGrTbx-KNJESidOMCx3yiGGGQsJNMJsUSmXHgmTshsV-j4ITfag-EDZITZ3DbDk78bg1Vi6EwLYp5oBvWPTqLI8kWq9SBGNGq4_GL1CErzV8F0sR9DWzgc_j20Ss9OptYTorOY0OYXSKo5EXwQI",
+  vChain:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBCxnhnmOTpneu0OQ_pPVjxvAzff1tG_2kEUY4INl9YS-d5DUyqRMKzpib-AAptvqK4X95D1tV3V5xiMr94T17JvTvfce63V_LfQHeeda2zUc2na8aeYRo3iGN-EF_yz5Q8sQJsTfn4YUBRp7ytEvcmj5hy7gyRGd4v0WGisrxxo80Ud8Z_WBuXun0zae_PVEmPBSesyiRJCH37ZydH6t1NeXtZj9C7dnvFVLXhXgjrHs6dZmMxzjxLxF-DOK5LXNZgkSQwxOVR1TE",
+  towLight:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAXUsv3bcPYEkeWoaBUKoEgehWYmvhcRjAx33iuoB7_Y7ueoop5IJ7-3gGzAjX775z7gWRq9QQRnRJsR64ZyM4MvCnJDvLT46hC_pKqRAmojmepGteHmG6TGO6QGqgarDiT1dRk4pybigcRCcCnhwk18AX7_kA2SohDpVoT_mZfv2KtEMPUYUkNVp4qJGilRCry0L_X9OUP9cVJJi3uUm5HV916RsgMYkA81Flj8sFC1aYJZ0lor9-qlBN2WG7k9WxVVg6CC43S70Y",
+  g100Main:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBYvBp1kgjhlT7vswHr_zy5ha8LqOfSuhY0uZJJjbd28Z5YA88SoQrbzrgAQBwOmRgneP5P8Tp0P0i1u1cldRT1o8RdTjy_Z0n9HCaFred63WG6BCJIwPcTrjDMcQxW5NdvR18a6_4FRfnrG8-Pzz2LJDVNuoWJMamHFdKElUVm6zCTu1B04IMn-CKd9hsI9YmFiFSjaPV8wn_LWXgBYEN793Q0Jiliufc9upA9C3_WhHFAUliBvtR7-duTgFiy4QwLhfzLEicXfVg",
+  ratchetFeatured:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAEjkO1qVsz71QmW8UHX9-29O3rP1Ia21Hl_Z_ZWkFzBcTRnggGt76Jb8dmKvWVL5Zc9iY1FoKy2-EJ3e8xUgWC0v-devM65d7NHYr27ak6ib7R4sJm0QXk9a1qGCCxVXStB7lnLdJd9RdK4hvxjAiaCVPIvvGFOf9XnffYRA8q0QRIKZL79l6Gm3XcXnEEgNiu346cIQkw0JInZ3btmyImwroiLJz7CjrGOh0vjHNMV5DjFz3aRJn_BsQPwTxDrHeXX23pF7PrH_I",
+  categoryHooks:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBjms7_7hv84DhP8tIemz30KhU9yGzOeVOxBMt-AKeUV_yPpleSgUl1I1qRx9DpDnbrgevS1LXty52D1SnCaLHSx8KTRZcgHqAfFqPVHZW1wSAxq7hxhy03U3aj3VjLDkxVQxp02d-1yMheF4E7jRutmZaiDLvpldPyEGfIYGNRQ9QkHOiHdKr8KsRkb8kSTm4om-D01BnjLlKRj9xnKlWWcKTL30dr-sGdHv84bvtVV4ns-KKuW9-GV4n-MAQB_l3f3MS6TqJqsk0",
+  foundryHook:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBQ5wLzObL35897-rGWZhLg1f9NZSW-jt1Gcr_ap9KMda3aLlMR1GRTwehsrgYeYAKBPSRPwlb4U5MWcU0jyR_b37Fz8MacbIVLdkaipIPJKwoE3Cft-bs00jVADfFWfTq4dTW7VfFHkkKTUy8KGLtZIuQGqHZGJ7G4yIqm4KEPw1Xo_ovn2zSeoMHPtamxAEnsdtA3BxEMSF6JDpC9mL75JmgPu2Jb7m93Y60RIHsv23JThxfDf36OCNCP-2QOO95QkJVdHAv5vuI",
+  shackle:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAtRGBk7x7apT25bRKM08fY6HzSdCGXJ2DxSERuSlJJb7WpMdjF5MYZ5FnOucq3b3UnRJ7O7Ew7KBW3bL51CeoSn9eTAcq7t0E8JX5BnLV2mMXCitRNmSff8m1UFD3RGHqc9zZFwFsR6RdzcavCPf8rBB-JaleAPPGjm-j2Ukc8Zj8XjRtc43e4vKqcOqX__-xaFRjgMgiR0t9GN39UJ1xDN3wDqyWVLrGIw48mIZy2SymwoSy8NxTGVpAo21rsweC6UkD9Z_ePE1o",
+  hammerlock:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBxEVnquz9yqxu8DwGeewom3RI0M2FiHkzat1GM4tdNl0KVzCnY3FcXSyRw3AUVwV79Jz_FdicdJFWYoyg4-ZPIwnA5FQEspOQk9D9POtqkNXuWoIuHYA6Lq--bGDRFsEscf5wZvnzwOzwIcBixZPvTenTzAkNBOke_rHxwv1lBASoLKvuWv6HRNdcZ8dnMOGGHGAJt8UHeygJLNJvYrO3EtNg7WdPfFwu_sucGvBP7TF7uIOb1UoI4WmHrtrg1Mbh6VWIGMU34Bkw",
+  axleStrap:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuCJEGXETw6LdLWTA3-sNAmyjs57s3C_SOHF45y62btg5t-DMLY5RiOZzwN3bRatsVNtrmmCJ-zorPgfPxvujqacT7QxCC41rHom59Pla7N_az7ezCDlhxk9vmmxmDioh8IPg8QKgjuWO-vPX2jmAHJ8iUfLIbJA9kS6YrH4bJ37fJR1t9NVF540EBREyp0di4Yhdd_EAOp0azY2LVL50yojjUMzd3fRwT8Yyp_Cza1W_I3DlK3powWnRZxqCEJYfAB6qdj5Q0XVCJw",
+};
+
 export const productSeedList = [
   {
     slug: "grade-70-towing-chain",
@@ -6,12 +35,11 @@ export const productSeedList = [
     subcategory: "towing-chains",
     sku: "AL-70TC-3820",
     price: "$89.99",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuADuwYXypvQWwLaAS1nkN4StaFmxqPE2VoD3sKrVU1ttFHTZkWP8WIR_P4H-YCP-91aMJVeSSBd4tO_Lzlwx6fRln2dVFn1OYsN_C68PBBJQr-Ydtaei-K1Jpi3BdfjsPQUobUNkpwvl2f5y7Z5qXJKbrnTC6ODexTWE6181yCIPUnR3TiI9x7QDzHKf9Z1B2moo3D-tIGK3Hfp5ZzYvkOcfFG4M6b-j1_5tXTx_HMmLFfUDp0fleIb8qEtRqmiCihLyTVVCp0jxbE",
+    image: images.towingChain,
     status: "In Stock",
     listSpecs: [
-      { label: "Size", value: "3/8 x 20" },
-      { label: "WLL", value: "6600 lbs" },
+      { label: "Size", value: "3/8\" x 20'" },
+      { label: "WLL", value: "6,600 lbs" },
       { label: "Weight", value: "32 lbs" },
     ],
   },
@@ -22,13 +50,58 @@ export const productSeedList = [
     subcategory: "towing-straps",
     sku: "AL-RS-227",
     price: "$24.50",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDXKHWdpwC1dLdR8tZ3awCMk8E3vgUYzvcZIFJGxWzNnAec0riWKq1SrSvsXQs2M65aicAtD-6I41o9GsDDG4lGBJlEm5YwXa3XhD93UWZNGBBk-d9Y0NEpd7PURdsi6ITs3kxcx-nBCJwtyindBJrxQfjFT2bJW9Xc6q3Z-5MuXJ-tgCjIJUMMiJG6LBa_2B4clmxRmy-iJJ0cY_HyRhVZrvoVmaIVsmw-RoFCCOAba3E4kSN5kqbcyLVeNh2iz3aRJklpx1AxdIM",
+    image: images.ratchetStrap,
     status: "In Stock",
     listSpecs: [
-      { label: "Size", value: "2 x 27" },
-      { label: "WLL", value: "3333 lbs" },
+      { label: "Size", value: "2\" x 27'" },
+      { label: "WLL", value: "3,333 lbs" },
       { label: "Weight", value: "5.5 lbs" },
+    ],
+  },
+  {
+    slug: "steel-winch-cable",
+    name: "Allico Steel Winch Cable",
+    category: "towing",
+    subcategory: "towing-wire-winch-rope",
+    sku: "AL-WC-3875",
+    price: "$115.00",
+    image: images.winchCable,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "3/8\" x 75'" },
+      { label: "Material", value: "Galvanized Steel" },
+      { label: "Weight", value: "18 lbs" },
+    ],
+  },
+  {
+    slug: "snatch-block-4-ton",
+    name: "Allico 4 Ton Snatch Block",
+    category: "towing",
+    subcategory: "towing-accessories",
+    sku: "AL-SB-4T",
+    price: "$45.99",
+    image: images.snatchBlock,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Capacity", value: "8,000 lbs" },
+      { label: "Sheave", value: "3\" Steel" },
+      { label: "Weight", value: "4.2 lbs" },
+    ],
+  },
+  {
+    slug: "v-chain-bridle-assembly",
+    name: "Allico V-Chain Bridle Assembly",
+    category: "towing",
+    subcategory: "towing-chains",
+    sku: "AL-VC-G7",
+    price: "$132.50",
+    image: images.vChain,
+    status: "Low Stock",
+    badge: "New Arrival",
+    listSpecs: [
+      { label: "Grade", value: "70 Transport" },
+      { label: "Hook Type", value: "J and T Hooks" },
+      { label: "Weight", value: "14.5 lbs" },
     ],
   },
   {
@@ -38,13 +111,57 @@ export const productSeedList = [
     subcategory: "towing-accessories",
     sku: "AL-TL-WL",
     price: "$289.00",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAXUsv3bcPYEkeWoaBUKoEgehWYmvhcRjAx33iuoB7_Y7ueoop5IJ7-3gGzAjX775z7gWRq9QQRnRJsR64ZyM4MvCnJDvLT46hC_pKqRAmojmepGteHmG6TGO6QGqgarDiT1dRk4pybigcRCcCnhwk18AX7_kA2SohDpVoT_mZfv2KtEMPUYUkNVp4qJGilRCry0L_X9OUP9cVJJi3uUm5HV916RsgMYkA81Flj8sFC1aYJZ0lor9-qlBN2WG7k9WxVVg6CC43S70Y",
+    image: images.towLight,
     status: "In Stock",
     listSpecs: [
       { label: "Tech", value: "LED Wireless" },
       { label: "Mount", value: "Magnetic" },
       { label: "Weight", value: "8.5 lbs" },
+    ],
+  },
+  {
+    slug: "binder-chain-transport",
+    name: "G70 Binder and Transport Chain",
+    category: "cargo-control",
+    subcategory: "binder-chains-transport-chain",
+    sku: "AL-BTC-51620",
+    price: "$65.00",
+    image: images.towingChain,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "5/16\" x 20'" },
+      { label: "Grade", value: "G70" },
+      { label: "Finish", value: "Yellow Chromate" },
+    ],
+  },
+  {
+    slug: "winch-ratchet-combo-strap",
+    name: "Winch and Ratchet Strap Kit",
+    category: "cargo-control",
+    subcategory: "winch-and-ratchet-straps",
+    sku: "AL-WRS-2X30",
+    price: "$39.90",
+    image: images.ratchetFeatured,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "2\" x 30'" },
+      { label: "WLL", value: "3,333 lbs" },
+      { label: "Pack", value: "4 pcs set" },
+    ],
+  },
+  {
+    slug: "cargo-control-accessory-kit",
+    name: "Cargo Control Accessory Kit",
+    category: "cargo-control",
+    subcategory: "cargo-control-accessories",
+    sku: "AL-CCA-SET",
+    price: "$72.00",
+    image: images.towLight,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Includes", value: "Edge + Hook + Ring" },
+      { label: "Material", value: "Forged Steel" },
+      { label: "Application", value: "Flatbed" },
     ],
   },
   {
@@ -54,29 +171,171 @@ export const productSeedList = [
     subcategory: "g80-g100-g120-overhead-lifting-chain",
     sku: "AL-G100-CHN",
     price: "$18.75 / ft",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBYvBp1kgjhlT7vswHr_zy5ha8LqOfSuhY0uZJJjbd28Z5YA88SoQrbzrgAQBwOmRgneP5P8Tp0P0i1u1cldRT1o8RdTjy_Z0n9HCaFred63WG6BCJIwPcTrjDMcQxW5NdvR18a6_4FRfnrG8-Pzz2LJDVNuoWJMamHFdKElUVm6zCTu1B04IMn-CKd9hsI9YmFiFSjaPV8wn_LWXgBYEN793Q0Jiliufc9upA9C3_WhHFAUliBvtR7-duTgFiy4QwLhfzLEicXfVg",
+    image: images.g100Main,
     status: "In Stock",
     listSpecs: [
       { label: "Chain Size", value: "3/8 in (10 mm)" },
-      { label: "WLL", value: "8800 lbs" },
+      { label: "WLL", value: "8,800 lbs" },
       { label: "Material", value: "Alloy Steel" },
+    ],
+    detail: {
+      series: "AL-G100-CHN",
+      headline: "Allico G-100 Overhead Lifting Chain",
+      description:
+        "The Allico G-100 Lifting Chain is engineered for superior strength and durability in overhead lifting applications. Manufactured from premium alloy steel, it offers a 25% higher work load limit than standard Grade 80 chains.",
+      features: [
+        "Superior strength-to-weight ratio",
+        "Meets ASTM A973 and NACM standards",
+        "Powder coated for corrosion resistance",
+      ],
+      table: [
+        { label: "Chain Size", value: "3/8 in (10 mm)" },
+        { label: "WLL", value: "8,800 lbs" },
+        { label: "Breaking Strength", value: "35,200 lbs" },
+        { label: "Material", value: "Alloy Steel" },
+        { label: "Finish", value: "Grey Armour Coating" },
+      ],
+      thumbImages: [
+        images.g100Main,
+        images.foundryHook,
+        images.shackle,
+        images.hammerlock,
+      ],
+      relatedSlugs: [
+        "g100-eye-foundry-hook",
+        "forged-anchor-shackle",
+        "hammerlock-coupling-link",
+      ],
+    },
+  },
+  {
+    slug: "g70-transport-chain",
+    name: "G-70 Transport Chain",
+    category: "industrial-chains",
+    subcategory: "g70-transport-chain",
+    sku: "AL-G70-51620",
+    price: "$65.00",
+    image: images.towingChain,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "5/16\" x 20'" },
+      { label: "WLL", value: "4,700 lbs" },
+      { label: "Use", value: "Tie Down" },
+    ],
+  },
+  {
+    slug: "mill-chain-assembly",
+    name: "Mill Chain Assembly",
+    category: "industrial-chains",
+    subcategory: "mill-chain",
+    sku: "AL-MILL-34",
+    price: "$129.00",
+    image: images.winchCable,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Pitch", value: "3/4\"" },
+      { label: "Material", value: "Heat Treated" },
+      { label: "Type", value: "Welded Steel" },
+    ],
+  },
+  {
+    slug: "yoke-trigger-kit",
+    name: "Yoke 3/4\" Trigger Kit",
+    category: "hooks-and-accessories",
+    sku: "AL-YTK-34",
+    price: "$18.50",
+    image: images.categoryHooks,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Grade", value: "100 Alloy Steel" },
+      { label: "Pin", value: "Safety Latch" },
+      { label: "Finish", value: "Powder Coated" },
+    ],
+  },
+  {
+    slug: "yoke-g100-foundry-hook",
+    name: "Yoke G-100 Foundry Hook",
+    category: "hooks-and-accessories",
+    sku: "AL-YFH-516",
+    price: "$42.00",
+    image: images.foundryHook,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "5/16\"" },
+      { label: "WLL", value: "5,700 lbs" },
+      { label: "Grade", value: "G100" },
     ],
   },
   {
     slug: "forged-anchor-shackle",
     name: "Forged Anchor Shackle",
     category: "hooks-and-accessories",
-    subcategory: "",
     sku: "AL-SHK-45",
     price: "$21.50",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAtRGBk7x7apT25bRKM08fY6HzSdCGXJ2DxSERuSlJJb7WpMdjF5MYZ5FnOucq3b3UnRJ7O7Ew7KBW3bL51CeoSn9eTAcq7t0E8JX5BnLV2mMXCitRNmSff8m1UFD3RGHqc9zZFwFsR6RdzcavCPf8rBB-JaleAPPGjm-j2Ukc8Zj8XjRtc43e4vKqcOqX__-xaFRjgMgiR0t9GN39UJ1xDN3wDqyWVLrGIw48mIZy2SymwoSy8NxTGVpAo21rsweC6UkD9Z_ePE1o",
+    image: images.shackle,
     status: "In Stock",
     listSpecs: [
       { label: "WLL", value: "4.5T" },
       { label: "Body", value: "Forged Carbon" },
       { label: "Pin", value: "Screw Pin" },
+    ],
+  },
+  {
+    slug: "hammerlock-coupling-link",
+    name: "Hammerlock Coupling Link",
+    category: "hooks-and-accessories",
+    sku: "AL-HCL-38",
+    price: "$16.80",
+    image: images.hammerlock,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "3/8\"" },
+      { label: "Grade", value: "G100" },
+      { label: "Use", value: "Chain Repair" },
+    ],
+  },
+  {
+    slug: "g100-eye-foundry-hook",
+    name: "G-100 Eye Foundry Hook",
+    category: "hooks-and-accessories",
+    sku: "AL-EFH-38",
+    price: "$29.90",
+    image: images.foundryHook,
+    status: "In Stock",
+    listSpecs: [
+      { label: "WLL", value: "5,700 lbs" },
+      { label: "Size", value: "3/8\"" },
+      { label: "Grade", value: "G100" },
+    ],
+  },
+  {
+    slug: "retractable-ratchet-strap",
+    name: "Retractable Ratchet Strap",
+    category: "towing",
+    subcategory: "towing-straps",
+    sku: "AL-RR-227",
+    price: "$24.99",
+    image: images.ratchetFeatured,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "2\" x 27'" },
+      { label: "WLL", value: "3,333 lbs" },
+      { label: "Style", value: "Retractable" },
+    ],
+  },
+  {
+    slug: "heavy-duty-axle-strap",
+    name: "Heavy Duty Axle Strap",
+    category: "towing",
+    subcategory: "towing-straps",
+    sku: "AL-AS-224",
+    price: "$12.99",
+    image: images.axleStrap,
+    status: "In Stock",
+    listSpecs: [
+      { label: "Size", value: "2\" x 24\"" },
+      { label: "Material", value: "Polyester" },
+      { label: "Protection", value: "Sleeve Included" },
     ],
   },
 ];

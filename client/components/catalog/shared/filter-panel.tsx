@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { type Category, getCategoryHref } from "@/lib/catalog";
+import { type Category, getCategoryHref, getSubcategoryHref } from "@/lib/catalog";
 import { type CategoryProductFilters } from "@/lib/catalog-api";
 
 type FilterPanelProps = {
@@ -47,12 +47,12 @@ function FilterPanel({
                   <ul className="bg-gray-50 py-2">
                     {category.subcategories.map((subcategory) => (
                       <li key={subcategory.slug}>
-                        <a
+                        <Link
                           className="block px-4 py-2 pl-6 text-gray-600 transition-colors hover:bg-gray-100 hover:text-black"
-                          href="#"
+                          href={getSubcategoryHref(category.slug, subcategory.slug)}
                         >
                           {subcategory.name}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -68,6 +68,17 @@ function FilterPanel({
           Filter By
         </h3>
         <div className="space-y-4">
+          <div>
+            <h4 className="mb-2 text-xs font-bold uppercase text-gray-900">Keyword</h4>
+            <input
+              className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:ring-black"
+              defaultValue={selectedFilters.keyword ?? ""}
+              name="keyword"
+              placeholder="Name / SKU"
+              type="text"
+            />
+          </div>
+
           {activeCategory.subcategories.length > 0 ? (
             <div>
               <h4 className="mb-2 text-xs font-bold uppercase text-gray-900">Subcategory</h4>

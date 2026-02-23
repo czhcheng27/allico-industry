@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CategoryPage } from "@/components/catalog/category-page";
 import {
   type CategoryProductFilters,
+  fetchCategories,
   fetchCategoryBySlug,
   fetchProductsByCategoryWithFilters,
 } from "@/lib/catalog-api";
@@ -25,6 +26,7 @@ function toSingleValue(value: string | string[] | undefined) {
 function parseFilters(
   searchParams: Record<string, string | string[] | undefined>
 ): CategoryProductFilters {
+  const keyword = toSingleValue(searchParams.keyword);
   const subcategory = toSingleValue(searchParams.subcategory);
   const inStock = toSingleValue(searchParams.inStock) === "1";
   const wllRangeRaw = toSingleValue(searchParams.wllRange);
@@ -44,6 +46,7 @@ function parseFilters(
       : "position";
 
   return {
+    keyword: keyword?.trim() || undefined,
     subcategory: subcategory || undefined,
     inStock,
     wllRange,
@@ -57,7 +60,10 @@ export default async function CategoryRoutePage({
 }: CategoryRouteProps) {
   const { category: categorySlug } = await params;
   const parsedSearchParams = await searchParams;
-  const category = await fetchCategoryBySlug(categorySlug);
+  const [category, categories] = await Promise.all([
+    fetchCategoryBySlug(categorySlug),
+    fetchCategories(),
+  ]);
 
   if (!category) {
     notFound();
@@ -66,5 +72,12 @@ export default async function CategoryRoutePage({
   const filters = parseFilters(parsedSearchParams);
   const products = await fetchProductsByCategoryWithFilters(category.slug, filters);
 
-  return <CategoryPage category={category} products={products} selectedFilters={filters} />;
+  return (
+    <CategoryPage
+      categories={categories}
+      category={category}
+      products={products}
+      selectedFilters={filters}
+    />
+  );
 }

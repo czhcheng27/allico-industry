@@ -1,12 +1,17 @@
 import Link from "next/link";
 
-import { type CategorySlug, categories, getCategoryHref } from "@/lib/catalog";
+import { getCategoryHref } from "@/lib/catalog";
+import { fetchCategories } from "@/lib/catalog-api";
 
 type CatalogHeaderProps = {
-  activeCategory?: CategorySlug;
+  activeCategory?: string;
+  keyword?: string;
 };
 
-function CatalogHeader({ activeCategory }: CatalogHeaderProps) {
+async function CatalogHeader({ activeCategory, keyword }: CatalogHeaderProps) {
+  const categories = await fetchCategories();
+  const searchAction = activeCategory ? getCategoryHref(activeCategory) : "/products";
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
       <div className="flex items-center justify-between bg-black px-4 py-2 text-xs text-white md:px-8 md:text-sm">
@@ -65,16 +70,21 @@ function CatalogHeader({ activeCategory }: CatalogHeaderProps) {
           </nav>
 
           <div className="relative w-full shrink-0 md:w-auto">
-            <div className="relative">
+            <form action={searchAction} className="relative" method="get">
               <input
                 className="w-full rounded-sm border border-gray-200 bg-gray-100 py-2.5 pl-4 pr-12 text-sm font-medium focus:border-primary focus:ring-2 focus:ring-primary md:w-80"
                 placeholder="Search by SKU or Name..."
+                defaultValue={keyword ?? ""}
+                name="keyword"
                 type="text"
               />
-              <button className="absolute right-0 top-0 flex h-full items-center justify-center rounded-r-sm bg-primary px-3 text-black transition-colors hover:bg-primary-hover">
+              <button
+                className="absolute right-0 top-0 flex h-full items-center justify-center rounded-r-sm bg-primary px-3 text-black transition-colors hover:bg-primary-hover"
+                type="submit"
+              >
                 <span className="material-symbols-outlined text-xl">search</span>
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

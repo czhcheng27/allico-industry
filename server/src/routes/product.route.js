@@ -14,6 +14,11 @@ import {
 
 const router = express.Router();
 
+router.get(
+  "/public/getProductList",
+  getProductList,
+);
+
 router.post(
   "/upsertProduct",
   protect,
