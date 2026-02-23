@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Client（Next.js）
 
-## Getting Started
+## 作用
+面向业务/访客侧的前端应用（与 admin 后台分离）。
 
-First, run the development server:
-
+## 启动方式
 ```bash
-npm run dev
-# or
+cd client
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+默认地址：`http://localhost:3001`（或 Next 自动分配的可用端口）。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 目录结构（常用）
+- `app/`：路由页面与布局。
+- `components/`：通用 UI 组件。
+- `lib/`：请求封装与公共工具。
+- `public/`：静态资源。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 说明
+- 请保持 client 与 admin 的 UI 逻辑和权限逻辑隔离。
+- API 地址与运行时配置建议仅通过 `client` 目录下的环境变量维护。

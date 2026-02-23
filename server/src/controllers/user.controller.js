@@ -1,7 +1,8 @@
+/* 更新说明（2026-02-20）： 当前用户接口返回最新聚合权限，用户 CRUD 与 route/action 授权保持一致。 */
 // server/src/controllers/user.controller.js
 import { User } from "../models/user.model.js";
-import { Role } from "../models/role.model.js";
 import { hashPassword } from "../lib/hash.js";
+import { aggregatePermissionsByRoles } from "../services/permission.service.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 
 /**
@@ -251,36 +252,7 @@ export const getCurrentUser = async (req, res) => {
     }
 
     // --- 动态权限聚合（与 login 逻辑相同）---
-    const userRoleNames = user.roles;
-    const rolesWithPermissions = await Role.find({
-      roleName: { $in: userRoleNames },
-    }).select("permissions -_id"); // 只选择权限字段
-
-    const aggregatedPermissionsMap = new Map();
-    rolesWithPermissions.forEach((roleDoc) => {
-      if (roleDoc.permissions && Array.isArray(roleDoc.permissions)) {
-        roleDoc.permissions.forEach((perm) => {
-          if (perm && perm.route && Array.isArray(perm.actions)) {
-            if (aggregatedPermissionsMap.has(perm.route)) {
-              const existingActions = aggregatedPermissionsMap.get(perm.route);
-              const newActions = [
-                ...new Set([...existingActions, ...perm.actions]),
-              ];
-              aggregatedPermissionsMap.set(perm.route, newActions);
-            } else {
-              aggregatedPermissionsMap.set(perm.route, perm.actions);
-            }
-          }
-        });
-      }
-    });
-
-    const userPermissions = Array.from(aggregatedPermissionsMap).map(
-      ([route, actions]) => ({
-        route,
-        actions,
-      })
-    );
+    const userPermissions = await aggregatePermissionsByRoles(user.roles || []);
     // --- 动态权限聚合结束 ---
 
     return sendSuccess(
@@ -362,3 +334,4 @@ export const resetPassword = async (req, res) => {
     return sendError(res, "Server error during password reset", 500);
   }
 };
+

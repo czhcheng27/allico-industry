@@ -1,14 +1,13 @@
 "use client";
 
+/* 更新说明（2026-02-20）： auth store 已简化为仅维护 permissions，不再保存本地 token 字段。 */
+
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Permission } from "@/types/auth";
 
 type AuthState = {
-  token: string;
-  expired: number;
   permissions: Permission[];
-  setAuth: (token: string, expired: number) => void;
   setPermissions: (permissions: Permission[]) => void;
   clearAuth: () => void;
 };
@@ -16,19 +15,14 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: "",
-      expired: 0,
       permissions: [],
-      setAuth: (token, expired) => set({ token, expired }),
       setPermissions: (permissions) => set({ permissions }),
-      clearAuth: () => set({ token: "", expired: 0, permissions: [] }),
+      clearAuth: () => set({ permissions: [] }),
     }),
     {
       name: "admin-auth",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        token: state.token,
-        expired: state.expired,
         permissions: state.permissions,
       }),
     },

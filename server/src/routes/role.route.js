@@ -1,17 +1,39 @@
-// server/src/routes/role.route.js
+/* 更新说明（2026-02-20）： 角色路由已从角色硬编码切换为 route/action 权限中间件。 */
 import express from "express";
 import {
   upsertRole,
   getRoles,
   deleteRole,
 } from "../controllers/role.controller.js";
-import { protect, authorize } from "../middleware/auth.middleware.js";
+import {
+  protect,
+  attachPermissions,
+  authorizeRouteAccess,
+  authorizeRouteAction,
+} from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// 所有角色管理接口都需要管理员权限
-router.post("/upsertRole", protect, authorize(["admin"]), upsertRole);
-router.get("/getRoleList", protect, authorize(["admin", "manager"]), getRoles); // 经理也可以查看角色列表
-router.delete("/deleteRole/:id", protect, authorize(["admin"]), deleteRole);
+router.post(
+  "/upsertRole",
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/system-management/role", "write"),
+  upsertRole,
+);
+router.get(
+  "/getRoleList",
+  protect,
+  attachPermissions,
+  authorizeRouteAccess("/system-management/role"),
+  getRoles,
+);
+router.delete(
+  "/deleteRole/:id",
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/system-management/role", "write"),
+  deleteRole,
+);
 
 export default router;

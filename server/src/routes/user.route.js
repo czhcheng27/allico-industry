@@ -1,4 +1,4 @@
-// server/src/routes/user.route.js
+/* 更新说明（2026-02-20）： 用户路由已从角色硬编码切换为 route/action 权限中间件。 */
 import express from "express";
 import {
   upsertUser,
@@ -6,35 +6,48 @@ import {
   deleteUser,
   getCurrentUser,
   resetPassword,
-} from "../controllers/user.controller.js"; // 导入新的 upsertUser 函数
-import { protect, authorize } from "../middleware/auth.middleware.js"; // 导入中间件
+} from "../controllers/user.controller.js";
+import {
+  protect,
+  attachPermissions,
+  authorizeRouteAccess,
+  authorizeRouteAction,
+} from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// POST /api/users - 创建或更新用户
-// 只有拥有 'admin' 角色的用户才能访问这个接口
-router.post("/upsertUsers", protect, authorize(["admin"]), upsertUser);
+router.post(
+  "/upsertUsers",
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/system-management/user", "write"),
+  upsertUser,
+);
 
-// GET /api/users - 获取所有用户列表
 router.get(
   "/getUserList",
   protect,
-  authorize(["admin", "manager"]),
-  getUserList
-); // 假设管理员和经理可以查看用户列表
+  attachPermissions,
+  authorizeRouteAccess("/system-management/user"),
+  getUserList,
+);
 
-// DELETE /api/users/:id - 删除指定用户
-router.delete("/deleteUser/:id", protect, authorize(["admin"]), deleteUser); // <-- 新增：只有管理员可以删除用户
+router.delete(
+  "/deleteUser/:id",
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/system-management/user", "write"),
+  deleteUser,
+);
 
-router.get("/me", protect, getCurrentUser); // 添加此路由
+router.get("/me", protect, getCurrentUser);
 
-// 重置用户密码路由
-// 只有管理员 (admin) 角色可以访问此接口
 router.put(
   "/:id/reset-password",
-  protect, // 确保用户已登录
-  authorize(["admin"]), // 确保用户拥有 'admin' 角色
-  resetPassword
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/system-management/user", "write"),
+  resetPassword,
 );
 
 export default router;

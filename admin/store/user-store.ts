@@ -1,5 +1,7 @@
 "use client";
 
+/* 更新说明（2026-02-20）： user store 现在仅维护用户信息与登录态，登录/登出通过权限 store 同步状态。 */
+
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { loginApi, logoutApi } from "@/lib/api";
@@ -16,6 +18,7 @@ type UserState = {
   userInfo: UserInfo;
   isLoggingIn: boolean;
   setUser: (userInfo: UserInfo) => void;
+  clearUser: () => void;
   login: (params: LoginParams) => Promise<boolean>;
   logout: () => Promise<void>;
 };
@@ -27,6 +30,8 @@ export const useUserStore = create<UserState>()(
       userInfo: { username: "", role: "" },
       isLoggingIn: false,
       setUser: (userInfo) => set({ userInfo, isAuthenticated: true }),
+      clearUser: () =>
+        set({ isAuthenticated: false, userInfo: { username: "", role: "" } }),
       login: async (params) => {
         set({ isLoggingIn: true });
         try {
@@ -42,7 +47,6 @@ export const useUserStore = create<UserState>()(
             userInfo: { username: payload.user.username, role },
           });
 
-          useAuthStore.getState().setAuth(payload.token, payload.expired);
           useAuthStore.getState().setPermissions(payload.user.permissions || []);
           return true;
         } catch (error) {
@@ -59,10 +63,7 @@ export const useUserStore = create<UserState>()(
           console.error("Logout failed:", error);
         } finally {
           useAuthStore.getState().clearAuth();
-          set({
-            isAuthenticated: false,
-            userInfo: { username: "", role: "" },
-          });
+          set({ isAuthenticated: false, userInfo: { username: "", role: "" } });
         }
       },
     }),
