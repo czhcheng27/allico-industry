@@ -14,15 +14,55 @@ type CategoryPageProps = {
   categories: Category[];
   category: Category;
   products: Product[];
+  totalProducts: number;
+  currentPage: number;
+  totalPages: number;
   selectedFilters: CategoryProductFilters;
 };
+
+function buildPageHref(
+  categorySlug: string,
+  selectedFilters: CategoryProductFilters,
+  page: number,
+) {
+  const params = new URLSearchParams();
+
+  if (selectedFilters.keyword) {
+    params.set("keyword", selectedFilters.keyword);
+  }
+  if (selectedFilters.subcategory) {
+    params.set("subcategory", selectedFilters.subcategory);
+  }
+  if (selectedFilters.inStock) {
+    params.set("inStock", "1");
+  }
+  if (selectedFilters.wllRange) {
+    params.set("wllRange", selectedFilters.wllRange);
+  }
+  if (selectedFilters.sort && selectedFilters.sort !== "position") {
+    params.set("sort", selectedFilters.sort);
+  }
+  if (page > 1) {
+    params.set("page", String(page));
+  }
+
+  const query = params.toString();
+  return query ? `/category/${categorySlug}?${query}` : `/category/${categorySlug}`;
+}
 
 function CategoryPage({
   categories,
   category,
   products,
+  totalProducts,
+  currentPage,
+  totalPages,
   selectedFilters,
 }: CategoryPageProps) {
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const previousPage = Math.max(1, currentPage - 1);
+  const nextPage = Math.min(totalPages, currentPage + 1);
+
   return (
     <div className="flex min-h-screen flex-col bg-background-light font-body text-text-light">
       <CatalogHeader activeCategory={category.slug} keyword={selectedFilters.keyword} />
@@ -53,7 +93,7 @@ function CategoryPage({
             activeCategory={category}
             categories={categories}
             selectedFilters={selectedFilters}
-            totalProducts={products.length}
+            totalProducts={totalProducts}
           />
 
           <div className="flex-1">
@@ -90,21 +130,45 @@ function CategoryPage({
 
             <div className="mt-12 flex justify-center border-t border-gray-200 pt-8">
               <nav className="flex items-center space-x-1">
-                <a className="cursor-not-allowed rounded-sm border border-gray-200 p-2 text-gray-400" href="#">
-                  <span className="material-symbols-outlined text-sm">chevron_left</span>
-                </a>
-                <a className="rounded-sm bg-black px-4 py-2 text-sm font-bold text-white" href="#">
-                  1
-                </a>
-                <a className="rounded-sm border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" href="#">
-                  2
-                </a>
-                <a className="rounded-sm border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" href="#">
-                  3
-                </a>
-                <a className="rounded-sm border border-gray-200 p-2 text-gray-700 transition hover:bg-gray-50 hover:text-primary" href="#">
-                  <span className="material-symbols-outlined text-sm">chevron_right</span>
-                </a>
+                {currentPage > 1 ? (
+                  <Link
+                    className="rounded-sm border border-gray-200 p-2 text-gray-700 transition hover:bg-gray-50 hover:text-primary"
+                    href={buildPageHref(category.slug, selectedFilters, previousPage)}
+                  >
+                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                  </Link>
+                ) : (
+                  <span className="cursor-not-allowed rounded-sm border border-gray-200 p-2 text-gray-400">
+                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                  </span>
+                )}
+
+                {pageNumbers.map((page) => (
+                  <Link
+                    key={page}
+                    className={
+                      page === currentPage
+                        ? "rounded-sm bg-black px-4 py-2 text-sm font-bold text-white"
+                        : "rounded-sm border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    }
+                    href={buildPageHref(category.slug, selectedFilters, page)}
+                  >
+                    {page}
+                  </Link>
+                ))}
+
+                {currentPage < totalPages ? (
+                  <Link
+                    className="rounded-sm border border-gray-200 p-2 text-gray-700 transition hover:bg-gray-50 hover:text-primary"
+                    href={buildPageHref(category.slug, selectedFilters, nextPage)}
+                  >
+                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                  </Link>
+                ) : (
+                  <span className="cursor-not-allowed rounded-sm border border-gray-200 p-2 text-gray-400">
+                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                  </span>
+                )}
               </nav>
             </div>
           </div>

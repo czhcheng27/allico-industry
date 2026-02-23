@@ -15,12 +15,22 @@ type CategoryRouteProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+const CATEGORY_PAGE_SIZE = 9;
+
 function toSingleValue(value: string | string[] | undefined) {
   if (!value) {
     return undefined;
   }
 
   return Array.isArray(value) ? value[0] : value;
+}
+
+function parsePage(value: string | undefined) {
+  const parsed = Number.parseInt(String(value || ""), 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return 1;
+  }
+  return parsed;
 }
 
 function parseFilters(
@@ -60,6 +70,7 @@ export default async function CategoryRoutePage({
 }: CategoryRouteProps) {
   const { category: categorySlug } = await params;
   const parsedSearchParams = await searchParams;
+  const page = parsePage(toSingleValue(parsedSearchParams.page));
   const [category, categories] = await Promise.all([
     fetchCategoryBySlug(categorySlug),
     fetchCategories(),
@@ -70,13 +81,24 @@ export default async function CategoryRoutePage({
   }
 
   const filters = parseFilters(parsedSearchParams);
-  const products = await fetchProductsByCategoryWithFilters(category.slug, filters);
+  const filteredProducts = await fetchProductsByCategoryWithFilters(
+    category.slug,
+    filters,
+  );
+  const totalProducts = filteredProducts.length;
+  const totalPages = Math.max(1, Math.ceil(totalProducts / CATEGORY_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * CATEGORY_PAGE_SIZE;
+  const products = filteredProducts.slice(start, start + CATEGORY_PAGE_SIZE);
 
   return (
     <CategoryPage
       categories={categories}
       category={category}
       products={products}
+      totalProducts={totalProducts}
+      currentPage={currentPage}
+      totalPages={totalPages}
       selectedFilters={filters}
     />
   );
