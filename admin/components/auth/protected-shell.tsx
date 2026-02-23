@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+/* 更新说明（2026-02-20）： 壳层会在路由切换时刷新最新权限，仅 content loading，并在壳内处理 forbidden 跳转。 */
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Avatar,
   Button,
   Layout,
   Menu,
-  Modal,
   Spin,
   Tooltip,
   Typography,
@@ -22,8 +23,9 @@ import { getCurrentUserApi } from "@/lib/api";
 import {
   filterMenuByPermissions,
   getMenuConfig,
-  hasRoutePermission,
+  hasRouteAccess,
 } from "@/lib/permission";
+import { useOverlay } from "@/components/overlay/OverlayProvider";
 import { useAuthStore } from "@/store/auth-store";
 import { useUserStore } from "@/store/user-store";
 import type { MenuItem } from "@/types/menu";
@@ -38,98 +40,142 @@ function getOpenKey(menuItems: MenuItem[], pathname: string) {
   return openGroup?.key ? [openGroup.key] : [];
 }
 
+function hasMenuKey(menuItems: MenuItem[], key: string): boolean {
+  return menuItems.some(
+    (item) =>
+      item.key === key ||
+      (item.children ? hasMenuKey(item.children, key) : false),
+  );
+}
+
+function findMenuItem(menuItems: MenuItem[], key: string): MenuItem | null {
+  for (const item of menuItems) {
+    if (item.key === key) {
+      return item;
+    }
+
+    if (item.children?.length) {
+      const found = findMenuItem(item.children, key);
+      if (found) {
+        return found;
+      }
+    }
+  }
+
+  return null;
+}
+
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const overlay = useOverlay();
   const [collapsed, setCollapsed] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [hasCheckedOnce, setHasCheckedOnce] = useState(false);
+  const requestIdRef = useRef(0);
 
-  const token = useAuthStore((state) => state.token);
   const permissions = useAuthStore((state) => state.permissions);
   const setPermissions = useAuthStore((state) => state.setPermissions);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const userInfo = useUserStore((state) => state.userInfo);
   const setUser = useUserStore((state) => state.setUser);
+  const clearUser = useUserStore((state) => state.clearUser);
   const logout = useUserStore((state) => state.logout);
 
   const menuItems = useMemo(
     () => filterMenuByPermissions(getMenuConfig(), permissions),
     [permissions],
   );
+  const selectedKeys = useMemo(
+    () => (hasMenuKey(menuItems, pathname) ? [pathname] : []),
+    [menuItems, pathname],
+  );
   const defaultOpenKeys = useMemo(
     () => getOpenKey(menuItems, pathname),
     [menuItems, pathname],
   );
 
-  const checkAuthAndPermission = useCallback(async () => {
-    if (!token) {
-      router.replace("/login");
+  const redirectToLogin = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.location.assign("/login");
       return;
     }
+    router.replace("/login");
+  }, [router]);
 
-    setIsChecking(true);
-    try {
-      const response = await getCurrentUserApi();
-      if (!response.success) {
+  useEffect(() => {
+    let alive = true;
+    const requestId = ++requestIdRef.current;
+
+    const checkAuthAndPermission = async () => {
+      setIsChecking(true);
+      try {
+        const response = await getCurrentUserApi();
+        if (!alive || requestId !== requestIdRef.current) {
+          return;
+        }
+
+        if (!response.success) {
+          clearAuth();
+          clearUser();
+          redirectToLogin();
+          return;
+        }
+
+        const latestPermissions = response.data.permissions || [];
+        setPermissions(latestPermissions);
+        setUser({
+          username: response.data.username,
+          role: response.data.roles?.[0] || "",
+        });
+
+        if (pathname !== "/forbidden" && !hasRouteAccess(latestPermissions, pathname)) {
+          router.replace("/forbidden");
+          return;
+        }
+      } catch (error) {
+        if (!alive || requestId !== requestIdRef.current) {
+          return;
+        }
+
+        console.error("Permission check failed:", error);
         clearAuth();
-        router.replace("/login");
-        return;
+        clearUser();
+        redirectToLogin();
+      } finally {
+        if (alive && requestId === requestIdRef.current) {
+          setIsChecking(false);
+        }
       }
+    };
 
-      const latestPermissions = response.data.permissions || [];
-      setPermissions(latestPermissions);
-      setUser({
-        username: response.data.username,
-        role: response.data.roles?.[0] || "",
-      });
+    void checkAuthAndPermission();
 
-      if (!hasRoutePermission(latestPermissions, pathname, "read")) {
-        router.replace("/403");
-        return;
-      }
-    } catch (error) {
-      console.error("Permission check failed:", error);
-      clearAuth();
-      router.replace("/login");
-    } finally {
-      setIsChecking(false);
-      setHasCheckedOnce(true);
-    }
-  }, [token, router, clearAuth, setPermissions, setUser, pathname]);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    checkAuthAndPermission();
-  }, [isHydrated, checkAuthAndPermission]);
+    return () => {
+      alive = false;
+    };
+  }, [pathname, router, clearAuth, setPermissions, setUser, clearUser, redirectToLogin]);
 
   const handleLogout = () => {
-    Modal.confirm({
+    const modal = overlay?.modal;
+    if (!modal) {
+      void logout().finally(() => {
+        redirectToLogin();
+      });
+      return;
+    }
+
+    modal.open(<div>Are you sure you want to logout?</div>, {
       title: "Logout",
-      content: "Are you sure you want to logout?",
+      width: 420,
       okText: "Logout",
-      okButtonProps: { danger: true },
       onOk: async () => {
         await logout();
-        router.replace("/login");
+      },
+      okCallback: () => {
+        redirectToLogin();
       },
     });
   };
-
-  if (!isHydrated || (!hasCheckedOnce && isChecking)) {
-    return (
-      <div className="admin-center-screen">
-        <Spin size="large" />
-      </div>
-    );
-  }
 
   return (
     <Layout className="admin-shell">
@@ -141,10 +187,18 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
         <Menu
           mode="inline"
           theme="dark"
-          selectedKeys={[pathname]}
+          selectedKeys={selectedKeys}
           defaultOpenKeys={defaultOpenKeys}
           items={menuItems as never}
-          onClick={(item) => router.push(item.key)}
+          onClick={(item) => {
+            const key = String(item.key);
+            const clicked = findMenuItem(menuItems, key);
+            if (clicked?.children?.length) {
+              return;
+            }
+
+            router.push(key);
+          }}
         />
       </Sider>
       <Layout>

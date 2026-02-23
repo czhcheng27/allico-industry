@@ -1,9 +1,11 @@
 "use client";
 
+/* 更新说明（2026-02-20）： PermissionButton 仅按 route action 权限控制显示，默认动作为 write。 */
+
 import { Button, type ButtonProps } from "antd";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-import { hasRoutePermission } from "@/lib/permission";
+import { hasRouteAction } from "@/lib/permission";
 
 type PermissionButtonProps = ButtonProps & {
   action?: "read" | "write";
@@ -19,7 +21,7 @@ export function PermissionButton({
   const permissions = useAuthStore((state) => state.permissions);
   const targetRoute = route || pathname;
 
-  if (!hasRoutePermission(permissions, targetRoute, action)) {
+  if (!hasRouteAction(permissions, targetRoute, action)) {
     return null;
   }
 
