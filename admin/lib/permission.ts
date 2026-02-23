@@ -1,5 +1,7 @@
 "use client";
 
+/* 更新说明（2026-02-20）： 已显式拆分路由可见性（hasRouteAccess）与动作能力（hasRouteAction）两类权限判断。 */
+
 import { createElement } from "react";
 import { DashboardOutlined, DatabaseOutlined, TeamOutlined } from "@ant-design/icons";
 import type { Permission } from "@/types/auth";
@@ -36,6 +38,18 @@ export function hasRoutePermission(
   );
 }
 
+export function hasRouteAction(
+  permissions: Permission[],
+  route: string,
+  action: "read" | "write" = "read",
+): boolean {
+  return hasRoutePermission(permissions, route, action);
+}
+
+export function hasRouteAccess(permissions: Permission[], route: string): boolean {
+  return permissions.some((permission) => permission.route === route);
+}
+
 export function filterMenuByPermissions(
   menu: MenuItem[],
   permissions: Permission[],
@@ -49,7 +63,7 @@ export function filterMenuByPermissions(
         }
       }
 
-      if (hasRoutePermission(permissions, item.key, "read")) {
+      if (hasRouteAccess(permissions, item.key)) {
         return { ...item, children: undefined };
       }
 

@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Admin（Next.js）
 
-## Getting Started
+## 作用
+管理后台应用，覆盖 `dashboard/products/system-management` 页面，使用 cookie 会话鉴权，并基于 route/action 做权限控制。
 
-First, run the development server:
-
+## 启动方式
 ```bash
-npm run dev
-# or
+cd admin
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+默认地址：`http://localhost:3000`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 核心架构
+- `middleware.ts`：服务端路由守卫，通过 cookie + `/users/me` 进行前置鉴权。
+- `components/auth/protected-shell.tsx`：保持侧栏和顶部稳定显示，只在 content 区域 loading，无权限时跳转壳内 `/forbidden`。
+- `lib/permission.ts`：
+  - `hasRouteAccess`：页面/菜单可见性判断。
+  - `hasRouteAction`：按钮/操作能力判断。
+- `components/auth/permission-button.tsx`：按钮级权限控制（默认 `action=write`）。
+- `components/overlay/*`：全局 modal/drawer 容器，统一 CRUD 弹窗交互。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 权限约定
+权限项结构：
+```ts
+{ route: string; actions: ("read" | "write")[] }
+```
+- 页面访问只看 `route` 是否存在。
+- `read/write` 仅用于按钮与写接口权限。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 环境变量
+使用 `admin/.env`：
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:9001/api
+API_BASE_URL=http://localhost:9001/api
+```
+首页落地页由 `/users/me` 返回的可访问权限列表决定（取第一个可访问 route）。
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 说明
+- 路由切换不使用全屏 loading，只在 content 区域显示加载态。
+- 无权限页面在壳内渲染：`app/(admin)/forbidden/page.tsx`。

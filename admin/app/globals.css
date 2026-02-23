@@ -100,14 +100,19 @@ body {
 .admin-content {
   margin: 16px;
   padding: 16px;
+  height: calc(100vh - 96px);
   min-height: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
   background: var(--admin-content-bg);
   border: 1px solid var(--admin-border);
   border-radius: 16px;
+  overflow: auto;
 }
 
 .admin-content-loading {
-  min-height: calc(100vh - 160px);
+  flex: 1;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
