@@ -1,47 +1,43 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  message,
-  Modal,
-  Pagination,
-  Space,
-  Table,
-  Typography,
-} from "antd";
+/* Updated (2026-02-20): user page now uses overlay modal CRUD with dynamic role options. */
+
+import { useCallback, useEffect, useState } from "react";
+import { Pagination, Table, message } from "antd";
+import type { PaginationProps, TableColumnsType } from "antd";
 import dayjs from "dayjs";
+import { useOverlay } from "@/components/overlay/OverlayProvider";
+import { PermissionButton } from "@/components/auth/permission-button";
+import { UpsertUserForm } from "@/components/system/upsert-user-form";
+import { useTableScrollHeight } from "@/hooks/use-table-scroll-height";
 import {
   deleteUserApi,
+  getRoleListApi,
   getUserListApi,
   resetUserPasswordApi,
-  upsertUserApi,
   type UserRecord,
 } from "@/lib/api";
-import { PermissionButton } from "@/components/auth/permission-button";
-import {
-  UpsertUserForm,
-  type UpsertUserFormRef,
-} from "@/components/system/upsert-user-form";
 
-const { Title, Paragraph } = Typography;
+type RoleOption = {
+  label: string;
+  value: string;
+};
 
 export default function UserManagementPage() {
-  const [tableData, setTableData] = useState<UserRecord[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const [tableData, setTableData] = useState<UserRecord[]>([]);
+  const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalType, setModalType] = useState<"create" | "edit">("create");
-  const [editingItem, setEditingItem] = useState<UserRecord | undefined>(undefined);
-  const formRef = useRef<UpsertUserFormRef>(null);
+  const { containerRef, scrollY } = useTableScrollHeight();
+  const overlay = useOverlay();
 
-  const fetchList = async (nextPage = page, nextPageSize = pageSize) => {
+  const getUserList = useCallback(async (page: number, size: number) => {
     setLoading(true);
     try {
-      const response = await getUserListApi({ page: nextPage, pageSize: nextPageSize });
+      const response = await getUserListApi({ page, pageSize: size });
       setTableData(response.data.users || []);
       setTotal(response.data.total || 0);
     } catch (error) {
@@ -50,197 +46,202 @@ export default function UserManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const getRoleOptions = useCallback(async () => {
+    try {
+      const response = await getRoleListApi({ page: 1, pageSize: 200 });
+      const options = (response.data.roles || []).map((role) => ({
+        label: role.roleName,
+        value: role.roleName,
+      }));
+      setRoleOptions(options);
+    } catch (error) {
+      console.error("Fetch roles failed:", error);
+      message.error("Failed to fetch roles.");
+    }
+  }, []);
 
   useEffect(() => {
-    fetchList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+    void getUserList(currentPage, pageSize);
+  }, [currentPage, pageSize, getUserList]);
 
-  const openCreateModal = () => {
-    setModalType("create");
-    setEditingItem(undefined);
-    setIsModalOpen(true);
+  useEffect(() => {
+    void getRoleOptions();
+  }, [getRoleOptions]);
+
+  const onPaginationChange: PaginationProps["onChange"] = (page) => {
+    setCurrentPage(page);
   };
 
-  const openEditModal = (record: UserRecord) => {
-    setModalType("edit");
-    setEditingItem(record);
-    setIsModalOpen(true);
+  const onPageSizeChange: PaginationProps["onShowSizeChange"] = (_, nextSize) => {
+    setPageSize(nextSize);
+    setCurrentPage(1);
   };
 
-  const handleSubmit = async () => {
-    if (!formRef.current) {
+  const openUserModal = (type: "create" | "edit", initData?: UserRecord) => {
+    const modal = overlay?.modal;
+    if (!modal) {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const payload = await formRef.current.onConfirm();
-      await upsertUserApi(payload as {
-        id?: string;
-        username: string;
-        email: string;
-        roles: string[];
-        password?: string;
-      });
-      message.success(
-        modalType === "create"
-          ? "User created successfully."
-          : "User updated successfully.",
-      );
-      setIsModalOpen(false);
-      fetchList();
-    } catch (error) {
-      console.error("Save user failed:", error);
-      message.error("Failed to save user.");
-    } finally {
-      setIsSubmitting(false);
+    if (roleOptions.length === 0) {
+      message.warning("Role options are loading. Please try again.");
+      return;
     }
+
+    modal.open(<UpsertUserForm initData={initData} type={type} roleOptions={roleOptions} />, {
+      title: type === "create" ? "Add User" : "Edit User",
+      width: 640,
+      okCallback: () => {
+        void getUserList(currentPage, pageSize);
+      },
+    });
   };
 
-  const handleDelete = (record: UserRecord) => {
-    Modal.confirm({
+  const openDeleteConfirm = (record: UserRecord) => {
+    const modal = overlay?.modal;
+    if (!modal) {
+      return;
+    }
+
+    modal.open(<div>Are you sure you want to delete user {record.username}?</div>, {
       title: "Delete User",
-      content: `Delete user "${record.username}"?`,
+      width: 420,
       okText: "Delete",
-      okButtonProps: { danger: true },
       onOk: async () => {
         await deleteUserApi(record.id);
-        message.success("User deleted.");
-        fetchList();
+        message.success("Delete successfully.");
+      },
+      okCallback: () => {
+        void getUserList(currentPage, pageSize);
       },
     });
   };
 
-  const handleResetPassword = (record: UserRecord) => {
-    Modal.confirm({
+  const openResetPasswordConfirm = (record: UserRecord) => {
+    const modal = overlay?.modal;
+    if (!modal) {
+      return;
+    }
+
+    modal.open(<div>Reset password for {record.username} to username?</div>, {
       title: "Reset Password",
-      content: `Reset password for "${record.username}" to their username?`,
+      width: 420,
+      okText: "Reset",
       onOk: async () => {
         await resetUserPasswordApi(record.id);
-        message.success("Password reset.");
+        message.success("Password reset successfully.");
       },
     });
   };
 
-  return (
-    <div>
-      <div className="admin-page-title">
-        <Title level={3}>User Management</Title>
-        <Paragraph type="secondary">
-          Manage admin users and role assignments.
-        </Paragraph>
-      </div>
+  const columns: TableColumnsType<UserRecord> = [
+    {
+      title: "Username",
+      dataIndex: "username",
+      width: 160,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      width: 220,
+    },
+    {
+      title: "Roles",
+      dataIndex: "roles",
+      width: 220,
+      render: (value: string[]) => value.join(", "),
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      width: 200,
+      render: (value) => dayjs(value).format("YYYY-MM-DD HH:mm"),
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      width: 200,
+      render: (value) => dayjs(value).format("YYYY-MM-DD HH:mm"),
+    },
+    {
+      title: "Operation",
+      fixed: "right",
+      width: 280,
+      render: (_, record) =>
+        record.roles.includes("admin") ? null : (
+          <>
+            <PermissionButton
+              type="link"
+              route="/system-management/user"
+              onClick={() => {
+                openUserModal("edit", record);
+              }}
+            >
+              Edit
+            </PermissionButton>
+            <PermissionButton
+              type="link"
+              route="/system-management/user"
+              onClick={() => {
+                openResetPasswordConfirm(record);
+              }}
+            >
+              Reset Password
+            </PermissionButton>
+            <PermissionButton
+              type="link"
+              danger
+              route="/system-management/user"
+              onClick={() => {
+                openDeleteConfirm(record);
+              }}
+            >
+              Delete
+            </PermissionButton>
+          </>
+        ),
+    },
+  ];
 
-      <div className="admin-toolbar">
+  return (
+    <>
+      <div className="flex justify-end items-center mb-4">
         <PermissionButton
           type="primary"
           route="/system-management/user"
-          onClick={openCreateModal}
+          onClick={() => {
+            openUserModal("create");
+          }}
         >
           Add User
         </PermissionButton>
       </div>
 
-      <Table<UserRecord>
-        rowKey="id"
-        loading={loading}
-        dataSource={tableData}
-        pagination={false}
-        scroll={{ x: "max-content" }}
-        columns={[
-          { title: "Username", dataIndex: "username", width: 160 },
-          { title: "Email", dataIndex: "email", width: 180 },
-          {
-            title: "Roles",
-            dataIndex: "roles",
-            width: 220,
-            render: (value: string[]) => value.join(", "),
-          },
-          {
-            title: "Created At",
-            dataIndex: "createdAt",
-            width: 180,
-            render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
-          },
-          {
-            title: "Updated At",
-            dataIndex: "updatedAt",
-            width: 180,
-            render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
-          },
-          {
-            title: "Action",
-            key: "action",
-            width: 240,
-            fixed: "right",
-            render: (_, record) => {
-              if (record.email === "admin") {
-                return null;
-              }
-
-              return (
-                <Space>
-                  <PermissionButton
-                    type="link"
-                    route="/system-management/user"
-                    onClick={() => openEditModal(record)}
-                  >
-                    Edit
-                  </PermissionButton>
-                  <PermissionButton
-                    type="link"
-                    route="/system-management/user"
-                    onClick={() => handleResetPassword(record)}
-                  >
-                    Reset Password
-                  </PermissionButton>
-                  <PermissionButton
-                    type="link"
-                    danger
-                    route="/system-management/user"
-                    onClick={() => handleDelete(record)}
-                  >
-                    Delete
-                  </PermissionButton>
-                </Space>
-              );
-            },
-          },
-        ]}
-      />
-
-      <div style={{ marginTop: 16, textAlign: "right" }}>
-        <Pagination
-          current={page}
-          pageSize={pageSize}
-          total={total}
-          showSizeChanger
-          showQuickJumper
-          showTotal={(value) => `Total ${value} items`}
-          onChange={(nextPage, nextPageSize) => {
-            setPage(nextPage);
-            setPageSize(nextPageSize);
-          }}
+      <div ref={containerRef} className="h-[calc(100%-100px)]">
+        <Table<UserRecord>
+          rowKey="id"
+          loading={loading}
+          dataSource={tableData}
+          columns={columns}
+          scroll={{ x: "max-content", y: scrollY }}
+          pagination={false}
         />
       </div>
 
-      <Modal
-        title={modalType === "create" ? "Add User" : "Edit User"}
-        open={isModalOpen}
-        width={640}
-        destroyOnClose
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleSubmit}
-        okButtonProps={{ loading: isSubmitting }}
-      >
-        <UpsertUserForm
-          ref={formRef}
-          type={modalType}
-          initData={editingItem}
+      <div className="flex justify-end mt-4">
+        <Pagination
+          total={total}
+          current={currentPage}
+          pageSize={pageSize}
+          showSizeChanger
+          showQuickJumper
+          showTotal={(value) => `Total ${value} items`}
+          onChange={onPaginationChange}
+          onShowSizeChange={onPageSizeChange}
         />
-      </Modal>
-    </div>
+      </div>
+    </>
   );
 }

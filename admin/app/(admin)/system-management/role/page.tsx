@@ -1,46 +1,31 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  message,
-  Modal,
-  Pagination,
-  Space,
-  Table,
-  Typography,
-} from "antd";
-import dayjs from "dayjs";
-import {
-  deleteRoleApi,
-  getRoleListApi,
-  upsertRoleApi,
-  type RoleRecord,
-} from "@/lib/api";
-import { PermissionButton } from "@/components/auth/permission-button";
-import {
-  UpsertRoleForm,
-  type UpsertRoleFormRef,
-} from "@/components/system/upsert-role-form";
+/* 更新说明（2026-02-20）： 角色页改为 overlay drawer 流程，表格与分页布局对齐 playground 行为。 */
 
-const { Title, Paragraph } = Typography;
+import { useCallback, useEffect, useState } from "react";
+import { Pagination, Table, message } from "antd";
+import type { PaginationProps, TableColumnsType } from "antd";
+import dayjs from "dayjs";
+import { useOverlay } from "@/components/overlay/OverlayProvider";
+import { PermissionButton } from "@/components/auth/permission-button";
+import { UpsertRoleForm } from "@/components/system/upsert-role-form";
+import { useTableScrollHeight } from "@/hooks/use-table-scroll-height";
+import { deleteRoleApi, getRoleListApi, type RoleRecord } from "@/lib/api";
 
 export default function RoleManagementPage() {
-  const [tableData, setTableData] = useState<RoleRecord[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const [tableData, setTableData] = useState<RoleRecord[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalType, setModalType] = useState<"create" | "edit">("create");
-  const [editingItem, setEditingItem] = useState<RoleRecord | undefined>(undefined);
-  const formRef = useRef<UpsertRoleFormRef>(null);
+  const { containerRef, scrollY } = useTableScrollHeight();
+  const overlay = useOverlay();
 
-  const fetchList = async (nextPage = page, nextPageSize = pageSize) => {
+  const getRoleList = useCallback(async (page: number, size: number) => {
     setLoading(true);
     try {
-      const response = await getRoleListApi({ page: nextPage, pageSize: nextPageSize });
+      const response = await getRoleListApi({ page, pageSize: size });
       setTableData(response.data.roles || []);
       setTotal(response.data.total || 0);
     } catch (error) {
@@ -49,180 +34,147 @@ export default function RoleManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+    void getRoleList(currentPage, pageSize);
+  }, [currentPage, pageSize, getRoleList]);
 
-  const openCreateModal = () => {
-    setModalType("create");
-    setEditingItem(undefined);
-    setIsModalOpen(true);
+  const onPaginationChange: PaginationProps["onChange"] = (page) => {
+    setCurrentPage(page);
   };
 
-  const openEditModal = (record: RoleRecord) => {
-    setModalType("edit");
-    setEditingItem(record);
-    setIsModalOpen(true);
+  const onPageSizeChange: PaginationProps["onShowSizeChange"] = (_, nextSize) => {
+    setPageSize(nextSize);
+    setCurrentPage(1);
   };
 
-  const handleSubmit = async () => {
-    if (!formRef.current) {
+  const openRoleDrawer = (type: "create" | "edit", initData?: RoleRecord) => {
+    const drawer = overlay?.drawer;
+    if (!drawer) {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const payload = await formRef.current.onConfirm();
-      await upsertRoleApi(payload as {
-        id?: string;
-        roleName: string;
-        description?: string;
-        permissions: { route: string; actions: ("read" | "write")[] }[];
-      });
-      message.success(
-        modalType === "create"
-          ? "Role created successfully."
-          : "Role updated successfully.",
-      );
-      setIsModalOpen(false);
-      fetchList();
-    } catch (error) {
-      console.error("Save role failed:", error);
-      message.error("Failed to save role.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDelete = (record: RoleRecord) => {
-    Modal.confirm({
-      title: "Delete Role",
-      content: `Delete role "${record.roleName}"?`,
-      okText: "Delete",
-      okButtonProps: { danger: true },
-      onOk: async () => {
-        await deleteRoleApi(record.id);
-        message.success("Role deleted.");
-        fetchList();
+    drawer.open(<UpsertRoleForm initData={initData} type={type} />, {
+      title: type === "create" ? "Add Role" : "Edit Role",
+      width: 650,
+      okCallback: () => {
+        void getRoleList(currentPage, pageSize);
       },
     });
   };
 
-  return (
-    <div>
-      <div className="admin-page-title">
-        <Title level={3}>Role Management</Title>
-        <Paragraph type="secondary">
-          Configure route-level permissions by role.
-        </Paragraph>
-      </div>
+  const openDeleteConfirm = (record: RoleRecord) => {
+    const modal = overlay?.modal;
+    if (!modal) {
+      return;
+    }
 
-      <div className="admin-toolbar">
+    modal.open(<div>Are you sure you want to delete role {record.roleName}?</div>, {
+      title: "Delete Role",
+      width: 420,
+      okText: "Delete",
+      onOk: async () => {
+        await deleteRoleApi(record.id);
+        message.success("Delete successfully.");
+      },
+      okCallback: () => {
+        void getRoleList(currentPage, pageSize);
+      },
+    });
+  };
+
+  const columns: TableColumnsType<RoleRecord> = [
+    {
+      title: "Role Name",
+      dataIndex: "roleName",
+      width: 160,
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      width: 320,
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      width: 200,
+      render: (value) => dayjs(value).format("YYYY-MM-DD HH:mm"),
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      width: 200,
+      render: (value) => dayjs(value).format("YYYY-MM-DD HH:mm"),
+    },
+    {
+      title: "Operation",
+      fixed: "right",
+      width: 220,
+      render: (_, record) =>
+        record.roleName === "admin" ? null : (
+          <>
+            <PermissionButton
+              type="link"
+              route="/system-management/role"
+              onClick={() => {
+                openRoleDrawer("edit", record);
+              }}
+            >
+              Edit
+            </PermissionButton>
+            <PermissionButton
+              type="link"
+              danger
+              route="/system-management/role"
+              onClick={() => {
+                openDeleteConfirm(record);
+              }}
+            >
+              Delete
+            </PermissionButton>
+          </>
+        ),
+    },
+  ];
+
+  return (
+    <>
+      <div className="flex justify-end items-center mb-4">
         <PermissionButton
           type="primary"
           route="/system-management/role"
-          onClick={openCreateModal}
+          onClick={() => {
+            openRoleDrawer("create");
+          }}
         >
           Add Role
         </PermissionButton>
       </div>
 
-      <Table<RoleRecord>
-        rowKey="id"
-        loading={loading}
-        dataSource={tableData}
-        pagination={false}
-        scroll={{ x: "max-content" }}
-        columns={[
-          { title: "Role Name", dataIndex: "roleName", width: 180 },
-          { title: "Description", dataIndex: "description", width: 320 },
-          {
-            title: "Permissions",
-            dataIndex: "permissions",
-            width: 280,
-            render: (value: RoleRecord["permissions"]) =>
-              value.map((item) => item.route).join(", "),
-          },
-          {
-            title: "Created At",
-            dataIndex: "createdAt",
-            width: 180,
-            render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
-          },
-          {
-            title: "Updated At",
-            dataIndex: "updatedAt",
-            width: 180,
-            render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
-          },
-          {
-            title: "Action",
-            key: "action",
-            width: 170,
-            fixed: "right",
-            render: (_, record) => {
-              if (record.roleName === "admin") {
-                return null;
-              }
-
-              return (
-                <Space>
-                  <PermissionButton
-                    type="link"
-                    route="/system-management/role"
-                    onClick={() => openEditModal(record)}
-                  >
-                    Edit
-                  </PermissionButton>
-                  <PermissionButton
-                    type="link"
-                    danger
-                    route="/system-management/role"
-                    onClick={() => handleDelete(record)}
-                  >
-                    Delete
-                  </PermissionButton>
-                </Space>
-              );
-            },
-          },
-        ]}
-      />
-
-      <div style={{ marginTop: 16, textAlign: "right" }}>
-        <Pagination
-          current={page}
-          pageSize={pageSize}
-          total={total}
-          showSizeChanger
-          showQuickJumper
-          showTotal={(value) => `Total ${value} items`}
-          onChange={(nextPage, nextPageSize) => {
-            setPage(nextPage);
-            setPageSize(nextPageSize);
-          }}
+      <div ref={containerRef} className="h-[calc(100%-100px)]">
+        <Table<RoleRecord>
+          rowKey="id"
+          loading={loading}
+          dataSource={tableData}
+          columns={columns}
+          scroll={{ x: "max-content", y: scrollY }}
+          pagination={false}
         />
       </div>
 
-      <Modal
-        title={modalType === "create" ? "Add Role" : "Edit Role"}
-        open={isModalOpen}
-        width={780}
-        destroyOnClose
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleSubmit}
-        okButtonProps={{ loading: isSubmitting }}
-      >
-        <UpsertRoleForm
-          key={editingItem?.id || "create-role"}
-          ref={formRef}
-          type={modalType}
-          initData={editingItem}
+      <div className="flex justify-end mt-4">
+        <Pagination
+          total={total}
+          current={currentPage}
+          pageSize={pageSize}
+          showSizeChanger
+          showQuickJumper
+          showTotal={(value) => `Total ${value} items`}
+          onChange={onPaginationChange}
+          onShowSizeChange={onPageSizeChange}
         />
-      </Modal>
-    </div>
+      </div>
+    </>
   );
 }
