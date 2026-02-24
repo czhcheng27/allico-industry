@@ -1,8 +1,12 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle } from "react";
-import { Button, Form, Input, InputNumber, Space } from "antd";
-import type { CategoryRecord, CategorySubcategory } from "@/lib/api";
+import { Button, Form, Input, InputNumber, Space, message } from "antd";
+import {
+  upsertCategoryApi,
+  type CategoryRecord,
+  type CategorySubcategory,
+} from "@/lib/api";
 
 type UpsertCategoryFormProps = {
   initData?: CategoryRecord;
@@ -11,15 +15,18 @@ type UpsertCategoryFormProps = {
 
 export type UpsertCategoryFormRef = {
   onConfirm: () => Promise<{
-    id?: string;
-    slug: string;
-    name: string;
-    shortName?: string;
-    description?: string;
-    cardImage?: string;
-    icon?: string;
-    sortOrder?: number;
-    subcategories: CategorySubcategory[];
+    code: number;
+    data: {
+      id?: string;
+      slug: string;
+      name: string;
+      shortName?: string;
+      description?: string;
+      cardImage?: string;
+      icon?: string;
+      sortOrder?: number;
+      subcategories: CategorySubcategory[];
+    };
   }>;
 };
 
@@ -39,7 +46,7 @@ export const UpsertCategoryForm = forwardRef<
         }))
         .filter((item: CategorySubcategory) => item.slug && item.name);
 
-      return {
+      const payload = {
         id: type === "edit" ? initData?.id : undefined,
         slug: String(values.slug || "").trim(),
         name: String(values.name || "").trim(),
@@ -52,6 +59,18 @@ export const UpsertCategoryForm = forwardRef<
             ? values.sortOrder
             : Number(values.sortOrder) || 0,
         subcategories,
+      };
+
+      await upsertCategoryApi(payload);
+      message.success(
+        type === "create"
+          ? "Category created successfully."
+          : "Category updated successfully.",
+      );
+
+      return {
+        code: 200,
+        data: payload,
       };
     },
   }));
@@ -126,18 +145,18 @@ export const UpsertCategoryForm = forwardRef<
         {(fields, { add, remove }) => (
           <div>
             <div className="admin-section-label">Subcategories</div>
-            {fields.map((field) => (
-              <Space key={field.key} style={{ display: "flex", marginBottom: 8 }}>
+            {fields.map(({ key, name, ...restField }) => (
+              <Space key={key} style={{ display: "flex", marginBottom: 8 }}>
                 <Form.Item
-                  {...field}
-                  name={[field.name, "name"]}
+                  {...restField}
+                  name={[name, "name"]}
                   rules={[{ required: true, message: "Name is required" }]}
                 >
                   <Input placeholder="Subcategory name" />
                 </Form.Item>
                 <Form.Item
-                  {...field}
-                  name={[field.name, "slug"]}
+                  {...restField}
+                  name={[name, "slug"]}
                   rules={[
                     { required: true, message: "Slug is required" },
                     {
@@ -148,7 +167,7 @@ export const UpsertCategoryForm = forwardRef<
                 >
                   <Input placeholder="subcategory-slug" />
                 </Form.Item>
-                <Button danger onClick={() => remove(field.name)}>
+                <Button danger onClick={() => remove(name)}>
                   Remove
                 </Button>
               </Space>

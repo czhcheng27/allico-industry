@@ -50,11 +50,14 @@ export default function DrawerContainer({
   const [options, setOptions] = useState<DrawerOptions>({});
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const open = useCallback((node: ReactNode, nextOptions: DrawerOptions = {}) => {
-    setContent(node);
-    setOptions(nextOptions);
-    setVisible(true);
-  }, []);
+  const open = useCallback(
+    (node: ReactNode, nextOptions: DrawerOptions = {}) => {
+      setContent(node);
+      setOptions(nextOptions);
+      setVisible(true);
+    },
+    [],
+  );
 
   const close = useCallback(() => {
     setVisible(false);
@@ -102,7 +105,7 @@ export default function DrawerContainer({
     <Drawer
       open={visible}
       title={options.title || ""}
-      width={options.width || 650}
+      size={options.width || 650}
       closable={false}
       onClose={close}
       destroyOnHidden
@@ -110,8 +113,8 @@ export default function DrawerContainer({
     >
       {isValidElement(content)
         ? cloneElement(content as ReactElement<{ ref: Ref<ContentRefType> }>, {
-          ref: contentRef,
-        })
+            ref: contentRef,
+          })
         : content}
     </Drawer>
   );

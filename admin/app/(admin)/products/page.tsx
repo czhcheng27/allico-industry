@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Image,
@@ -15,16 +15,11 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import {
-  deleteProductApi,
-  getProductListApi,
-  upsertProductApi,
-} from "@/lib/api";
+import { deleteProductApi, getProductListApi } from "@/lib/api";
 import { PermissionButton } from "@/components/auth/permission-button";
-import {
-  UpsertProductForm,
-  type UpsertProductFormRef,
-} from "@/components/products/upsert-product-form";
+import { UpsertProductForm } from "@/components/products/upsert-product-form";
+import { useOverlay } from "@/components/overlay/OverlayProvider";
+import { useTableScrollHeight } from "@/hooks/use-table-scroll-height";
 import type { Product } from "@/types/product";
 
 const { Title, Paragraph } = Typography;
@@ -46,12 +41,8 @@ export default function ProductsPage() {
   });
 
   const [keywordInput, setKeywordInput] = useState("");
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalType, setModalType] = useState<"create" | "edit">("create");
-  const [editingItem, setEditingItem] = useState<Product | undefined>(undefined);
-  const formRef = useRef<UpsertProductFormRef>(null);
+  const overlay = useOverlay();
+  const { containerRef, scrollY } = useTableScrollHeight(55, 1);
 
   const fetchList = async (nextPage = page, nextPageSize = pageSize) => {
     setLoading(true);
@@ -77,40 +68,19 @@ export default function ProductsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, filters.keyword, filters.category]);
 
-  const openCreateModal = () => {
-    setModalType("create");
-    setEditingItem(undefined);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (record: Product) => {
-    setModalType("edit");
-    setEditingItem(record);
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    if (!formRef.current) {
+  const openProductDrawer = (type: "create" | "edit", initData?: Product) => {
+    const drawer = overlay?.drawer;
+    if (!drawer) {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const payload = await formRef.current.onConfirm();
-      await upsertProductApi(payload);
-      message.success(
-        modalType === "create"
-          ? "Product created successfully."
-          : "Product updated successfully.",
-      );
-      setIsModalOpen(false);
-      fetchList();
-    } catch (error: unknown) {
-      console.error("Save product failed:", error);
-      message.error("Failed to save product.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    drawer.open(<UpsertProductForm initData={initData} type={type} />, {
+      title: type === "create" ? "Add Product" : "Edit Product",
+      width: 560,
+      okCallback: () => {
+        void fetchList();
+      },
+    });
   };
 
   const handleDelete = (record: Product) => {
@@ -128,7 +98,15 @@ export default function ProductsPage() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        height: "100%",
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
       <div className="admin-page-title">
         <Title level={3}>Products</Title>
         <Paragraph type="secondary">
@@ -183,99 +161,101 @@ export default function ProductsPage() {
         <PermissionButton
           type="primary"
           route="/products"
-          onClick={openCreateModal}
+          onClick={() => openProductDrawer("create")}
         >
           Add Product
         </PermissionButton>
       </div>
 
-      <Table<Product>
-        rowKey="id"
-        loading={loading}
-        dataSource={tableData}
-        pagination={false}
-        scroll={{ x: "max-content" }}
-        columns={[
-          {
-            title: "Image",
-            dataIndex: "image",
-            width: 90,
-            render: (value: string) => (
-              <Image
-                src={value}
-                width={52}
-                height={52}
-                style={{ objectFit: "cover", borderRadius: 8 }}
-                alt="product"
-              />
-            ),
-          },
-          {
-            title: "Name",
-            dataIndex: "name",
-            width: 220,
-          },
-          {
-            title: "Category",
-            dataIndex: "category",
-            width: 170,
-          },
-          {
-            title: "SKU",
-            dataIndex: "sku",
-            width: 150,
-          },
-          {
-            title: "Price",
-            dataIndex: "price",
-            width: 120,
-          },
-          {
-            title: "Status",
-            dataIndex: "status",
-            width: 120,
-            render: (value: Product["status"]) =>
-              value === "In Stock" ? (
-                <Tag color="green">{value}</Tag>
-              ) : (
-                <Tag color="orange">{value}</Tag>
+      <div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
+        <Table<Product>
+          rowKey="id"
+          loading={loading}
+          dataSource={tableData}
+          pagination={false}
+          scroll={{ x: "max-content", y: scrollY }}
+          columns={[
+            {
+              title: "Image",
+              dataIndex: "image",
+              width: 90,
+              render: (value: string) => (
+                <Image
+                  src={value}
+                  width={52}
+                  height={52}
+                  style={{ objectFit: "cover", borderRadius: 8 }}
+                  alt="product"
+                />
               ),
-          },
-          {
-            title: "Updated At",
-            dataIndex: "updatedAt",
-            width: 180,
-            render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
-          },
-          {
-            title: "Action",
-            key: "action",
-            fixed: "right",
-            width: 180,
-            render: (_, record) => (
-              <Space>
-                <PermissionButton
-                  type="link"
-                  route="/products"
-                  onClick={() => openEditModal(record)}
-                >
-                  Edit
-                </PermissionButton>
-                <PermissionButton
-                  type="link"
-                  route="/products"
-                  danger
-                  onClick={() => handleDelete(record)}
-                >
-                  Delete
-                </PermissionButton>
-              </Space>
-            ),
-          },
-        ]}
-      />
+            },
+            {
+              title: "Name",
+              dataIndex: "name",
+              width: 220,
+            },
+            {
+              title: "Category",
+              dataIndex: "category",
+              width: 170,
+            },
+            {
+              title: "SKU",
+              dataIndex: "sku",
+              width: 150,
+            },
+            {
+              title: "Price",
+              dataIndex: "price",
+              width: 120,
+            },
+            {
+              title: "Status",
+              dataIndex: "status",
+              width: 120,
+              render: (value: Product["status"]) =>
+                value === "In Stock" ? (
+                  <Tag color="green">{value}</Tag>
+                ) : (
+                  <Tag color="orange">{value}</Tag>
+                ),
+            },
+            {
+              title: "Updated At",
+              dataIndex: "updatedAt",
+              width: 180,
+              render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
+            },
+            {
+              title: "Action",
+              key: "action",
+              fixed: "right",
+              width: 180,
+              render: (_, record) => (
+                <Space>
+                  <PermissionButton
+                    type="link"
+                    route="/products"
+                    onClick={() => openProductDrawer("edit", record)}
+                  >
+                    Edit
+                  </PermissionButton>
+                  <PermissionButton
+                    type="link"
+                    route="/products"
+                    danger
+                    onClick={() => handleDelete(record)}
+                  >
+                    Delete
+                  </PermissionButton>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </div>
 
-      <div style={{ marginTop: 16, textAlign: "right" }}>
+      <div style={{ marginTop: 16, textAlign: "right", flexShrink: 0 }}>
         <Pagination
           current={page}
           pageSize={pageSize}
@@ -289,22 +269,6 @@ export default function ProductsPage() {
           }}
         />
       </div>
-
-      <Modal
-        title={modalType === "create" ? "Add Product" : "Edit Product"}
-        open={isModalOpen}
-        width={760}
-        destroyOnClose
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleSubmit}
-        okButtonProps={{ loading: isSubmitting }}
-      >
-        <UpsertProductForm
-          ref={formRef}
-          type={modalType}
-          initData={editingItem}
-        />
-      </Modal>
     </div>
   );
 }

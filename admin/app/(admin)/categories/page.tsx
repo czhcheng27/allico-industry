@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Input,
@@ -16,15 +16,13 @@ import dayjs from "dayjs";
 import {
   deleteCategoryApi,
   getCategoryListApi,
-  upsertCategoryApi,
   type CategoryRecord,
   type CategorySubcategory,
 } from "@/lib/api";
 import { PermissionButton } from "@/components/auth/permission-button";
-import {
-  UpsertCategoryForm,
-  type UpsertCategoryFormRef,
-} from "@/components/categories/upsert-category-form";
+import { UpsertCategoryForm } from "@/components/categories/upsert-category-form";
+import { useOverlay } from "@/components/overlay/OverlayProvider";
+import { useTableScrollHeight } from "@/hooks/use-table-scroll-height";
 
 const { Title, Paragraph } = Typography;
 
@@ -40,14 +38,8 @@ export default function CategoriesPage() {
   const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState<CategoryFilter>({ keyword: "" });
   const [keywordInput, setKeywordInput] = useState("");
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalType, setModalType] = useState<"create" | "edit">("create");
-  const [editingItem, setEditingItem] = useState<CategoryRecord | undefined>(
-    undefined,
-  );
-  const formRef = useRef<UpsertCategoryFormRef>(null);
+  const overlay = useOverlay();
+  const { containerRef, scrollY } = useTableScrollHeight(55, 1);
 
   const fetchList = async () => {
     setLoading(true);
@@ -83,40 +75,22 @@ export default function CategoriesPage() {
     return tableData.slice(start, start + pageSize);
   }, [tableData, page, pageSize]);
 
-  const openCreateModal = () => {
-    setModalType("create");
-    setEditingItem(undefined);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (record: CategoryRecord) => {
-    setModalType("edit");
-    setEditingItem(record);
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    if (!formRef.current) {
+  const openCategoryDrawer = (
+    type: "create" | "edit",
+    initData?: CategoryRecord,
+  ) => {
+    const drawer = overlay?.drawer;
+    if (!drawer) {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const payload = await formRef.current.onConfirm();
-      await upsertCategoryApi(payload);
-      message.success(
-        modalType === "create"
-          ? "Category created successfully."
-          : "Category updated successfully.",
-      );
-      setIsModalOpen(false);
-      await fetchList();
-    } catch (error: unknown) {
-      console.error("Save category failed:", error);
-      message.error("Failed to save category.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    drawer.open(<UpsertCategoryForm initData={initData} type={type} />, {
+      title: type === "create" ? "Add Category" : "Edit Category",
+      width: 560,
+      okCallback: () => {
+        void fetchList();
+      },
+    });
   };
 
   const handleDelete = (record: CategoryRecord) => {
@@ -139,7 +113,15 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        height: "100%",
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
       <div className="admin-page-title">
         <Title level={3}>Categories</Title>
         <Paragraph type="secondary">
@@ -179,99 +161,101 @@ export default function CategoriesPage() {
         <PermissionButton
           type="primary"
           route="/categories"
-          onClick={openCreateModal}
+          onClick={() => openCategoryDrawer("create")}
         >
           Add Category
         </PermissionButton>
       </div>
 
-      <Table<CategoryRecord>
-        rowKey="id"
-        loading={loading}
-        dataSource={pagedData}
-        pagination={false}
-        scroll={{ x: "max-content" }}
-        columns={[
-          {
-            title: "Category",
-            dataIndex: "name",
-            width: 240,
-            render: (_, record) => (
-              <div>
-                <div style={{ fontWeight: 600 }}>{record.name}</div>
-                <div style={{ color: "#64748b", fontSize: 12 }}>
-                  {record.shortName || "-"}
+      <div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
+        <Table<CategoryRecord>
+          rowKey="id"
+          loading={loading}
+          dataSource={pagedData}
+          pagination={false}
+          scroll={{ x: "max-content", y: scrollY }}
+          columns={[
+            {
+              title: "Category",
+              dataIndex: "name",
+              width: 240,
+              render: (_, record) => (
+                <div>
+                  <div style={{ fontWeight: 600 }}>{record.name}</div>
+                  <div style={{ color: "#64748b", fontSize: 12 }}>
+                    {record.shortName || "-"}
+                  </div>
                 </div>
-              </div>
-            ),
-          },
-          {
-            title: "Slug",
-            dataIndex: "slug",
-            width: 180,
-          },
-          {
-            title: "Subcategories",
-            dataIndex: "subcategories",
-            width: 360,
-            render: (value: CategorySubcategory[]) => {
-              if (!value || value.length === 0) {
-                return <span style={{ color: "#94a3b8" }}>-</span>;
-              }
-
-              const visible = value.slice(0, 4);
-              const hiddenCount = value.length - visible.length;
-
-              return (
-                <div className="admin-category-tags">
-                  {visible.map((item) => (
-                    <Tag key={`${item.slug}-${item.name}`}>{item.name}</Tag>
-                  ))}
-                  {hiddenCount > 0 ? <Tag>{`+${hiddenCount}`}</Tag> : null}
-                </div>
-              );
+              ),
             },
-          },
-          {
-            title: "Sort",
-            dataIndex: "sortOrder",
-            width: 100,
-          },
-          {
-            title: "Updated At",
-            dataIndex: "updatedAt",
-            width: 180,
-            render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
-          },
-          {
-            title: "Action",
-            key: "action",
-            fixed: "right",
-            width: 170,
-            render: (_, record) => (
-              <Space>
-                <PermissionButton
-                  type="link"
-                  route="/categories"
-                  onClick={() => openEditModal(record)}
-                >
-                  Edit
-                </PermissionButton>
-                <PermissionButton
-                  type="link"
-                  route="/categories"
-                  danger
-                  onClick={() => handleDelete(record)}
-                >
-                  Delete
-                </PermissionButton>
-              </Space>
-            ),
-          },
-        ]}
-      />
+            {
+              title: "Slug",
+              dataIndex: "slug",
+              width: 180,
+            },
+            {
+              title: "Subcategories",
+              dataIndex: "subcategories",
+              width: 360,
+              render: (value: CategorySubcategory[]) => {
+                if (!value || value.length === 0) {
+                  return <span style={{ color: "#94a3b8" }}>-</span>;
+                }
 
-      <div style={{ marginTop: 16, textAlign: "right" }}>
+                const visible = value.slice(0, 4);
+                const hiddenCount = value.length - visible.length;
+
+                return (
+                  <div className="admin-category-tags">
+                    {visible.map((item) => (
+                      <Tag key={`${item.slug}-${item.name}`}>{item.name}</Tag>
+                    ))}
+                    {hiddenCount > 0 ? <Tag>{`+${hiddenCount}`}</Tag> : null}
+                  </div>
+                );
+              },
+            },
+            {
+              title: "Sort",
+              dataIndex: "sortOrder",
+              width: 100,
+            },
+            {
+              title: "Updated At",
+              dataIndex: "updatedAt",
+              width: 180,
+              render: (value: string) => dayjs(value).format("YYYY-MM-DD HH:mm"),
+            },
+            {
+              title: "Action",
+              key: "action",
+              fixed: "right",
+              width: 170,
+              render: (_, record) => (
+                <Space>
+                  <PermissionButton
+                    type="link"
+                    route="/categories"
+                    onClick={() => openCategoryDrawer("edit", record)}
+                  >
+                    Edit
+                  </PermissionButton>
+                  <PermissionButton
+                    type="link"
+                    route="/categories"
+                    danger
+                    onClick={() => handleDelete(record)}
+                  >
+                    Delete
+                  </PermissionButton>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </div>
+
+      <div style={{ marginTop: 16, textAlign: "right", flexShrink: 0 }}>
         <Pagination
           current={page}
           pageSize={pageSize}
@@ -285,22 +269,6 @@ export default function CategoriesPage() {
           }}
         />
       </div>
-
-      <Modal
-        title={modalType === "create" ? "Add Category" : "Edit Category"}
-        open={isModalOpen}
-        width={780}
-        destroyOnClose
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleSubmit}
-        okButtonProps={{ loading: isSubmitting }}
-      >
-        <UpsertCategoryForm
-          ref={formRef}
-          type={modalType}
-          initData={editingItem}
-        />
-      </Modal>
     </div>
   );
 }

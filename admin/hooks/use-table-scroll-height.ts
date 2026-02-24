@@ -4,15 +4,15 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export function useTableScrollHeight(extraHeight = 55) {
+export function useTableScrollHeight(extraHeight = 55, minScrollY = 200) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(400);
+  const [scrollY, setScrollY] = useState(Math.max(minScrollY, 1));
 
   useEffect(() => {
     const updateScrollY = () => {
       if (containerRef.current) {
         const height = containerRef.current.clientHeight;
-        setScrollY(Math.max(height - extraHeight, 200));
+        setScrollY(Math.max(height - extraHeight, minScrollY));
       }
     };
 
@@ -21,7 +21,7 @@ export function useTableScrollHeight(extraHeight = 55) {
     return () => {
       window.removeEventListener("resize", updateScrollY);
     };
-  }, [extraHeight]);
+  }, [extraHeight, minScrollY]);
 
   return { containerRef, scrollY };
 }

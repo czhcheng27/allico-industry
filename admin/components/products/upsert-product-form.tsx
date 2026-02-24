@@ -1,7 +1,8 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle } from "react";
-import { Button, Form, Input, Select, Space } from "antd";
+import { Button, Form, Input, Select, Space, message } from "antd";
+import { upsertProductApi } from "@/lib/api";
 import type { Product } from "@/types/product";
 
 const categories = [
@@ -17,7 +18,7 @@ type UpsertProductFormProps = {
 };
 
 export type UpsertProductFormRef = {
-  onConfirm: () => Promise<Record<string, unknown>>;
+  onConfirm: () => Promise<{ code: number; data: Record<string, unknown> }>;
 };
 
 export const UpsertProductForm = forwardRef<
@@ -29,9 +30,21 @@ export const UpsertProductForm = forwardRef<
   useImperativeHandle(ref, () => ({
     onConfirm: async () => {
       const values = await form.validateFields();
-      return {
+      const payload = {
         ...values,
         id: type === "edit" ? initData?.id : "",
+      };
+
+      await upsertProductApi(payload);
+      message.success(
+        type === "create"
+          ? "Product created successfully."
+          : "Product updated successfully.",
+      );
+
+      return {
+        code: 200,
+        data: payload,
       };
     },
   }));
@@ -137,23 +150,23 @@ export const UpsertProductForm = forwardRef<
         {(fields, { add, remove }) => (
           <div>
             <div className="admin-section-label">Specs</div>
-            {fields.map((field) => (
-              <Space key={field.key} style={{ display: "flex", marginBottom: 8 }}>
+            {fields.map(({ key, name, ...restField }) => (
+              <Space key={key} style={{ display: "flex", marginBottom: 8 }}>
                 <Form.Item
-                  {...field}
-                  name={[field.name, "label"]}
+                  {...restField}
+                  name={[name, "label"]}
                   rules={[{ required: true, message: "Label is required" }]}
                 >
                   <Input placeholder="Label" />
                 </Form.Item>
                 <Form.Item
-                  {...field}
-                  name={[field.name, "value"]}
+                  {...restField}
+                  name={[name, "value"]}
                   rules={[{ required: true, message: "Value is required" }]}
                 >
                   <Input placeholder="Value" />
                 </Form.Item>
-                <Button danger onClick={() => remove(field.name)}>
+                <Button danger onClick={() => remove(name)}>
                   Remove
                 </Button>
               </Space>
