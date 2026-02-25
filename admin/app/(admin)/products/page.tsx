@@ -15,7 +15,11 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import { deleteProductApi, getProductListApi } from "@/lib/api";
+import {
+  deleteProductApi,
+  discardProductDraftUploadsApi,
+  getProductListApi,
+} from "@/lib/api";
 import { PermissionButton } from "@/components/auth/permission-button";
 import { UpsertProductForm } from "@/components/products/upsert-product-form";
 import { useOverlay } from "@/components/overlay/OverlayProvider";
@@ -28,6 +32,13 @@ type ProductFilter = {
   keyword: string;
   category: string;
 };
+
+function createUploadDraftId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
 export default function ProductsPage() {
   const [tableData, setTableData] = useState<Product[]>([]);
@@ -73,14 +84,29 @@ export default function ProductsPage() {
     if (!drawer) {
       return;
     }
+    const uploadDraftId = createUploadDraftId();
 
-    drawer.open(<UpsertProductForm initData={initData} type={type} />, {
-      title: type === "create" ? "Add Product" : "Edit Product",
-      width: 560,
-      okCallback: () => {
-        void fetchList();
+    drawer.open(
+      <UpsertProductForm
+        initData={initData}
+        type={type}
+        uploadDraftId={uploadDraftId}
+      />,
+      {
+        title: type === "create" ? "Add Product" : "Edit Product",
+        width: 560,
+        okCallback: () => {
+          void fetchList();
+        },
+        cancelCallback: () => {
+          void discardProductDraftUploadsApi({ draftId: uploadDraftId }).catch(
+            (error) => {
+              console.error("Discard product draft uploads failed:", error);
+            },
+          );
+        },
       },
-    });
+    );
   };
 
   const handleDelete = (record: Product) => {

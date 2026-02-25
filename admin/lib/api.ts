@@ -55,6 +55,22 @@ export type CategoryRecord = {
   updatedAt: string;
 };
 
+export type ImageUploadSignPayload = {
+  filename: string;
+  contentType: string;
+  size: number;
+  draftId: string;
+};
+
+export type ImageUploadSignResult = {
+  uploadUrl: string;
+  publicUrl: string;
+  objectKey: string;
+  headers: {
+    "Content-Type": string;
+  };
+};
+
 async function unwrap<T>(
   request: Promise<AxiosResponse<ApiResponse<T>>>,
 ): Promise<ApiResponse<T>> {
@@ -134,10 +150,27 @@ export const upsertCategoryApi = (params: {
   icon?: string;
   sortOrder?: number;
   subcategories: CategorySubcategory[];
+  uploadDraftId?: string;
 }) => unwrap<CategoryRecord>(http.post("/categories/upsertCategory", params));
 
 export const deleteCategoryApi = (id: string) =>
   unwrap<null>(http.delete(`/categories/deleteCategory/${id}`));
+
+export const getProductImageUploadSignApi = (params: ImageUploadSignPayload) =>
+  unwrap<ImageUploadSignResult>(http.post("/uploads/sign/product-image", params));
+
+export const getCategoryImageUploadSignApi = (params: ImageUploadSignPayload) =>
+  unwrap<ImageUploadSignResult>(http.post("/uploads/sign/category-image", params));
+
+export const discardProductDraftUploadsApi = (params: { draftId: string }) =>
+  unwrap<{ total: number; deleted: number; kept: number; pendingDelete: number }>(
+    http.post("/uploads/discard/product-draft", params),
+  );
+
+export const discardCategoryDraftUploadsApi = (params: { draftId: string }) =>
+  unwrap<{ total: number; deleted: number; kept: number; pendingDelete: number }>(
+    http.post("/uploads/discard/category-draft", params),
+  );
 
 export const getProductListApi = (params: {
   page: number;
@@ -155,7 +188,9 @@ export const getProductListApi = (params: {
   }>(http.get("/products/getProductList", { params }));
 
 export const upsertProductApi = (
-  params: Partial<Product> & Record<string, unknown>,
+  params: (Partial<Product> & Record<string, unknown>) & {
+    uploadDraftId?: string;
+  },
 ) => unwrap<Product>(http.post("/products/upsertProduct", params));
 
 export const deleteProductApi = (id: string) =>

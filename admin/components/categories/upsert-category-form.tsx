@@ -3,14 +3,17 @@
 import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { Button, Form, Input, InputNumber, Space, message } from "antd";
 import {
+  getCategoryImageUploadSignApi,
   upsertCategoryApi,
   type CategoryRecord,
   type CategorySubcategory,
 } from "@/lib/api";
+import { ImageUploadField } from "@/components/shared/image-upload-field";
 
 type UpsertCategoryFormProps = {
   initData?: CategoryRecord;
   type?: "edit" | "create";
+  uploadDraftId: string;
 };
 
 export type UpsertCategoryFormRef = {
@@ -33,7 +36,7 @@ export type UpsertCategoryFormRef = {
 export const UpsertCategoryForm = forwardRef<
   UpsertCategoryFormRef,
   UpsertCategoryFormProps
->(({ initData, type = "create" }, ref) => {
+>(({ initData, type = "create", uploadDraftId }, ref) => {
   const [form] = Form.useForm();
 
   useImperativeHandle(ref, () => ({
@@ -59,6 +62,7 @@ export const UpsertCategoryForm = forwardRef<
             ? values.sortOrder
             : Number(values.sortOrder) || 0,
         subcategories,
+        uploadDraftId,
       };
 
       await upsertCategoryApi(payload);
@@ -133,8 +137,11 @@ export const UpsertCategoryForm = forwardRef<
         </Form.Item>
       </Space>
 
-      <Form.Item name="cardImage" label="Card Image URL">
-        <Input />
+      <Form.Item name="cardImage" label="Card Image">
+        <ImageUploadField
+          draftId={uploadDraftId}
+          signApi={getCategoryImageUploadSignApi}
+        />
       </Form.Item>
 
       <Form.Item name="description" label="Description">

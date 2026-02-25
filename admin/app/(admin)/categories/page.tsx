@@ -14,6 +14,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import {
+  discardCategoryDraftUploadsApi,
   deleteCategoryApi,
   getCategoryListApi,
   type CategoryRecord,
@@ -29,6 +30,13 @@ const { Title, Paragraph } = Typography;
 type CategoryFilter = {
   keyword: string;
 };
+
+function createUploadDraftId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
 export default function CategoriesPage() {
   const [tableData, setTableData] = useState<CategoryRecord[]>([]);
@@ -83,14 +91,29 @@ export default function CategoriesPage() {
     if (!drawer) {
       return;
     }
+    const uploadDraftId = createUploadDraftId();
 
-    drawer.open(<UpsertCategoryForm initData={initData} type={type} />, {
-      title: type === "create" ? "Add Category" : "Edit Category",
-      width: 560,
-      okCallback: () => {
-        void fetchList();
+    drawer.open(
+      <UpsertCategoryForm
+        initData={initData}
+        type={type}
+        uploadDraftId={uploadDraftId}
+      />,
+      {
+        title: type === "create" ? "Add Category" : "Edit Category",
+        width: 560,
+        okCallback: () => {
+          void fetchList();
+        },
+        cancelCallback: () => {
+          void discardCategoryDraftUploadsApi({ draftId: uploadDraftId }).catch(
+            (error) => {
+              console.error("Discard category draft uploads failed:", error);
+            },
+          );
+        },
       },
-    });
+    );
   };
 
   const handleDelete = (record: CategoryRecord) => {

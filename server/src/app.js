@@ -8,6 +8,7 @@ import userRoutes from "./routes/user.route.js";
 import roleRoutes from "./routes/role.route.js";
 import productRoutes from "./routes/product.route.js";
 import categoryRoutes from "./routes/category.route.js";
+import uploadRoutes from "./routes/upload.route.js";
 
 const app = express();
 
@@ -54,5 +55,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 export default app;

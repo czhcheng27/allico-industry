@@ -2,7 +2,8 @@
 
 import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { Button, Form, Input, Select, Space, message } from "antd";
-import { upsertProductApi } from "@/lib/api";
+import { getProductImageUploadSignApi, upsertProductApi } from "@/lib/api";
+import { ImageUploadField } from "@/components/shared/image-upload-field";
 import type { Product } from "@/types/product";
 
 const categories = [
@@ -15,6 +16,7 @@ const categories = [
 type UpsertProductFormProps = {
   initData?: Product;
   type?: "edit" | "create";
+  uploadDraftId: string;
 };
 
 export type UpsertProductFormRef = {
@@ -24,7 +26,7 @@ export type UpsertProductFormRef = {
 export const UpsertProductForm = forwardRef<
   UpsertProductFormRef,
   UpsertProductFormProps
->(({ initData, type = "create" }, ref) => {
+>(({ initData, type = "create", uploadDraftId }, ref) => {
   const [form] = Form.useForm();
 
   useImperativeHandle(ref, () => ({
@@ -33,6 +35,7 @@ export const UpsertProductForm = forwardRef<
       const payload = {
         ...values,
         id: type === "edit" ? initData?.id : "",
+        uploadDraftId,
       };
 
       await upsertProductApi(payload);
@@ -136,10 +139,13 @@ export const UpsertProductForm = forwardRef<
 
       <Form.Item
         name="image"
-        label="Main Image URL"
-        rules={[{ required: true, message: "Image URL is required" }]}
+        label="Main Image"
+        rules={[{ required: true, message: "Main image is required" }]}
       >
-        <Input />
+        <ImageUploadField
+          draftId={uploadDraftId}
+          signApi={getProductImageUploadSignApi}
+        />
       </Form.Item>
 
       <Form.Item name="badge" label="Badge">

@@ -46,3 +46,33 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:5173
 ```
 - `route` 是否存在决定页面/菜单访问。
 - `actions` 决定按钮能力和写接口授权。
+
+## R2 Image Upload (Signed Direct Upload)
+- New APIs:
+  - `POST /api/uploads/sign/product-image`
+  - `POST /api/uploads/sign/category-image`
+- Request body:
+```json
+{
+  "filename": "example.png",
+  "contentType": "image/png",
+  "size": 123456
+}
+```
+- Response data:
+```json
+{
+  "uploadUrl": "https://...",
+  "publicUrl": "https://<bucket>.<accountid>.r2.dev/dev/products/2026/02/uuid.png",
+  "objectKey": "dev/products/2026/02/uuid.png",
+  "headers": {
+    "Content-Type": "image/png"
+  }
+}
+```
+
+### Local setup
+1. Copy `.env.example` to `.env` and fill all `R2_*` fields.
+2. Ensure the admin origin is in `CORS_ORIGINS`.
+3. Install dependencies in `server` (`pnpm install` or `yarn install`).
+4. Start server and call sign APIs from authenticated admin session.

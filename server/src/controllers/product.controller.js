@@ -1,4 +1,9 @@
 import { Product } from "../models/product.model.js";
+import {
+  cleanupUnreferencedManagedUrls,
+  collectProductManagedImageUrls,
+  finalizeDraftAssets,
+} from "../services/upload-asset.service.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 
 function normalizeSpecs(input) {
@@ -31,6 +36,46 @@ function normalizeGallery(input) {
     .map((item) => item.trim());
 }
 
+function diffRemovedUrls(previousUrls = [], nextUrls = []) {
+  const previousSet = new Set(previousUrls);
+  const nextSet = new Set(nextUrls);
+  return [...previousSet].filter((url) => !nextSet.has(url));
+}
+
+async function finalizeProductAssetLifecycle({
+  uploadDraftId,
+  userId,
+  previousManagedUrls,
+  nextManagedUrls,
+}) {
+  const normalizedDraftId = String(uploadDraftId || "").trim();
+  const removedUrls = diffRemovedUrls(previousManagedUrls, nextManagedUrls);
+
+  try {
+    if (normalizedDraftId) {
+      await finalizeDraftAssets({
+        module: "products",
+        draftId: normalizedDraftId,
+        userId: userId || null,
+        usedUrls: nextManagedUrls,
+      });
+    }
+  } catch (error) {
+    console.error("Finalize product draft assets error:", error);
+  }
+
+  try {
+    if (removedUrls.length > 0) {
+      await cleanupUnreferencedManagedUrls({
+        module: "products",
+        urls: removedUrls,
+      });
+    }
+  } catch (error) {
+    console.error("Cleanup removed product image assets error:", error);
+  }
+}
+
 export const upsertProduct = async (req, res) => {
   const {
     id,
@@ -46,6 +91,7 @@ export const upsertProduct = async (req, res) => {
     badge = "",
     listSpecs = [],
     detail = null,
+    uploadDraftId = "",
   } = req.body;
 
   if (!slug || !name || !category || !sku || !price || !image) {
@@ -71,6 +117,8 @@ export const upsertProduct = async (req, res) => {
     detail,
   };
 
+  const nextManagedUrls = collectProductManagedImageUrls(normalizedPayload);
+
   try {
     const duplicateQuery = [
       { slug: normalizedPayload.slug },
@@ -83,6 +131,8 @@ export const upsertProduct = async (req, res) => {
         return sendError(res, "Product not found", 404);
       }
 
+      const previousManagedUrls = collectProductManagedImageUrls(product);
+
       const duplicate = await Product.findOne({
         $or: duplicateQuery,
         _id: { $ne: id },
@@ -93,6 +143,12 @@ export const upsertProduct = async (req, res) => {
 
       Object.assign(product, normalizedPayload);
       await product.save();
+      await finalizeProductAssetLifecycle({
+        uploadDraftId,
+        userId: req.user?._id || null,
+        previousManagedUrls,
+        nextManagedUrls,
+      });
 
       return sendSuccess(res, product, "Product updated successfully", 200);
     }
@@ -103,6 +159,12 @@ export const upsertProduct = async (req, res) => {
     }
 
     const created = await Product.create(normalizedPayload);
+    await finalizeProductAssetLifecycle({
+      uploadDraftId,
+      userId: req.user?._id || null,
+      previousManagedUrls: [],
+      nextManagedUrls,
+    });
     return sendSuccess(res, created, "Product created successfully", 201);
   } catch (err) {
     console.error("Upsert Product Error:", err);
@@ -180,6 +242,18 @@ export const deleteProduct = async (req, res) => {
       return sendError(res, "Product not found", 404);
     }
 
+    try {
+      const managedUrls = collectProductManagedImageUrls(product);
+      if (managedUrls.length > 0) {
+        await cleanupUnreferencedManagedUrls({
+          module: "products",
+          urls: managedUrls,
+        });
+      }
+    } catch (cleanupError) {
+      console.error("Cleanup product assets after deletion error:", cleanupError);
+    }
+
     return sendSuccess(res, null, "Product deleted successfully", 200);
   } catch (err) {
     console.error("Delete Product Error:", err);
@@ -189,4 +263,3 @@ export const deleteProduct = async (req, res) => {
     return sendError(res, "Server error", 500);
   }
 };
-

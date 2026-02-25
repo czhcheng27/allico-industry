@@ -1,4 +1,9 @@
 import { Category } from "../models/category.model.js";
+import {
+  cleanupUnreferencedManagedUrls,
+  collectCategoryManagedImageUrls,
+  finalizeDraftAssets,
+} from "../services/upload-asset.service.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 
 function normalizeSubcategories(input) {
@@ -37,9 +42,50 @@ function buildCategoryPayload(input) {
   };
 }
 
+function diffRemovedUrls(previousUrls = [], nextUrls = []) {
+  const previousSet = new Set(previousUrls);
+  const nextSet = new Set(nextUrls);
+  return [...previousSet].filter((url) => !nextSet.has(url));
+}
+
+async function finalizeCategoryAssetLifecycle({
+  uploadDraftId,
+  userId,
+  previousManagedUrls,
+  nextManagedUrls,
+}) {
+  const normalizedDraftId = String(uploadDraftId || "").trim();
+  const removedUrls = diffRemovedUrls(previousManagedUrls, nextManagedUrls);
+
+  try {
+    if (normalizedDraftId) {
+      await finalizeDraftAssets({
+        module: "categories",
+        draftId: normalizedDraftId,
+        userId: userId || null,
+        usedUrls: nextManagedUrls,
+      });
+    }
+  } catch (error) {
+    console.error("Finalize category draft assets error:", error);
+  }
+
+  try {
+    if (removedUrls.length > 0) {
+      await cleanupUnreferencedManagedUrls({
+        module: "categories",
+        urls: removedUrls,
+      });
+    }
+  } catch (error) {
+    console.error("Cleanup removed category image assets error:", error);
+  }
+}
+
 export const upsertCategory = async (req, res) => {
-  const { id } = req.body;
+  const { id, uploadDraftId = "" } = req.body;
   const payload = buildCategoryPayload(req.body);
+  const nextManagedUrls = collectCategoryManagedImageUrls(payload);
 
   if (!payload.slug || !payload.name) {
     return sendError(res, "Missing required fields (slug, name)", 400);
@@ -52,6 +98,8 @@ export const upsertCategory = async (req, res) => {
         return sendError(res, "Category not found", 404);
       }
 
+      const previousManagedUrls = collectCategoryManagedImageUrls(category);
+
       const duplicate = await Category.findOne({
         slug: payload.slug,
         _id: { $ne: id },
@@ -62,6 +110,12 @@ export const upsertCategory = async (req, res) => {
 
       Object.assign(category, payload);
       await category.save();
+      await finalizeCategoryAssetLifecycle({
+        uploadDraftId,
+        userId: req.user?._id || null,
+        previousManagedUrls,
+        nextManagedUrls,
+      });
 
       return sendSuccess(res, category, "Category updated successfully", 200);
     }
@@ -72,6 +126,12 @@ export const upsertCategory = async (req, res) => {
     }
 
     const created = await Category.create(payload);
+    await finalizeCategoryAssetLifecycle({
+      uploadDraftId,
+      userId: req.user?._id || null,
+      previousManagedUrls: [],
+      nextManagedUrls,
+    });
     return sendSuccess(res, created, "Category created successfully", 201);
   } catch (error) {
     console.error("Upsert Category Error:", error);
@@ -146,6 +206,18 @@ export const deleteCategory = async (req, res) => {
     const category = await Category.findByIdAndDelete(id);
     if (!category) {
       return sendError(res, "Category not found", 404);
+    }
+
+    try {
+      const managedUrls = collectCategoryManagedImageUrls(category);
+      if (managedUrls.length > 0) {
+        await cleanupUnreferencedManagedUrls({
+          module: "categories",
+          urls: managedUrls,
+        });
+      }
+    } catch (cleanupError) {
+      console.error("Cleanup category assets after deletion error:", cleanupError);
     }
 
     return sendSuccess(res, null, "Category deleted successfully", 200);
