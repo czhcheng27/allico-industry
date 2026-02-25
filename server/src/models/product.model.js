@@ -24,6 +24,7 @@ const productSchema = new mongoose.Schema(
       default: "In Stock",
     },
     badge: { type: String, default: "", trim: true },
+    detailTags: { type: [String], default: [] },
     listSpecs: { type: [specSchema], default: [] },
     detail: { type: mongoose.Schema.Types.Mixed, default: null },
   },

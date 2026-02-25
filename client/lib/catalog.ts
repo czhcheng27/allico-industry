@@ -41,6 +41,7 @@ export type Product = {
   price: string;
   image: string;
   galleryImages?: string[];
+  detailTags?: string[];
   status: ProductStatus;
   listSpecs: ProductSpec[];
   badge?: string;
@@ -73,21 +74,6 @@ export const siteMedia = {
   safetyImage: images.safety,
 };
 
-const galleryPool = [
-  images.ratchetFeatured,
-  images.axleStrap,
-  images.towingChain,
-  images.ratchetStrap,
-  images.winchCable,
-  images.snatchBlock,
-  images.vChain,
-  images.towLight,
-  images.g100Main,
-  images.foundryHook,
-  images.shackle,
-  images.hammerlock,
-];
-
 export const featuredProductSlugs = [
   "retractable-ratchet-strap",
   "yoke-trigger-kit",
@@ -108,36 +94,20 @@ export function getProductHref(product: Product) {
   return `/category/${product.category}/product/${encodeURIComponent(product.sku)}`;
 }
 
-function toSeed(input: string) {
-  let seed = 0;
-  for (let index = 0; index < input.length; index += 1) {
-    seed = (seed * 31 + input.charCodeAt(index)) % 2147483647;
-  }
-  return seed;
-}
-
 export function getProductGalleryImages(product: Product) {
-  const fromProduct = product.galleryImages ?? [];
-  const fromDetail = product.detail?.thumbImages ?? [];
+  const main = String(product.image || "").trim();
+  const gallery = Array.isArray(product.galleryImages) ? product.galleryImages : [];
+  const dedupe = new Set<string>();
+  const merged: string[] = [];
 
-  const base =
-    fromProduct.length > 0
-      ? fromProduct
-      : fromDetail.length > 0
-        ? fromDetail
-        : [product.image];
+  [main, ...gallery].forEach((item) => {
+    const value = String(item || "").trim();
+    if (!value || dedupe.has(value)) {
+      return;
+    }
+    dedupe.add(value);
+    merged.push(value);
+  });
 
-  const uniqueBase = [...new Set(base)];
-  const rotationIndex = toSeed(product.sku) % galleryPool.length;
-  const rotatedPool = [
-    ...galleryPool.slice(rotationIndex),
-    ...galleryPool.slice(0, rotationIndex),
-  ];
-
-  const merged = [
-    ...uniqueBase,
-    ...rotatedPool.filter((image) => !uniqueBase.includes(image)),
-  ];
-
-  return merged.slice(0, 4);
+  return merged;
 }

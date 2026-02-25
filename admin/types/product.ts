@@ -13,6 +13,7 @@ export type Product = {
   price: string;
   image: string;
   galleryImages?: string[];
+  detailTags?: string[];
   status: "In Stock" | "Low Stock";
   badge?: string;
   listSpecs: ProductSpec[];

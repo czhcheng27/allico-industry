@@ -81,7 +81,11 @@ function ProductDetailPage({
       <main className="container mx-auto px-4 py-8 lg:py-12">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-5">
-            <ProductGallery alt={product.name} images={galleryImages} />
+            <ProductGallery
+              alt={product.name}
+              images={galleryImages}
+              tags={product.detailTags || []}
+            />
           </div>
 
           <div className="flex h-full flex-col lg:col-span-7">

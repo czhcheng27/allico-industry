@@ -150,3 +150,9 @@ body {
   gap: 6px;
   flex-wrap: wrap;
 }
+
+.product-category-cascader-popup .ant-cascader-menu {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 260px;
+}

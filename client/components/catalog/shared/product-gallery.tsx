@@ -6,13 +6,31 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type ProductGalleryProps = {
   images: string[];
   alt: string;
+  tags?: string[];
 };
 
-function ProductGallery({ images, alt }: ProductGalleryProps) {
+function ProductGallery({ images, alt, tags = [] }: ProductGalleryProps) {
   const normalizedImages = useMemo(
     () => (images.length > 0 ? images : ["/window.svg"]),
     [images]
   );
+  const normalizedTags = useMemo(() => {
+    const dedupe = new Set<string>();
+    const merged: string[] = [];
+
+    tags.forEach((item) => {
+      const value = String(item || "").trim();
+      const dedupeKey = value.toLowerCase();
+      if (!value || dedupe.has(dedupeKey)) {
+        return;
+      }
+
+      dedupe.add(dedupeKey);
+      merged.push(value);
+    });
+
+    return merged.slice(0, 4);
+  }, [tags]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
@@ -54,7 +72,7 @@ function ProductGallery({ images, alt }: ProductGalleryProps) {
     <>
       <div className="space-y-6">
         <div
-          className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
+          className="group relative flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           onMouseMove={(event) => {
@@ -76,7 +94,7 @@ function ProductGallery({ images, alt }: ProductGalleryProps) {
         >
           <img
             alt={alt}
-            className="max-h-full object-contain transition-transform duration-300"
+            className="h-full w-full object-contain object-center transition-transform duration-300"
             src={activeImage}
           />
 
@@ -109,14 +127,18 @@ function ProductGallery({ images, alt }: ProductGalleryProps) {
             <ZoomIn className="size-5" />
           </button>
 
-          <div className="pointer-events-none absolute left-4 top-4 z-10 flex flex-col gap-2">
-            <span className="rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-black shadow-sm">
-              Premium Grade
-            </span>
-            <span className="rounded bg-zinc-900 px-3 py-1 text-xs font-bold uppercase text-white shadow-sm">
-              USA Made
-            </span>
-          </div>
+          {normalizedTags.length > 0 ? (
+            <div className="pointer-events-none absolute left-4 top-4 z-10 flex flex-col gap-2">
+              {normalizedTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-black shadow-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-4 gap-4">

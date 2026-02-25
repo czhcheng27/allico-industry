@@ -9,12 +9,13 @@ type ProductListCardProps = {
 
 function ProductListCard({ product, href }: ProductListCardProps) {
   const productHref = href || getProductHref(product);
+  const topSpecs = product.listSpecs.slice(0, 2);
 
   return (
-    <div className="group relative flex flex-col border border-gray-200 bg-white transition-colors hover:border-primary">
+    <div className="group relative flex h-full flex-col border border-gray-200 bg-white transition-colors hover:border-primary">
       <Link
         aria-label={`View details for ${product.name}`}
-        className="relative block aspect-[4/3] border-b border-gray-100 bg-white p-4"
+        className="relative flex aspect-square items-center justify-center border-b border-gray-100 bg-white p-4"
         href={productHref}
       >
         {product.badge ? (
@@ -24,7 +25,7 @@ function ProductListCard({ product, href }: ProductListCardProps) {
         ) : null}
         <img
           alt={product.name}
-          className="h-full w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-contain object-center mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
           src={product.image}
         />
       </Link>
@@ -45,14 +46,14 @@ function ProductListCard({ product, href }: ProductListCardProps) {
           </div>
         </div>
 
-        <h3 className="mb-2 font-display text-base font-bold leading-tight text-gray-900">
+        <h3 className="mb-2 min-h-[2.5rem] line-clamp-2 font-display text-base font-bold leading-tight text-gray-900">
           <Link className="transition-colors hover:text-primary" href={productHref}>
             {product.name}
           </Link>
         </h3>
 
-        <div className="mb-4 space-y-1 border-y border-gray-100 py-2 text-xs text-gray-600">
-          {product.listSpecs.map((spec) => (
+        <div className="mb-4 min-h-[3.5rem] space-y-1 border-y border-gray-100 py-2 text-xs text-gray-600">
+          {topSpecs.map((spec) => (
             <div key={spec.label} className="flex justify-between">
               <span>{spec.label}:</span>
               <span className="font-medium">{spec.value}</span>
