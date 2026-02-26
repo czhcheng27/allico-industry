@@ -2,7 +2,12 @@ import Link from "next/link";
 
 import { HomeFooter } from "@/components/site/home-footer";
 import { HomeHeader } from "@/components/site/home-header";
-import { type Product, getCategoryHref, getProductHref, siteMedia } from "@/lib/catalog";
+import {
+  type Product,
+  getCategoryHref,
+  getProductHref,
+  siteMedia,
+} from "@/lib/catalog";
 import { fetchCategories } from "@/lib/catalog-api";
 
 type HomePageProps = {
@@ -36,7 +41,8 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   <h1 className="mb-4 font-display text-5xl font-black uppercase leading-[0.9] text-white drop-shadow-xl md:text-7xl">
                     Allico Industries:
                     <br />
-                    <span className="text-primary">Heavy-Duty</span> Towing and Cargo Solutions
+                    <span className="text-primary">Heavy-Duty</span> Towing and
+                    Cargo Solutions
                   </h1>
                   <p className="text-shadow mb-8 max-w-xl text-lg font-light text-gray-200 md:text-2xl">
                     Engineered for extreme durability. The trusted choice for
@@ -67,7 +73,9 @@ async function HomePage({ featuredProducts }: HomePageProps) {
 
         <div className="border-b border-zinc-700 bg-zinc-800 py-4 text-xs text-gray-400 shadow-inner md:text-sm">
           <div className="container mx-auto flex items-center justify-between px-4">
-            <div className="hidden md:block">ISO 9001:2015 Certified Manufacturer</div>
+            <div className="hidden md:block">
+              ISO 9001:2015 Certified Manufacturer
+            </div>
             <div className="flex space-x-6 text-xs font-bold uppercase tracking-wider text-gray-500">
               <span className="flex items-center">
                 <span className="material-symbols-outlined mr-1 text-base text-primary">
@@ -130,7 +138,10 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     {category.subcategories.length > 0 ? (
                       <ul className="mb-4 space-y-2 border-l-2 border-zinc-600 pl-1 text-sm text-gray-300 transition-all group-hover:border-primary">
                         {category.subcategories.map((subcategory) => (
-                          <li key={subcategory.slug} className="transition hover:text-white">
+                          <li
+                            key={subcategory.slug}
+                            className="transition hover:text-white"
+                          >
                             {`> ${subcategory.name}`}
                           </li>
                         ))}
@@ -161,7 +172,9 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                 <div className="relative p-10 md:w-1/2 md:p-16">
                   <div className="absolute left-0 top-0 h-full w-2 bg-primary" />
                   <div className="mb-6 flex items-center space-x-2 text-primary">
-                    <span className="material-symbols-outlined text-4xl">verified_user</span>
+                    <span className="material-symbols-outlined text-4xl">
+                      verified_user
+                    </span>
                     <span className="font-display text-xl font-black uppercase tracking-widest">
                       Certified Safety
                     </span>
@@ -171,9 +184,9 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     <span className="text-primary">Link and Stitch</span>
                   </h2>
                   <p className="mb-8 leading-relaxed text-gray-600">
-                    At Allico Industries, safety is not just a feature. Every chain,
-                    strap, and hook undergoes rigorous load testing to meet or exceed
-                    NACM, WSTDA, and DOT standards.
+                    At Allico Industries, safety is not just a feature. Every
+                    chain, strap, and hook undergoes rigorous load testing to
+                    meet or exceed NACM, WSTDA, and DOT standards.
                   </p>
                   <ul className="mb-8 grid grid-cols-2 gap-4">
                     <li className="flex items-center text-sm font-bold text-gray-800">
@@ -217,14 +230,16 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
                     <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-primary bg-black/50 backdrop-blur-sm">
-                      <span className="font-display text-3xl font-black text-white">100%</span>
+                      <span className="font-display text-3xl font-black text-white">
+                        100%
+                      </span>
                     </div>
                     <h3 className="mb-2 text-2xl font-bold uppercase text-white">
                       Quality Guarantee
                     </h3>
                     <p className="max-w-sm text-gray-300">
-                      We stand behind every product we sell. If it fails under normal
-                      use, we replace it.
+                      We stand behind every product we sell. If it fails under
+                      normal use, we replace it.
                     </p>
                   </div>
                 </div>
@@ -249,7 +264,9 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   <span className="material-symbols-outlined">arrow_back</span>
                 </button>
                 <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-black">
-                  <span className="material-symbols-outlined">arrow_forward</span>
+                  <span className="material-symbols-outlined">
+                    arrow_forward
+                  </span>
                 </button>
               </div>
             </div>
@@ -284,7 +301,9 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                       {product.price}
                     </span>
                     <button className="text-primary hover:text-yellow-400">
-                      <span className="material-symbols-outlined">add_shopping_cart</span>
+                      <span className="material-symbols-outlined">
+                        add_shopping_cart
+                      </span>
                     </button>
                   </div>
                 </Link>

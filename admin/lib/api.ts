@@ -41,6 +41,10 @@ export type CategorySubcategory = {
   name: string;
 };
 
+export type CategoryUpsertSubcategory = CategorySubcategory & {
+  originalSlug?: string;
+};
+
 export type CategoryRecord = {
   id: string;
   slug: string;
@@ -149,7 +153,7 @@ export const upsertCategoryApi = (params: {
   cardImage?: string;
   icon?: string;
   sortOrder?: number;
-  subcategories: CategorySubcategory[];
+  subcategories: CategoryUpsertSubcategory[];
   uploadDraftId?: string;
 }) => unwrap<CategoryRecord>(http.post("/categories/upsertCategory", params));
 
