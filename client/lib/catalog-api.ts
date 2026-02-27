@@ -5,10 +5,13 @@ import {
   featuredProductSlugs,
 } from "@/lib/catalog";
 
+const DEFAULT_CATALOG_API_BASE_URL =
+  process.env.NODE_ENV === "development" ? "http://localhost:9001/api" : "";
+
 const CATALOG_API_BASE_URL =
   process.env.CATALOG_API_BASE_URL ||
   process.env.NEXT_PUBLIC_CATALOG_API_BASE_URL ||
-  "http://localhost:9001/api";
+  DEFAULT_CATALOG_API_BASE_URL;
 
 const PUBLIC_PRODUCT_LIST_ENDPOINT = "/products/public/getProductList";
 const PUBLIC_CATEGORY_LIST_ENDPOINT = "/categories/public/getCategoryList";
@@ -57,6 +60,12 @@ function buildApiUrl(
   path: string,
   query: Record<string, string | number | undefined>,
 ) {
+  if (!CATALOG_API_BASE_URL) {
+    throw new Error(
+      "Missing CATALOG_API_BASE_URL (or NEXT_PUBLIC_CATALOG_API_BASE_URL).",
+    );
+  }
+
   const base = CATALOG_API_BASE_URL.endsWith("/")
     ? CATALOG_API_BASE_URL.slice(0, -1)
     : CATALOG_API_BASE_URL;

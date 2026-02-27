@@ -16,6 +16,7 @@ const defaultOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "http://localhost:3001",
+  "https://allico-industry-client-production.up.railway.app",
 ];
 const envOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")
