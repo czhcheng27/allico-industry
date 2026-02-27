@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto, Roboto_Condensed } from "next/font/google";
 
+import { BackToTopButton } from "@/components/site/back-to-top-button";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -36,6 +37,7 @@ export default function RootLayout({
       </head>
       <body className={`${roboto.variable} ${robotoCondensed.variable} font-sans antialiased`}>
         {children}
+        <BackToTopButton />
       </body>
     </html>
   );

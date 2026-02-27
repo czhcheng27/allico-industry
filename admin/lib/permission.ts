@@ -24,8 +24,8 @@ function createMenuItem(
 export function getMenuConfig(): MenuItem[] {
   return [
     createMenuItem("Dashboard", "/dashboard", createElement(DashboardOutlined)),
-    createMenuItem("Products", "/products", createElement(DatabaseOutlined)),
     createMenuItem("Categories", "/categories", createElement(AppstoreOutlined)),
+    createMenuItem("Products", "/products", createElement(DatabaseOutlined)),
     createMenuItem("System Management", "/system-management", createElement(TeamOutlined), [
       createMenuItem("Users", "/system-management/user"),
       createMenuItem("Roles", "/system-management/role"),

@@ -122,18 +122,14 @@ async function HomeFooter() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between border-t border-zinc-800 pt-8 text-xs text-gray-600 md:flex-row">
-          <div className="mb-4 md:mb-0">
-            (c) 2026 Allico Industries. All rights reserved. | Privacy Policy | Terms of
-            Service
-          </div>
-          <div>
-            <a
-              className="rounded-sm bg-primary p-2 text-black shadow transition hover:bg-yellow-400"
-              href="#top"
-            >
-              <span className="material-symbols-outlined">arrow_upward</span>
-            </a>
+        <div className="border-t border-zinc-800 pt-8 text-xs text-gray-600">
+          <div className="mx-auto max-w-xl text-center md:mx-0 md:text-left">
+            <p className="text-[11px] leading-relaxed text-gray-600 sm:text-xs">
+              (c) 2026 Allico Industries. All rights reserved. | Privacy Policy | Terms of Service
+            </p>
+            <p className="mt-1 text-[11px] leading-relaxed tracking-[0.08em] text-gray-500">
+              Develop By Zihang Cheng
+            </p>
           </div>
         </div>
       </div>
@@ -142,3 +138,8 @@ async function HomeFooter() {
 }
 
 export { HomeFooter };
+
+
+
+
+

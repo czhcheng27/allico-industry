@@ -3,7 +3,7 @@ import Link from "next/link";
 import { FilterLayout } from "@/components/catalog/shared/filter-layout";
 import { ProductListCard } from "@/components/catalog/shared/product-list-card";
 import { ProductListRow } from "@/components/catalog/shared/product-list-row";
-import { CatalogFooter } from "@/components/site/catalog-footer";
+import { HomeFooter } from "@/components/site/home-footer";
 import { HomeHeader } from "@/components/site/home-header";
 import {
   type Category,
@@ -282,9 +282,10 @@ function CategoryPage({
         </FilterLayout>
       </main>
 
-      <CatalogFooter />
+      <HomeFooter />
     </div>
   );
 }
 
 export { CategoryPage };
+
