@@ -1,6 +1,8 @@
-/* 更新说明（2026-02-20）： middleware 已改为基于 cookie 会话 + /users/me 的鉴权，并移除硬编码路由顺序。 */
+/* 更新说明（2026-03-13）：middleware 现基于 admin 同域会话 cookie 调用上游 /users/me，兼容 Railway 默认分配域名。 */
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { ADMIN_SESSION_COOKIE } from "@/lib/admin-session";
+import { buildServerApiUrl } from "@/lib/server-api";
 
 type PermissionAction = "read" | "write";
 
@@ -62,26 +64,20 @@ function resolvePermissionRoute(pathname: string, permissions: Permission[]): st
   return matched[0] || normalizedPath;
 }
 
-// 规范化后端 API 基地址，优先使用服务端环境变量。
-function normalizeApiBaseUrl(): string | null {
-  const baseUrl = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-  return baseUrl ? baseUrl.replace(/\/$/, "") : null;
-}
-
-// 在 middleware 侧通过 cookie 调用 /users/me，获取当前登录态与最新权限。
+// 在 middleware 侧通过 admin 同域 cookie 调用上游 /users/me，获取当前登录态与最新权限。
 async function fetchCurrentUser(
   request: NextRequest,
 ): Promise<CurrentUserResponse["data"] | null> {
-  const apiBaseUrl = normalizeApiBaseUrl();
-  if (!apiBaseUrl) {
+  const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  if (!token) {
     return null;
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/users/me`, {
+    const response = await fetch(buildServerApiUrl("/users/me"), {
       method: "GET",
       headers: {
-        cookie: request.headers.get("cookie") || "",
+        authorization: `Bearer ${token}`,
       },
       cache: "no-store",
     });

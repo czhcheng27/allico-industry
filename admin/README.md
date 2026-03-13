@@ -30,9 +30,10 @@ yarn dev
 ## 环境变量
 使用 `admin/.env`：
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:9001/api
 API_BASE_URL=http://localhost:9001/api
+NEXT_PUBLIC_API_BASE_URL=http://localhost:9001/api
 ```
+生产环境至少要配置 `API_BASE_URL`，它用于 Next middleware 和同域 `/api` 代理去访问 Railway 上的 server。
 首页落地页由 `/users/me` 返回的可访问权限列表决定（取第一个可访问 route）。
 
 ## 说明
