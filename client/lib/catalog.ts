@@ -23,13 +23,13 @@ export type ProductSpec = {
 };
 
 export type ProductDetailContent = {
-  series: string;
-  headline: string;
-  description: string;
-  features: string[];
-  table: ProductSpec[];
-  thumbImages: string[];
-  relatedSlugs: string[];
+  series?: string;
+  headline?: string;
+  description?: string;
+  features?: string[];
+  table?: ProductSpec[];
+  thumbImages?: string[];
+  relatedSlugs?: string[];
 };
 
 export type Product = {
@@ -45,7 +45,7 @@ export type Product = {
   status: ProductStatus;
   listSpecs: ProductSpec[];
   badge?: string;
-  detail?: ProductDetailContent;
+  detail?: ProductDetailContent | null;
 };
 
 const images = {

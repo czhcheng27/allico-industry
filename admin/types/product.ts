@@ -3,6 +3,17 @@ export type ProductSpec = {
   value: string;
 };
 
+export type ProductDetail = {
+  series?: string;
+  headline?: string;
+  description?: string;
+  features?: string[];
+  table?: ProductSpec[];
+  thumbImages?: string[];
+  relatedSlugs?: string[];
+  [key: string]: unknown;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -17,7 +28,7 @@ export type Product = {
   status: "In Stock" | "Low Stock";
   badge?: string;
   listSpecs: ProductSpec[];
-  detail?: Record<string, unknown> | null;
+  detail?: ProductDetail | null;
   createdAt: string;
   updatedAt: string;
 };

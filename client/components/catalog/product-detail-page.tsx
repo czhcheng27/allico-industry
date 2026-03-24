@@ -25,22 +25,30 @@ function ProductDetailPage({
   relatedProducts,
   backHref,
 }: ProductDetailPageProps) {
-  const detailContent = product.detail ?? {
-    series: product.sku,
-    headline: product.name,
-    description:
-      "This product is engineered for high-cycle industrial usage and heavy-duty transport environments.",
-    features: [
-      "Built for demanding field conditions",
-      "Quality-tested for load reliability",
-      "Designed for professional fleet operations",
-    ],
-    table: product.listSpecs,
-    thumbImages: [product.image],
-    relatedSlugs: [],
+  const detailContent = {
+    series: String(product.detail?.series || "").trim() || product.sku,
+    headline: String(product.detail?.headline || "").trim() || product.name,
+    description: String(product.detail?.description || "").trim(),
+    features: Array.isArray(product.detail?.features)
+      ? product.detail.features
+          .map((feature) => String(feature || "").trim())
+          .filter(Boolean)
+      : [],
+    table:
+      Array.isArray(product.detail?.table) && product.detail.table.length > 0
+        ? product.detail.table
+        : product.listSpecs,
+    thumbImages:
+      Array.isArray(product.detail?.thumbImages) && product.detail.thumbImages.length > 0
+        ? product.detail.thumbImages
+        : [product.image],
+    relatedSlugs: Array.isArray(product.detail?.relatedSlugs)
+      ? product.detail.relatedSlugs
+      : [],
   };
-
   const galleryImages = getProductGalleryImages(product);
+  const hasIntroContent =
+    Boolean(detailContent.description) || detailContent.features.length > 0;
 
   return (
     <div className="bg-background-light text-text-light">
@@ -125,20 +133,24 @@ function ProductDetailPage({
               </div>
             </div>
 
-            <div className="mb-8 grid gap-8 md:grid-cols-2">
-              <div className="text-gray-600">
-                <p>{detailContent.description}</p>
-                <ul className="mt-4 space-y-2">
-                  {detailContent.features.map((feature) => (
-                    <li key={feature} className="flex items-start">
-                      <span className="material-symbols-outlined mr-2 mt-0.5 text-sm text-primary">
-                        check_circle
-                      </span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className={`mb-8 grid gap-8 ${hasIntroContent ? "md:grid-cols-2" : ""}`}>
+              {hasIntroContent ? (
+                <div className="text-gray-600">
+                  {detailContent.description ? <p>{detailContent.description}</p> : null}
+                  {detailContent.features.length > 0 ? (
+                    <ul className={detailContent.description ? "mt-4 space-y-2" : "space-y-2"}>
+                      {detailContent.features.map((feature, index) => (
+                        <li key={`${feature}-${index}`} className="flex items-start">
+                          <span className="material-symbols-outlined mr-2 mt-0.5 text-sm text-primary">
+                            check_circle
+                          </span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              ) : null}
 
               <SpecTable rows={detailContent.table} />
             </div>

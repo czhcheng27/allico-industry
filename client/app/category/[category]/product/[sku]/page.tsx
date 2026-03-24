@@ -71,14 +71,15 @@ export default async function ProductRoutePage({
 }: ProductRouteProps) {
   const { category: categorySlug, sku } = await params;
   const parsedSearchParams = await searchParams;
-  const decodedSku = decodeURIComponent(sku);
-  const category = await fetchCategoryBySlug(categorySlug);
+  const normalizedCategorySlug = String(categorySlug || "").trim();
+  const normalizedSku = decodeURIComponent(String(sku || "")).trim();
+  const category = await fetchCategoryBySlug(normalizedCategorySlug);
 
   if (!category) {
     notFound();
   }
 
-  const product = await fetchProductByCategoryAndSku(category.slug, decodedSku);
+  const product = await fetchProductByCategoryAndSku(category.slug, normalizedSku);
 
   if (!product) {
     notFound();
