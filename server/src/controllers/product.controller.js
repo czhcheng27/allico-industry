@@ -96,6 +96,72 @@ function normalizeDetailTags(input) {
   return normalized;
 }
 
+function toDetailObject(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {};
+  }
+
+  return { ...input };
+}
+
+function normalizeDetailFeatures(input) {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input.reduce((normalized, item) => {
+    if (typeof item !== "string") {
+      return normalized;
+    }
+
+    const value = item.trim();
+    if (!value) {
+      return normalized;
+    }
+
+    normalized.push(value);
+    return normalized;
+  }, []);
+}
+
+function mergeProductDetail(previousDetail, incomingDetail) {
+  const nextDetail = toDetailObject(previousDetail);
+  const inputDetail = toDetailObject(incomingDetail);
+
+  Object.entries(inputDetail).forEach(([key, value]) => {
+    if (key === "description" || key === "features") {
+      return;
+    }
+
+    if (value === undefined) {
+      delete nextDetail[key];
+      return;
+    }
+
+    nextDetail[key] = value;
+  });
+
+  if (Object.prototype.hasOwnProperty.call(inputDetail, "description")) {
+    const normalizedDescription = String(inputDetail.description || "").trim();
+    if (normalizedDescription) {
+      nextDetail.description = normalizedDescription;
+    } else {
+      delete nextDetail.description;
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(inputDetail, "features")) {
+    const normalizedFeatures = normalizeDetailFeatures(inputDetail.features);
+    if (normalizedFeatures.length > 0) {
+      nextDetail.features = normalizedFeatures;
+    } else {
+      delete nextDetail.features;
+    }
+  }
+
+  return Object.keys(nextDetail).length > 0 ? nextDetail : null;
+}
+
 function isDuplicateKeyError(error, key) {
   if (!error || error.code !== 11000) {
     return false;
@@ -279,6 +345,7 @@ async function finalizeProductAssetLifecycle({
 }
 
 export const upsertProduct = async (req, res) => {
+  const hasIncomingDetail = Object.prototype.hasOwnProperty.call(req.body || {}, "detail");
   const {
     id,
     slug,
@@ -293,7 +360,7 @@ export const upsertProduct = async (req, res) => {
     badge = "",
     detailTags = [],
     listSpecs = [],
-    detail = null,
+    detail,
     uploadDraftId = "",
   } = req.body;
 
@@ -348,7 +415,6 @@ export const upsertProduct = async (req, res) => {
       badge: normalizedBadge,
       detailTags: normalizeDetailTags(detailTags),
       listSpecs: normalizeSpecs(listSpecs),
-      detail,
     };
 
     if (id) {
@@ -379,10 +445,14 @@ export const upsertProduct = async (req, res) => {
         ? await findAvailableProductSlug(slugBase, id)
         : previousSlug;
       let latestSaveError = null;
+      const normalizedDetail = hasIncomingDetail
+        ? mergeProductDetail(product.detail, detail)
+        : product.detail;
       const payload = {
         ...normalizedPayloadBase,
         slug: resolvedSlug,
         galleryImages: normalizeGallery(galleryImages, normalizedImage),
+        detail: normalizedDetail,
       };
       const nextManagedUrls = collectProductManagedImageUrls(payload);
 
@@ -449,6 +519,9 @@ export const upsertProduct = async (req, res) => {
     let resolvedSlug = await findAvailableProductSlug(slugBase);
     let latestCreateError = null;
     let created = null;
+    const normalizedDetail = hasIncomingDetail
+      ? mergeProductDetail(null, detail)
+      : null;
 
     for (let retry = 0; retry <= SLUG_SAVE_RETRY_LIMIT; retry += 1) {
       try {
@@ -456,6 +529,7 @@ export const upsertProduct = async (req, res) => {
           ...normalizedPayloadBase,
           slug: resolvedSlug,
           galleryImages: normalizeGallery(galleryImages, normalizedImage),
+          detail: normalizedDetail,
         };
 
         created = await Product.create(payload);
