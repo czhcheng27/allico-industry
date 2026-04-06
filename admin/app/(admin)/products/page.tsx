@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import {
   deleteProductApi,
   discardProductDraftUploadsApi,
+  getCategoryListApi,
   getProductListApi,
 } from "@/lib/api";
 import { PermissionButton } from "@/components/auth/permission-button";
@@ -42,6 +43,9 @@ function createUploadDraftId() {
 
 export default function ProductsPage() {
   const [tableData, setTableData] = useState<Product[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -78,6 +82,31 @@ export default function ProductsPage() {
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, filters.keyword, filters.category]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    void getCategoryListApi()
+      .then((response) => {
+        if (!mounted) {
+          return;
+        }
+
+        setCategoryOptions(
+          (response.data.categories || []).map((item) => ({
+            label: item.name,
+            value: item.slug,
+          })),
+        );
+      })
+      .catch((error) => {
+        console.error("Fetch product page categories failed:", error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const openProductDrawer = (type: "create" | "edit", initData?: Product) => {
     const drawer = overlay?.drawer;
@@ -156,12 +185,7 @@ export default function ProductsPage() {
           allowClear
           placeholder="Filter by category"
           value={filters.category || undefined}
-          options={[
-            { label: "Towing", value: "towing" },
-            { label: "Cargo Control", value: "cargo-control" },
-            { label: "Industrial Chains", value: "industrial-chains" },
-            { label: "Hooks and Accessories", value: "hooks-and-accessories" },
-          ]}
+          options={categoryOptions}
           onChange={(value) => {
             setPage(1);
             setFilters((prev) => ({ ...prev, category: value || "" }));
@@ -245,6 +269,13 @@ export default function ProductsPage() {
                 ) : (
                   <Tag color="orange">{value}</Tag>
                 ),
+            },
+            {
+              title: "Hot Seller",
+              dataIndex: "isHotSeller",
+              width: 120,
+              render: (value: Product["isHotSeller"]) =>
+                value ? <Tag color="red">HOT SELLER</Tag> : <span style={{ color: "#94a3b8" }}>-</span>,
             },
             {
               title: "Updated At",

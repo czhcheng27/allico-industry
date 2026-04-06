@@ -9,7 +9,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Button, Cascader, Form, Input, Select, Space, message } from "antd";
+import {
+  Button,
+  Cascader,
+  Form,
+  Input,
+  Select,
+  Space,
+  Switch,
+  message,
+} from "antd";
 import {
   getCategoryListApi,
   getProductImageUploadSignApi,
@@ -21,11 +30,11 @@ import type { Product } from "@/types/product";
 
 const MAX_GALLERY_IMAGES = 8;
 const MAX_DETAIL_TAGS = 4;
+const HOT_SELLER_LABEL = "HOT SELLER";
 const DETAIL_TAG_SUGGESTIONS = [
   "PREMIUM GRADE",
   "USA MADE",
   "HEAVY DUTY",
-  "HOT SELLER",
   "NEW ARRIVAL",
   "OEM QUALITY",
 ].map((item) => ({ label: item, value: item }));
@@ -78,6 +87,30 @@ function normalizeStringList(
   }
 
   return normalized;
+}
+
+function isHotSellerText(value: unknown) {
+  return String(value || "").trim().toUpperCase() === HOT_SELLER_LABEL;
+}
+
+function getInitialHotSellerValue(initData?: Product) {
+  if (!initData) {
+    return false;
+  }
+
+  return (
+    Boolean(initData.isHotSeller) ||
+    isHotSellerText(initData.badge) ||
+    (Array.isArray(initData.detailTags) &&
+      initData.detailTags.some((item) => isHotSellerText(item)))
+  );
+}
+
+function stripLegacyHotSellerTags(input: unknown) {
+  return normalizeStringList(input, {
+    limit: MAX_DETAIL_TAGS,
+    dedupeCaseInsensitive: true,
+  }).filter((item) => !isHotSellerText(item));
 }
 
 function normalizeProductDetail(input: unknown) {
@@ -176,10 +209,9 @@ export const UpsertProductForm = forwardRef<
         limit: MAX_GALLERY_IMAGES,
         removeValue: mainImage,
       });
-      const normalizedDetailTags = normalizeStringList(values.detailTags, {
-        limit: MAX_DETAIL_TAGS,
-        dedupeCaseInsensitive: true,
-      }).map((item) => item.slice(0, 24).trim()).filter(Boolean);
+      const normalizedDetailTags = stripLegacyHotSellerTags(values.detailTags)
+        .map((item) => item.slice(0, 24).trim())
+        .filter(Boolean);
       const normalizedDetail = normalizeProductDetail(values.detail);
       const normalizedSpecs = Array.isArray(values.listSpecs)
         ? values.listSpecs
@@ -189,6 +221,17 @@ export const UpsertProductForm = forwardRef<
             }))
             .filter((item: { label: string; value: string }) => item.label && item.value)
         : [];
+      const normalizedBadge = String(values.badge || "").trim();
+
+      if (
+        isHotSellerText(normalizedBadge) ||
+        normalizedDetailTags.some((item) => isHotSellerText(item))
+      ) {
+        const errorMessage =
+          "Use the Hot Seller toggle instead of typing HOT SELLER in badge or detail tags.";
+        message.error(errorMessage);
+        throw new Error(errorMessage);
+      }
 
       const payload = {
         ...values,
@@ -200,7 +243,8 @@ export const UpsertProductForm = forwardRef<
         sku: String(values.sku || "").trim(),
         price: String(values.price || "").trim(),
         image: mainImage,
-        badge: String(values.badge || "").trim(),
+        badge: normalizedBadge,
+        isHotSeller: Boolean(values.isHotSeller),
         listSpecs: normalizedSpecs,
         galleryImages: normalizedGalleryImages,
         detailTags: normalizedDetailTags,
@@ -253,6 +297,7 @@ export const UpsertProductForm = forwardRef<
         slug: "",
         categoryPath: [],
         status: "In Stock",
+        isHotSeller: false,
         detail: {
           description: "",
           features: [""],
@@ -270,6 +315,7 @@ export const UpsertProductForm = forwardRef<
       categoryPath: initData.subcategory
         ? [initData.category, initData.subcategory]
         : [initData.category],
+      isHotSeller: getInitialHotSellerValue(initData),
       detail: {
         ...(initData.detail || {}),
         description: String(initData.detail?.description || ""),
@@ -278,7 +324,8 @@ export const UpsertProductForm = forwardRef<
             ? initData.detail.features.map((item) => String(item || ""))
             : [""],
       },
-      detailTags: initData.detailTags || [],
+      badge: isHotSellerText(initData.badge) ? "" : String(initData.badge || ""),
+      detailTags: stripLegacyHotSellerTags(initData.detailTags),
       galleryImages: initData.galleryImages || [],
       listSpecs:
         initData.listSpecs?.length > 0
@@ -389,6 +436,15 @@ export const UpsertProductForm = forwardRef<
             />
           </Form.Item>
         </Space>
+
+        <Form.Item
+          name="isHotSeller"
+          label="Hot Seller"
+          valuePropName="checked"
+          extra="Controls whether this product appears in the Hot Seller group and shows the HOT SELLER label on the client."
+        >
+          <Switch checkedChildren="Hot Seller" unCheckedChildren="Regular" />
+        </Form.Item>
       </FormSection>
 
       <FormSection
@@ -508,10 +564,9 @@ export const UpsertProductForm = forwardRef<
             optionFilterProp="label"
             placeholder="Pick preset or type custom tags"
             onChange={(nextValues: string[]) => {
-              const normalizedTags = normalizeStringList(nextValues, {
-                limit: MAX_DETAIL_TAGS,
-                dedupeCaseInsensitive: true,
-              }).map((item) => item.slice(0, 24).trim()).filter(Boolean);
+              const normalizedTags = stripLegacyHotSellerTags(nextValues)
+                .map((item) => item.slice(0, 24).trim())
+                .filter(Boolean);
               form.setFieldValue("detailTags", normalizedTags);
             }}
           />

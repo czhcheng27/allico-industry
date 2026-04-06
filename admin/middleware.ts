@@ -18,6 +18,8 @@ type CurrentUserResponse = {
   } | null;
 };
 
+const EXACT_PERMISSION_ROUTES = new Set(["/products/display-order"]);
+
 // 统一路径格式，避免因为末尾斜杠导致权限判断不一致。
 function normalizePath(pathname: string): string {
   if (!pathname || pathname === "/") {
@@ -54,6 +56,10 @@ function resolvePermissionRoute(pathname: string, permissions: Permission[]): st
   const permissionRoutes = getPermissionRoutes(permissions);
 
   if (permissionRoutes.includes(normalizedPath)) {
+    return normalizedPath;
+  }
+
+  if (EXACT_PERMISSION_ROUTES.has(normalizedPath)) {
     return normalizedPath;
   }
 

@@ -18,6 +18,8 @@ const productSchema = new mongoose.Schema(
     price: { type: String, required: true, trim: true },
     image: { type: String, required: true, trim: true },
     galleryImages: { type: [String], default: [] },
+    isHotSeller: { type: Boolean, default: false },
+    displayOrder: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["In Stock", "Low Stock"],

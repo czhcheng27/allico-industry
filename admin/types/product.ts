@@ -24,6 +24,8 @@ export type Product = {
   price: string;
   image: string;
   galleryImages?: string[];
+  isHotSeller?: boolean;
+  displayOrder?: number;
   detailTags?: string[];
   status: "In Stock" | "Low Stock";
   badge?: string;

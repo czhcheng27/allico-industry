@@ -7,6 +7,7 @@ import {
   AppstoreOutlined,
   DashboardOutlined,
   DatabaseOutlined,
+  OrderedListOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
 import type { Permission } from "@/types/auth";
@@ -26,6 +27,11 @@ export function getMenuConfig(): MenuItem[] {
     createMenuItem("Dashboard", "/dashboard", createElement(DashboardOutlined)),
     createMenuItem("Categories", "/categories", createElement(AppstoreOutlined)),
     createMenuItem("Products", "/products", createElement(DatabaseOutlined)),
+    createMenuItem(
+      "Product Display Order",
+      "/products/display-order",
+      createElement(OrderedListOutlined),
+    ),
     createMenuItem("System Management", "/system-management", createElement(TeamOutlined), [
       createMenuItem("Users", "/system-management/user"),
       createMenuItem("Roles", "/system-management/role"),

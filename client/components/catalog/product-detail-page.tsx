@@ -7,6 +7,7 @@ import { HomeHeader } from "@/components/site/home-header";
 import {
   type Category,
   getCategoryHref,
+  getProductDetailTags,
   getProductGalleryImages,
   getProductHref,
   type Product,
@@ -47,6 +48,7 @@ function ProductDetailPage({
       : [],
   };
   const galleryImages = getProductGalleryImages(product);
+  const galleryTags = getProductDetailTags(product);
   const hasIntroContent =
     Boolean(detailContent.description) || detailContent.features.length > 0;
 
@@ -92,7 +94,7 @@ function ProductDetailPage({
             <ProductGallery
               alt={product.name}
               images={galleryImages}
-              tags={product.detailTags || []}
+              tags={galleryTags}
             />
           </div>
 

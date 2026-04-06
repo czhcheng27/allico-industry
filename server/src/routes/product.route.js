@@ -3,6 +3,8 @@ import express from "express";
 import {
   upsertProduct,
   getProductList,
+  getDisplayOrder,
+  saveDisplayOrder,
   deleteProduct,
 } from "../controllers/product.controller.js";
 import {
@@ -32,6 +34,20 @@ router.get(
   attachPermissions,
   authorizeRouteAccess("/products"),
   getProductList,
+);
+router.get(
+  "/getDisplayOrder",
+  protect,
+  attachPermissions,
+  authorizeRouteAccess("/products/display-order"),
+  getDisplayOrder,
+);
+router.post(
+  "/saveDisplayOrder",
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/products/display-order", "write"),
+  saveDisplayOrder,
 );
 router.delete(
   "/deleteProduct/:id",

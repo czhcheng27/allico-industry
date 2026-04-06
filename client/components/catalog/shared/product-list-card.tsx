@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-import { getProductHref, type Product } from "@/lib/catalog";
+import {
+  getProductBadgeText,
+  getProductHref,
+  type Product,
+} from "@/lib/catalog";
 
 type ProductListCardProps = {
   product: Product;
@@ -10,6 +14,7 @@ type ProductListCardProps = {
 function ProductListCard({ product, href }: ProductListCardProps) {
   const productHref = href || getProductHref(product);
   const topSpecs = product.listSpecs.slice(0, 2);
+  const productBadge = getProductBadgeText(product);
 
   return (
     <div className="group relative flex h-full flex-col border border-gray-200 bg-white transition-colors hover:border-primary">
@@ -18,9 +23,9 @@ function ProductListCard({ product, href }: ProductListCardProps) {
         className="relative flex aspect-square items-center justify-center border-b border-gray-100 bg-white p-4"
         href={productHref}
       >
-        {product.badge ? (
+        {productBadge ? (
           <span className="absolute left-2 top-2 z-10 bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-            {product.badge}
+            {productBadge}
           </span>
         ) : null}
         <img

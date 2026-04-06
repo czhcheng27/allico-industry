@@ -13,6 +13,7 @@ const DETAIL_TAG_LIMIT = 4;
 const DETAIL_TAG_MAX_LENGTH = 24;
 const SLUG_SCAN_LIMIT = 5000;
 const SLUG_SAVE_RETRY_LIMIT = 3;
+const HOT_SELLER_LABEL = "HOT SELLER";
 
 function normalizeSpecs(input) {
   if (!Array.isArray(input)) {
@@ -94,6 +95,84 @@ function normalizeDetailTags(input) {
   }
 
   return normalized;
+}
+
+function normalizeIdList(input) {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input
+    .map((item) => String(item || "").trim())
+    .filter(Boolean);
+}
+
+function isHotSellerLabel(value) {
+  return String(value || "").trim().toUpperCase() === HOT_SELLER_LABEL;
+}
+
+function normalizeHotSellerFlag(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return normalized === "true" || normalized === "1";
+  }
+
+  return false;
+}
+
+function getDisplayOrderValue(value) {
+  const normalized = Number(value);
+  return Number.isFinite(normalized) ? normalized : null;
+}
+
+function compareProductsForDisplay(a, b) {
+  const aHotSeller = Boolean(a?.isHotSeller);
+  const bHotSeller = Boolean(b?.isHotSeller);
+
+  if (aHotSeller !== bHotSeller) {
+    return aHotSeller ? -1 : 1;
+  }
+
+  const aDisplayOrder = getDisplayOrderValue(a?.displayOrder);
+  const bDisplayOrder = getDisplayOrderValue(b?.displayOrder);
+
+  if (aDisplayOrder !== null && bDisplayOrder !== null) {
+    if (aDisplayOrder !== bDisplayOrder) {
+      return aDisplayOrder - bDisplayOrder;
+    }
+  } else if (aDisplayOrder !== null) {
+    return -1;
+  } else if (bDisplayOrder !== null) {
+    return 1;
+  }
+
+  const aUpdatedAt = new Date(a?.updatedAt || 0).getTime();
+  const bUpdatedAt = new Date(b?.updatedAt || 0).getTime();
+  if (aUpdatedAt !== bUpdatedAt) {
+    return bUpdatedAt - aUpdatedAt;
+  }
+
+  return String(a?._id || a?.id || "").localeCompare(
+    String(b?._id || b?.id || ""),
+  );
+}
+
+function splitProductsForDisplay(products) {
+  const orderedProducts = [...products].sort(compareProductsForDisplay);
+
+  return {
+    orderedProducts,
+    hotSellerProducts: orderedProducts.filter((product) => Boolean(product.isHotSeller)),
+    regularProducts: orderedProducts.filter((product) => !product.isHotSeller),
+  };
 }
 
 function toDetailObject(input) {
@@ -191,6 +270,31 @@ async function findAvailableProductSlug(baseSlug, excludeId = null) {
   }
 
   throw new Error("Unable to allocate unique product slug");
+}
+
+async function getNextDisplayOrder(category, isHotSeller, excludeId = null) {
+  const normalizedCategory = String(category || "").trim();
+  if (!normalizedCategory) {
+    return 0;
+  }
+
+  const filter = {
+    category: normalizedCategory,
+    isHotSeller: Boolean(isHotSeller),
+  };
+
+  if (excludeId) {
+    filter._id = { $ne: excludeId };
+  }
+
+  const products = await Product.find(filter).select("displayOrder updatedAt");
+  const sortedProducts = [...products].sort(compareProductsForDisplay);
+  const highestDisplayOrder = sortedProducts.reduce((max, product) => {
+    const displayOrder = getDisplayOrderValue(product.displayOrder);
+    return displayOrder === null ? max : Math.max(max, displayOrder);
+  }, -1);
+
+  return highestDisplayOrder + 1;
 }
 
 async function validateCategoryAndSubcategory(categorySlug, subcategorySlug) {
@@ -361,6 +465,7 @@ export const upsertProduct = async (req, res) => {
     detailTags = [],
     listSpecs = [],
     detail,
+    isHotSeller = false,
     uploadDraftId = "",
   } = req.body;
 
@@ -381,6 +486,8 @@ export const upsertProduct = async (req, res) => {
     const normalizedBadge = String(badge || "").trim();
     const normalizedStatus = status === "Low Stock" ? "Low Stock" : "In Stock";
     const normalizedSubcategory = String(subcategory || "").trim();
+    const normalizedDetailTags = normalizeDetailTags(detailTags);
+    const normalizedIsHotSeller = normalizeHotSellerFlag(isHotSeller);
 
     if (
       !normalizedName ||
@@ -392,6 +499,17 @@ export const upsertProduct = async (req, res) => {
       return sendError(
         res,
         "Missing required fields (name, category, sku, price, image)",
+        400,
+      );
+    }
+
+    if (
+      isHotSellerLabel(normalizedBadge) ||
+      normalizedDetailTags.some((tag) => isHotSellerLabel(tag))
+    ) {
+      return sendError(
+        res,
+        "Use the Hot Seller toggle instead of typing HOT SELLER in badge or detail tags",
         400,
       );
     }
@@ -413,8 +531,9 @@ export const upsertProduct = async (req, res) => {
       image: normalizedImage,
       status: normalizedStatus,
       badge: normalizedBadge,
-      detailTags: normalizeDetailTags(detailTags),
+      detailTags: normalizedDetailTags,
       listSpecs: normalizeSpecs(listSpecs),
+      isHotSeller: normalizedIsHotSeller,
     };
 
     if (id) {
@@ -425,6 +544,9 @@ export const upsertProduct = async (req, res) => {
 
       const previousSlug = String(product.slug || "").trim();
       const previousManagedUrls = collectProductManagedImageUrls(product);
+      const previousCategory = String(product.category || "").trim();
+      const previousIsHotSeller = Boolean(product.isHotSeller);
+      const previousDisplayOrder = getDisplayOrderValue(product.displayOrder);
 
       const duplicateSku = await Product.findOne({
         sku: normalizedSku,
@@ -448,11 +570,19 @@ export const upsertProduct = async (req, res) => {
       const normalizedDetail = hasIncomingDetail
         ? mergeProductDetail(product.detail, detail)
         : product.detail;
+      const shouldReassignDisplayOrder =
+        previousCategory !== normalizedCategory ||
+        previousIsHotSeller !== normalizedIsHotSeller ||
+        previousDisplayOrder === null;
+      const nextDisplayOrder = shouldReassignDisplayOrder
+        ? await getNextDisplayOrder(normalizedCategory, normalizedIsHotSeller, id)
+        : previousDisplayOrder;
       const payload = {
         ...normalizedPayloadBase,
         slug: resolvedSlug,
         galleryImages: normalizeGallery(galleryImages, normalizedImage),
         detail: normalizedDetail,
+        displayOrder: nextDisplayOrder,
       };
       const nextManagedUrls = collectProductManagedImageUrls(payload);
 
@@ -522,6 +652,10 @@ export const upsertProduct = async (req, res) => {
     const normalizedDetail = hasIncomingDetail
       ? mergeProductDetail(null, detail)
       : null;
+    const nextDisplayOrder = await getNextDisplayOrder(
+      normalizedCategory,
+      normalizedIsHotSeller,
+    );
 
     for (let retry = 0; retry <= SLUG_SAVE_RETRY_LIMIT; retry += 1) {
       try {
@@ -530,6 +664,7 @@ export const upsertProduct = async (req, res) => {
           slug: resolvedSlug,
           galleryImages: normalizeGallery(galleryImages, normalizedImage),
           detail: normalizedDetail,
+          displayOrder: nextDisplayOrder,
         };
 
         created = await Product.create(payload);
@@ -582,6 +717,7 @@ export const getProductList = async (req, res) => {
   const keyword = String(req.query.keyword || "").trim();
   const category = String(req.query.category || "").trim();
   const status = String(req.query.status || "").trim();
+  const isPublicRequest = String(req.originalUrl || "").includes("/public/");
 
   const filter = {};
   if (keyword) {
@@ -607,6 +743,25 @@ export const getProductList = async (req, res) => {
       Expires: "0",
     });
 
+    if (isPublicRequest && category) {
+      const products = await Product.find(filter);
+      const { orderedProducts } = splitProductsForDisplay(products);
+      const total = orderedProducts.length;
+
+      return sendSuccess(
+        res,
+        {
+          products: orderedProducts.slice(skip, skip + pageSize),
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        },
+        "Product list fetched successfully",
+        200,
+      );
+    }
+
     const [total, products] = await Promise.all([
       Product.countDocuments(filter),
       Product.find(filter).sort({ updatedAt: -1 }).skip(skip).limit(pageSize),
@@ -626,6 +781,125 @@ export const getProductList = async (req, res) => {
     );
   } catch (err) {
     console.error("Get Product List Error:", err);
+    return sendError(res, "Server error", 500);
+  }
+};
+
+export const getDisplayOrder = async (req, res) => {
+  const category = String(req.query.category || "").trim();
+
+  if (!category) {
+    return sendError(res, "Category is required", 400);
+  }
+
+  try {
+    const products = await Product.find({ category });
+    const { hotSellerProducts, regularProducts } = splitProductsForDisplay(products);
+
+    return sendSuccess(
+      res,
+      {
+        category,
+        hotSellerProducts,
+        regularProducts,
+        total: products.length,
+      },
+      "Product display order fetched successfully",
+      200,
+    );
+  } catch (error) {
+    console.error("Get Product Display Order Error:", error);
+    return sendError(res, "Server error", 500);
+  }
+};
+
+export const saveDisplayOrder = async (req, res) => {
+  const category = String(req.body.category || "").trim();
+  const hotSellerProductIds = normalizeIdList(req.body.hotSellerProductIds);
+  const regularProductIds = normalizeIdList(req.body.regularProductIds);
+  const combinedIds = [...hotSellerProductIds, ...regularProductIds];
+  const uniqueIds = new Set(combinedIds);
+
+  if (!category) {
+    return sendError(res, "Category is required", 400);
+  }
+
+  if (uniqueIds.size !== combinedIds.length) {
+    return sendError(res, "Product IDs must be unique within the arrangement", 400);
+  }
+
+  try {
+    const categoryProducts = await Product.find({ category }).select("_id");
+    const categoryProductIds = categoryProducts.map((product) => String(product._id));
+    const categoryProductIdSet = new Set(categoryProductIds);
+
+    if (categoryProductIds.length !== combinedIds.length) {
+      return sendError(
+        res,
+        "Display order payload must include every product in the selected category",
+        400,
+      );
+    }
+
+    const invalidId = combinedIds.find((productId) => !categoryProductIdSet.has(productId));
+    if (invalidId) {
+      return sendError(
+        res,
+        "Display order payload contains products outside the selected category",
+        400,
+      );
+    }
+
+    if (combinedIds.length === 0) {
+      return sendSuccess(
+        res,
+        {
+          category,
+          total: 0,
+        },
+        "Product display order saved successfully",
+        200,
+      );
+    }
+
+    const bulkOperations = [
+      ...hotSellerProductIds.map((productId, index) => ({
+        updateOne: {
+          filter: { _id: productId, category },
+          update: {
+            $set: {
+              isHotSeller: true,
+              displayOrder: index,
+            },
+          },
+        },
+      })),
+      ...regularProductIds.map((productId, index) => ({
+        updateOne: {
+          filter: { _id: productId, category },
+          update: {
+            $set: {
+              isHotSeller: false,
+              displayOrder: index,
+            },
+          },
+        },
+      })),
+    ];
+
+    await Product.bulkWrite(bulkOperations);
+
+    return sendSuccess(
+      res,
+      {
+        category,
+        total: combinedIds.length,
+      },
+      "Product display order saved successfully",
+      200,
+    );
+  } catch (error) {
+    console.error("Save Product Display Order Error:", error);
     return sendError(res, "Server error", 500);
   }
 };

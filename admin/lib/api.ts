@@ -75,6 +75,13 @@ export type ImageUploadSignResult = {
   };
 };
 
+export type ProductDisplayOrderRecord = {
+  category: string;
+  hotSellerProducts: Product[];
+  regularProducts: Product[];
+  total: number;
+};
+
 async function unwrap<T>(
   request: Promise<AxiosResponse<ApiResponse<T>>>,
 ): Promise<ApiResponse<T>> {
@@ -190,6 +197,20 @@ export const getProductListApi = (params: {
     pageSize: number;
     totalPages: number;
   }>(http.get("/products/getProductList", { params }));
+
+export const getProductDisplayOrderApi = (params: { category: string }) =>
+  unwrap<ProductDisplayOrderRecord>(
+    http.get("/products/getDisplayOrder", { params }),
+  );
+
+export const saveProductDisplayOrderApi = (params: {
+  category: string;
+  hotSellerProductIds: string[];
+  regularProductIds: string[];
+}) =>
+  unwrap<{ category: string; total: number }>(
+    http.post("/products/saveDisplayOrder", params),
+  );
 
 export const upsertProductApi = (
   params: (Partial<Product> & Record<string, unknown>) & {

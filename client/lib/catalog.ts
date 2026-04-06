@@ -41,12 +41,16 @@ export type Product = {
   price: string;
   image: string;
   galleryImages?: string[];
+  isHotSeller?: boolean;
+  displayOrder?: number;
   detailTags?: string[];
   status: ProductStatus;
   listSpecs: ProductSpec[];
   badge?: string;
   detail?: ProductDetailContent | null;
 };
+
+const HOT_SELLER_LABEL = "HOT SELLER";
 
 const images = {
   hero: "https://lh3.googleusercontent.com/aida-public/AB6AXuB-GxRg8Dqr_6u7A3G5pm12_PnAhGPryI_6hnX1gKsObjj35PdE9nArjKW7M5psJdErmUnnetsknSda2uNNMJOTaeWOeE8nUelCi8-_33R-7D_wYyRTDFIaDzT-tC6kG9krU-gd-P9X-ocDxgkP3BbMZiAezOb4qr7-48RD8FTSgAojnk03EYGpPPnVZlWoAtSEKJ4-xWUjA0fHdGllaDwm1-jmrgctOVWbDIz43yWSR6jAs1MDeN_nBRS5J5dP62uOWv13W6aHwHU",
@@ -92,6 +96,37 @@ export function getSubcategoryHref(category: CategorySlug, subcategory: string) 
 
 export function getProductHref(product: Product) {
   return `/category/${product.category}/product/${encodeURIComponent(product.sku)}`;
+}
+
+export function getProductBadgeText(product: Product) {
+  if (product.isHotSeller) {
+    return HOT_SELLER_LABEL;
+  }
+
+  return String(product.badge || "").trim();
+}
+
+export function getProductDetailTags(product: Product) {
+  const dedupe = new Set<string>();
+  const merged: string[] = [];
+
+  if (product.isHotSeller) {
+    dedupe.add(HOT_SELLER_LABEL.toLowerCase());
+    merged.push(HOT_SELLER_LABEL);
+  }
+
+  (Array.isArray(product.detailTags) ? product.detailTags : []).forEach((item) => {
+    const value = String(item || "").trim();
+    const dedupeKey = value.toLowerCase();
+    if (!value || dedupe.has(dedupeKey)) {
+      return;
+    }
+
+    dedupe.add(dedupeKey);
+    merged.push(value);
+  });
+
+  return merged;
 }
 
 export function getProductGalleryImages(product: Product) {

@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-import { getProductHref, type Product } from "@/lib/catalog";
+import {
+  getProductBadgeText,
+  getProductHref,
+  type Product,
+} from "@/lib/catalog";
 
 type ProductListRowProps = {
   product: Product;
@@ -10,6 +14,7 @@ type ProductListRowProps = {
 function ProductListRow({ product, href }: ProductListRowProps) {
   const productHref = href || getProductHref(product);
   const topSpecs = product.listSpecs.slice(0, 2);
+  const productBadge = getProductBadgeText(product);
 
   return (
     <article className="group rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-300 hover:shadow-sm">
@@ -31,6 +36,11 @@ function ProductListRow({ product, href }: ProductListRowProps) {
             <p className="font-mono text-[11px] uppercase tracking-wide text-gray-500">
               SKU {product.sku}
             </p>
+            {productBadge ? (
+              <span className="rounded-full bg-black px-2 py-0.5 text-[11px] font-semibold uppercase text-white">
+                {productBadge}
+              </span>
+            ) : null}
             <span
               className={
                 product.status === "In Stock"
