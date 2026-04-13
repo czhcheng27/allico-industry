@@ -20,6 +20,11 @@ export const routeConfig = [
     defaultRoles: ["admin", "manager"],
   },
   {
+    route: "/categories/display-order",
+    actions: ["read", "write"],
+    defaultRoles: ["admin", "manager"],
+  },
+  {
     route: "/system-management/user",
     actions: ["read", "write"],
     defaultRoles: ["admin"],

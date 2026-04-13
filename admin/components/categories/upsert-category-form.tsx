@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import { Button, Form, Input, InputNumber, Select, Space, message } from "antd";
+import { Button, Form, Input, Select, Space, message } from "antd";
 import {
   getCategoryImageUploadSignApi,
   upsertCategoryApi,
@@ -86,7 +86,6 @@ export type UpsertCategoryFormRef = {
       description?: string;
       cardImage?: string;
       icon?: string;
-      sortOrder?: number;
       subcategories: CategoryUpsertSubcategory[];
     };
   }>;
@@ -140,10 +139,6 @@ export const UpsertCategoryForm = forwardRef<
         description: String(values.description || "").trim(),
         cardImage: String(values.cardImage || "").trim(),
         icon: String(values.icon || "category").trim() || "category",
-        sortOrder:
-          typeof values.sortOrder === "number"
-            ? values.sortOrder
-            : Number(values.sortOrder) || 0,
         subcategories,
         uploadDraftId,
       };
@@ -167,7 +162,6 @@ export const UpsertCategoryForm = forwardRef<
       form.setFieldsValue({
         slug: "",
         icon: "category",
-        sortOrder: 0,
         subcategories: [{ slug: "", name: "", originalSlug: "", slugEdited: 0 }],
       });
       slugEditedManuallyRef.current = false;
@@ -264,9 +258,6 @@ export const UpsertCategoryForm = forwardRef<
               value: item.value,
             }))}
           />
-        </Form.Item>
-        <Form.Item name="sortOrder" label="Sort Order" style={{ flex: 1 }}>
-          <InputNumber style={{ width: "100%" }} />
         </Form.Item>
       </Space>
 

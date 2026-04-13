@@ -26,6 +26,11 @@ export function getMenuConfig(): MenuItem[] {
   return [
     createMenuItem("Dashboard", "/dashboard", createElement(DashboardOutlined)),
     createMenuItem("Categories", "/categories", createElement(AppstoreOutlined)),
+    createMenuItem(
+      "Category Display Order",
+      "/categories/display-order",
+      createElement(OrderedListOutlined),
+    ),
     createMenuItem("Products", "/products", createElement(DatabaseOutlined)),
     createMenuItem(
       "Product Display Order",

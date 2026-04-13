@@ -11,6 +11,11 @@ import { sendSuccess, sendError } from "../utils/response.js";
 const CATEGORY_SLUG_SCAN_LIMIT = 5000;
 const CATEGORY_SLUG_SAVE_RETRY_LIMIT = 3;
 
+function getCategorySortOrderValue(value) {
+  const normalized = Number(value);
+  return Number.isFinite(normalized) ? normalized : null;
+}
+
 function isDuplicateKeyError(error, key) {
   if (!error || error.code !== 11000) {
     return false;
@@ -109,12 +114,44 @@ function buildCategoryPayload(input, slug, normalizedSubcategories) {
     description: String(input.description || "").trim(),
     cardImage: String(input.cardImage || "").trim(),
     icon: String(input.icon || "category").trim() || "category",
-    sortOrder: Number.isFinite(Number(input.sortOrder)) ? Number(input.sortOrder) : 0,
+    sortOrder: getCategorySortOrderValue(input.sortOrder) ?? 0,
     subcategories: normalizedSubcategories.map((item) => ({
       slug: item.slug,
       name: item.name,
     })),
   };
+}
+
+async function getNextCategorySortOrder() {
+  const categories = await Category.find({}).select("sortOrder");
+  const highestSortOrder = categories.reduce((max, category) => {
+    const sortOrder = getCategorySortOrderValue(category.sortOrder);
+    return sortOrder === null ? max : Math.max(max, sortOrder);
+  }, -1);
+
+  return highestSortOrder + 1;
+}
+
+async function findSortedCategories(filter = {}) {
+  return Category.find(filter).sort({
+    sortOrder: 1,
+    createdAt: 1,
+  });
+}
+
+function normalizeDisplayOrderEntries(input) {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input.map((item) => ({
+    id: String(item?.id || "").trim(),
+    subcategorySlugs: Array.isArray(item?.subcategorySlugs)
+      ? item.subcategorySlugs
+          .map((subItem) => String(subItem || "").trim().toLowerCase())
+          .filter(Boolean)
+      : [],
+  }));
 }
 
 async function getSubcategoriesInUse({
@@ -262,8 +299,12 @@ export const upsertCategory = async (req, res) => {
         ? await findAvailableCategorySlug(categorySlugBase, id)
         : previousSlug;
       let latestSaveError = null;
+      const preservedSortOrder = getCategorySortOrderValue(category.sortOrder) ?? 0;
       const payloadBase = buildCategoryPayload(
-        req.body,
+        {
+          ...req.body,
+          sortOrder: preservedSortOrder,
+        },
         resolvedSlug,
         normalizedSubcategories,
       );
@@ -316,11 +357,15 @@ export const upsertCategory = async (req, res) => {
     let resolvedSlug = await findAvailableCategorySlug(categorySlugBase);
     let latestCreateError = null;
     let created = null;
+    const nextSortOrder = await getNextCategorySortOrder();
 
     for (let retry = 0; retry <= CATEGORY_SLUG_SAVE_RETRY_LIMIT; retry += 1) {
       try {
         const payload = buildCategoryPayload(
-          req.body,
+          {
+            ...req.body,
+            sortOrder: nextSortOrder,
+          },
           resolvedSlug,
           normalizedSubcategories,
         );
@@ -361,6 +406,162 @@ export const upsertCategory = async (req, res) => {
   }
 };
 
+export const getCategoryDisplayOrder = async (_req, res) => {
+  try {
+    const categories = await findSortedCategories();
+
+    return sendSuccess(
+      res,
+      {
+        categories,
+        total: categories.length,
+      },
+      "Category display order fetched successfully",
+      200,
+    );
+  } catch (error) {
+    console.error("Get Category Display Order Error:", error);
+    return sendError(res, "Server error", 500);
+  }
+};
+
+export const saveCategoryDisplayOrder = async (req, res) => {
+  if (!Array.isArray(req.body.categories)) {
+    return sendError(res, "Categories display order payload is required", 400);
+  }
+
+  const arrangement = normalizeDisplayOrderEntries(req.body.categories);
+  const categoryIds = arrangement.map((item) => item.id);
+  const uniqueCategoryIds = new Set(categoryIds);
+
+  if (categoryIds.some((id) => !id)) {
+    return sendError(res, "Category IDs are required in the arrangement", 400);
+  }
+
+  if (uniqueCategoryIds.size !== categoryIds.length) {
+    return sendError(res, "Category IDs must be unique within the arrangement", 400);
+  }
+
+  try {
+    const categories = await findSortedCategories();
+    const categoryById = new Map(
+      categories.map((category) => [String(category._id), category]),
+    );
+
+    if (categories.length !== arrangement.length) {
+      return sendError(
+        res,
+        "Display order payload must include every category exactly once",
+        400,
+      );
+    }
+
+    const invalidCategoryId = categoryIds.find((id) => !categoryById.has(id));
+    if (invalidCategoryId) {
+      return sendError(
+        res,
+        "Display order payload contains categories outside the current catalog",
+        400,
+      );
+    }
+
+    const bulkOperations = arrangement.map((item, index) => {
+      const category = categoryById.get(item.id);
+      const currentSubcategories = Array.isArray(category?.subcategories)
+        ? category.subcategories
+        : [];
+      const currentSubcategorySlugs = currentSubcategories
+        .map((subItem) => String(subItem?.slug || "").trim().toLowerCase())
+        .filter(Boolean);
+      const uniqueSubcategorySlugs = new Set(item.subcategorySlugs);
+
+      if (uniqueSubcategorySlugs.size !== item.subcategorySlugs.length) {
+        throw new Error("duplicate-subcategory");
+      }
+
+      if (currentSubcategorySlugs.length !== item.subcategorySlugs.length) {
+        throw new Error("incomplete-subcategory");
+      }
+
+      const currentSubcategorySlugSet = new Set(currentSubcategorySlugs);
+      const invalidSubcategorySlug = item.subcategorySlugs.find(
+        (slug) => !currentSubcategorySlugSet.has(slug),
+      );
+
+      if (invalidSubcategorySlug) {
+        throw new Error("invalid-subcategory");
+      }
+
+      const subcategoryBySlug = new Map(
+        currentSubcategories.map((subItem) => [
+          String(subItem?.slug || "").trim().toLowerCase(),
+          subItem,
+        ]),
+      );
+
+      const reorderedSubcategories = item.subcategorySlugs.map((slug) => {
+        const matched = subcategoryBySlug.get(slug);
+        return {
+          slug: String(matched?.slug || "").trim(),
+          name: String(matched?.name || "").trim(),
+        };
+      });
+
+      return {
+        updateOne: {
+          filter: { _id: item.id },
+          update: {
+            $set: {
+              sortOrder: index,
+              subcategories: reorderedSubcategories,
+            },
+          },
+        },
+      };
+    });
+
+    if (bulkOperations.length > 0) {
+      await Category.bulkWrite(bulkOperations);
+    }
+
+    return sendSuccess(
+      res,
+      {
+        total: arrangement.length,
+      },
+      "Category display order saved successfully",
+      200,
+    );
+  } catch (error) {
+    if (error.message === "duplicate-subcategory") {
+      return sendError(
+        res,
+        "Subcategory slugs must be unique within each category arrangement",
+        400,
+      );
+    }
+
+    if (error.message === "incomplete-subcategory") {
+      return sendError(
+        res,
+        "Display order payload must include every subcategory for each category",
+        400,
+      );
+    }
+
+    if (error.message === "invalid-subcategory") {
+      return sendError(
+        res,
+        "Display order payload contains invalid subcategories for a category",
+        400,
+      );
+    }
+
+    console.error("Save Category Display Order Error:", error);
+    return sendError(res, "Server error", 500);
+  }
+};
+
 export const getCategoryList = async (req, res) => {
   const keyword = String(req.query.keyword || "").trim();
   const filter = {};
@@ -376,10 +577,7 @@ export const getCategoryList = async (req, res) => {
   }
 
   try {
-    const categories = await Category.find(filter).sort({
-      sortOrder: 1,
-      createdAt: 1,
-    });
+    const categories = await findSortedCategories(filter);
 
     return sendSuccess(
       res,

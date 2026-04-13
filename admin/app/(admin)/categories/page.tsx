@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Input,
@@ -39,6 +40,7 @@ function createUploadDraftId() {
 }
 
 export default function CategoriesPage() {
+  const router = useRouter();
   const [tableData, setTableData] = useState<CategoryRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -182,6 +184,13 @@ export default function CategoriesPage() {
           Reset
         </Button>
         <PermissionButton
+          action="read"
+          route="/categories/display-order"
+          onClick={() => router.push("/categories/display-order")}
+        >
+          Category Display Order
+        </PermissionButton>
+        <PermissionButton
           type="primary"
           route="/categories"
           onClick={() => openCategoryDrawer("create")}
@@ -237,11 +246,6 @@ export default function CategoriesPage() {
                   </div>
                 );
               },
-            },
-            {
-              title: "Sort",
-              dataIndex: "sortOrder",
-              width: 100,
             },
             {
               title: "Updated At",

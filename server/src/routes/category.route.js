@@ -2,7 +2,9 @@ import express from "express";
 import {
   deleteCategory,
   getCategoryBySlug,
+  getCategoryDisplayOrder,
   getCategoryList,
+  saveCategoryDisplayOrder,
   upsertCategory,
 } from "../controllers/category.controller.js";
 import {
@@ -37,6 +39,20 @@ router.get(
   attachPermissions,
   authorizeRouteAccess("/categories"),
   getCategoryBySlug,
+);
+router.get(
+  "/getDisplayOrder",
+  protect,
+  attachPermissions,
+  authorizeRouteAccess("/categories/display-order"),
+  getCategoryDisplayOrder,
+);
+router.post(
+  "/saveDisplayOrder",
+  protect,
+  attachPermissions,
+  authorizeRouteAction("/categories/display-order", "write"),
+  saveCategoryDisplayOrder,
 );
 router.delete(
   "/deleteCategory/:id",

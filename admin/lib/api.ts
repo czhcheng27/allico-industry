@@ -59,6 +59,13 @@ export type CategoryRecord = {
   updatedAt: string;
 };
 
+export type CategoryDisplayOrderRecord = CategoryRecord;
+
+export type CategoryDisplayOrderItem = {
+  id: string;
+  subcategorySlugs: string[];
+};
+
 export type ImageUploadSignPayload = {
   filename: string;
   contentType: string;
@@ -151,6 +158,17 @@ export const getCategoryListApi = (params?: { keyword?: string }) =>
     total: number;
   }>(http.get("/categories/getCategoryList", { params }));
 
+export const getCategoryDisplayOrderApi = () =>
+  unwrap<{
+    categories: CategoryDisplayOrderRecord[];
+    total: number;
+  }>(http.get("/categories/getDisplayOrder"));
+
+export const saveCategoryDisplayOrderApi = (params: {
+  categories: CategoryDisplayOrderItem[];
+}) =>
+  unwrap<{ total: number }>(http.post("/categories/saveDisplayOrder", params));
+
 export const upsertCategoryApi = (params: {
   id?: string;
   slug: string;
@@ -159,7 +177,6 @@ export const upsertCategoryApi = (params: {
   description?: string;
   cardImage?: string;
   icon?: string;
-  sortOrder?: number;
   subcategories: CategoryUpsertSubcategory[];
   uploadDraftId?: string;
 }) => unwrap<CategoryRecord>(http.post("/categories/upsertCategory", params));
