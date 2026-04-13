@@ -108,7 +108,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
               <div className="mx-auto h-1 w-24 bg-primary" />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
               {categories.map((category, index) => (
                 <Link
                   key={category.slug}
