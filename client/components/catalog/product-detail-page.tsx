@@ -76,7 +76,7 @@ function ProductDetailPage({
             </nav>
 
             <Link
-              className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-black hover:text-black"
+              className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-brand-ink hover:text-black"
               href={backHref || getCategoryHref(category.slug)}
             >
               <span className="material-symbols-outlined text-sm transition group-hover:-translate-x-0.5">
@@ -237,11 +237,11 @@ function ProductDetailPage({
             </div>
 
             <div className="lg:w-1/3">
-              <div className="rounded-lg bg-zinc-900 p-8 text-white shadow-xl">
-                <h4 className="mb-4 border-b border-zinc-700 pb-4 font-display text-2xl font-bold uppercase">
+              <div className="rounded-lg bg-brand-ink p-8 text-white shadow-xl">
+                <h4 className="mb-4 border-b border-white/12 pb-4 font-display text-2xl font-bold uppercase">
                   Safe Lifting Assurance
                 </h4>
-                <div className="mb-8 space-y-4 text-zinc-200">
+                <div className="mb-8 space-y-4 text-white/80">
                   <p className="text-sm leading-relaxed">
                     Allico Industries chains undergo rigorous testing to ensure maximum
                     safety on your job site.

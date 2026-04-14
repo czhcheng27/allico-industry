@@ -151,7 +151,7 @@ function CategoryPage({
                   aria-label="Grid view"
                   className={
                     viewMode === "grid"
-                      ? "inline-flex items-center justify-center bg-black px-2.5 py-1.5 text-white"
+                      ? "inline-flex items-center justify-center bg-brand-ink px-2.5 py-1.5 text-white"
                       : "inline-flex items-center justify-center bg-white px-2.5 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-black"
                   }
                   href={buildPageHref(
@@ -167,7 +167,7 @@ function CategoryPage({
                   aria-label="List view"
                   className={
                     viewMode === "list"
-                      ? "inline-flex items-center justify-center bg-black px-2.5 py-1.5 text-white"
+                      ? "inline-flex items-center justify-center bg-brand-ink px-2.5 py-1.5 text-white"
                       : "inline-flex items-center justify-center bg-white px-2.5 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-black"
                   }
                   href={buildPageHref(
@@ -251,7 +251,7 @@ function CategoryPage({
                   key={page}
                   className={
                     page === currentPage
-                      ? "rounded-sm bg-black px-4 py-2 text-sm font-bold text-white"
+                      ? "rounded-sm bg-brand-ink px-4 py-2 text-sm font-bold text-white"
                       : "rounded-sm border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   }
                   href={buildPageHref(category.slug, selectedFilters, page, viewMode)}

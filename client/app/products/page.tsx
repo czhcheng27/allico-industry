@@ -179,7 +179,7 @@ export default async function ProductsRoutePage({
                   aria-label="Grid view"
                   className={
                     viewMode === "grid"
-                      ? "inline-flex items-center justify-center bg-black px-2.5 py-1.5 text-white"
+                      ? "inline-flex items-center justify-center bg-brand-ink px-2.5 py-1.5 text-white"
                       : "inline-flex items-center justify-center bg-white px-2.5 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-black"
                   }
                   href={buildPageHref(filters, "grid")}
@@ -190,7 +190,7 @@ export default async function ProductsRoutePage({
                   aria-label="List view"
                   className={
                     viewMode === "list"
-                      ? "inline-flex items-center justify-center bg-black px-2.5 py-1.5 text-white"
+                      ? "inline-flex items-center justify-center bg-brand-ink px-2.5 py-1.5 text-white"
                       : "inline-flex items-center justify-center bg-white px-2.5 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-black"
                   }
                   href={buildPageHref(filters, "list")}

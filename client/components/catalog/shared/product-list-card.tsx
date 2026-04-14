@@ -24,7 +24,7 @@ function ProductListCard({ product, href }: ProductListCardProps) {
         href={productHref}
       >
         {productBadge ? (
-          <span className="absolute left-2 top-2 z-10 bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+          <span className="absolute left-2 top-2 z-10 bg-brand-ink px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
             {productBadge}
           </span>
         ) : null}
@@ -68,7 +68,7 @@ function ProductListCard({ product, href }: ProductListCardProps) {
 
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-display text-xl font-black">{product.price}</span>
-          <button className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-black transition-colors hover:bg-black hover:text-white">
+          <button className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-black transition-colors hover:bg-brand-ink hover:text-white">
             Add to Cart
           </button>
         </div>

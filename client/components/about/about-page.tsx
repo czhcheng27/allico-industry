@@ -75,7 +75,7 @@ async function AboutPage() {
                   Browse Catalog
                 </Link>
                 {/* <Link
-                  className="inline-flex items-center justify-center border border-zinc-900 px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-zinc-900 transition hover:bg-zinc-900 hover:text-white"
+                  className="inline-flex items-center justify-center border border-brand-ink px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-black transition hover:bg-brand-ink hover:text-white"
                   href="tel:8885550199"
                 >
                   Contact Us

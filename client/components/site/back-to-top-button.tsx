@@ -31,7 +31,7 @@ function BackToTopButton() {
         "fixed bottom-24 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full",
         "bg-primary text-black shadow-xl transition-all duration-200",
         "hover:-translate-y-0.5 hover:bg-yellow-400",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink",
         "sm:bottom-24 sm:right-6",
         visible
           ? "pointer-events-auto translate-y-0 opacity-100"

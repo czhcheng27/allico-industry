@@ -37,7 +37,7 @@ function ProductListRow({ product, href }: ProductListRowProps) {
               SKU {product.sku}
             </p>
             {productBadge ? (
-              <span className="rounded-full bg-black px-2 py-0.5 text-[11px] font-semibold uppercase text-white">
+              <span className="rounded-full bg-brand-ink px-2 py-0.5 text-[11px] font-semibold uppercase text-white">
                 {productBadge}
               </span>
             ) : null}
@@ -76,7 +76,7 @@ function ProductListRow({ product, href }: ProductListRowProps) {
             {product.price}
           </div>
           <Link
-            className="inline-flex items-center justify-center rounded-sm border border-gray-300 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-800 transition hover:border-black hover:bg-black hover:text-white"
+            className="inline-flex items-center justify-center rounded-sm border border-gray-300 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-800 transition hover:border-brand-ink hover:bg-brand-ink hover:text-white"
             href={productHref}
           >
             View Details

@@ -26,14 +26,14 @@ async function HomePage({ featuredProducts }: HomePageProps) {
           Free Shipping on Orders Over $500 | Certified Quality Assurance
         </div>
 
-        <section className="relative h-[550px] w-full overflow-hidden bg-black md:h-[650px]">
+        <section className="relative h-[550px] w-full overflow-hidden bg-brand-ink md:h-[650px]">
           <img
             alt="Heavy Duty Towing Equipment Background"
             className="absolute inset-0 h-full w-full object-cover opacity-70"
             src={siteMedia.heroImage}
           />
-          <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-black via-black/80 to-transparent" />
-          <div className="absolute right-0 top-0 h-full w-full bg-gradient-to-l from-transparent via-black/20 to-black/80" />
+          <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-brand-ink via-brand-ink/80 to-transparent" />
+          <div className="absolute right-0 top-0 h-full w-full bg-gradient-to-l from-transparent via-brand-ink/20 to-brand-ink/80" />
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl pt-12">
@@ -72,12 +72,12 @@ async function HomePage({ featuredProducts }: HomePageProps) {
           </div>
         </section>
 
-        <div className="border-b border-zinc-700 bg-zinc-800 py-4 text-xs text-gray-400 shadow-inner md:text-sm">
+        <div className="border-b border-white/10 bg-brand-ink/92 py-4 text-xs text-white/65 shadow-inner md:text-sm">
           <div className="container mx-auto flex items-center justify-between px-4">
             <div className="hidden md:block">
               ISO 9001:2015 Certified Manufacturer
             </div>
-            <div className="flex space-x-6 text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div className="flex space-x-6 text-xs font-bold uppercase tracking-wider text-white/50">
               <span className="flex items-center">
                 <span className="material-symbols-outlined mr-1 text-base text-primary">
                   verified
@@ -115,8 +115,8 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   key={category.slug}
                   className={
                     index === 0
-                      ? "group relative h-[450px] cursor-pointer overflow-hidden border-b-4 border-primary bg-zinc-800"
-                      : "group relative h-[450px] cursor-pointer overflow-hidden border-b-4 border-zinc-700 bg-zinc-800 transition-colors duration-300 hover:border-primary"
+                      ? "group relative h-[450px] cursor-pointer overflow-hidden border-b-4 border-primary bg-brand-ink"
+                      : "group relative h-[450px] cursor-pointer overflow-hidden border-b-4 border-white/10 bg-brand-ink transition-colors duration-300 hover:border-primary"
                   }
                   href={getCategoryHref(category.slug)}
                 >
@@ -125,7 +125,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     className="absolute inset-0 h-full w-full object-cover opacity-70 transition-all duration-700 group-hover:scale-110 group-hover:opacity-50"
                     src={category.cardImage}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-ink via-transparent to-transparent opacity-90" />
                   <div className="absolute bottom-0 left-0 w-full p-6">
                     <div className="mb-2 flex items-center">
                       <span className="material-symbols-outlined mr-2 text-3xl text-primary">
@@ -137,7 +137,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     </div>
 
                     {category.subcategories.length > 0 ? (
-                      <ul className="mb-4 space-y-2 border-l-2 border-zinc-600 pl-1 text-sm text-gray-300 transition-all group-hover:border-primary">
+                      <ul className="mb-4 space-y-2 border-l-2 border-white/20 pl-1 text-sm text-gray-300 transition-all group-hover:border-primary">
                         {category.subcategories.map((subcategory) => (
                           <li
                             key={subcategory.slug}
@@ -223,14 +223,14 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   </a>
                 </div>
 
-                <div className="relative h-80 min-h-[500px] bg-zinc-800 md:h-auto md:w-1/2">
+                <div className="relative h-80 min-h-[500px] bg-brand-ink md:h-auto md:w-1/2">
                   <img
                     alt="Safety Testing Lab"
                     className="absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-overlay"
                     src={siteMedia.safetyImage}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                    <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-primary bg-black/50 backdrop-blur-sm">
+                    <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-primary bg-brand-ink/60 backdrop-blur-sm">
                       <span className="font-display text-3xl font-black text-white">
                         100%
                       </span>
@@ -325,11 +325,11 @@ async function HomePage({ featuredProducts }: HomePageProps) {
             </div>
             <form className="flex w-full shadow-xl md:w-auto">
               <input
-                className="flex-grow bg-white px-4 py-3 text-black placeholder-gray-500 focus:ring-2 focus:ring-black md:w-80"
+                className="flex-grow bg-white px-4 py-3 text-black placeholder-gray-500 focus:ring-2 focus:ring-brand-ink md:w-80"
                 placeholder="Enter your email address"
                 type="email"
               />
-              <button className="bg-black px-8 py-3 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-zinc-800">
+              <button className="bg-brand-ink px-8 py-3 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-brand-ink/90">
                 Subscribe
               </button>
             </form>

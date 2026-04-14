@@ -197,7 +197,7 @@ function FilterLayout({
               Subcategory
             </h4>
             <select
-              className="form-select w-full rounded-sm border border-gray-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-black"
+              className="form-select w-full rounded-sm border border-gray-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-brand-ink"
               value={draftFilters.subcategory}
               onChange={(event) => onSubcategoryChange(event.target.value)}
             >
@@ -217,7 +217,7 @@ function FilterLayout({
           </h4>
           <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
             <input
-              className="form-checkbox rounded-sm border-gray-300 text-black focus:ring-black"
+              className="form-checkbox rounded-sm border-gray-300 text-black focus:ring-brand-ink"
               checked={draftFilters.inStock}
               onChange={(event) => onInStockChange(event.target.checked)}
               type="checkbox"
@@ -235,7 +235,7 @@ function FilterLayout({
           <div className="space-y-1">
             <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
               <input
-                className="form-radio border-gray-300 text-black focus:ring-black"
+                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
                 checked={draftFilters.wllRange === "3000-5000"}
                 onChange={() => onWllRangeChange("3000-5000")}
                 type="radio"
@@ -244,7 +244,7 @@ function FilterLayout({
             </label>
             <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
               <input
-                className="form-radio border-gray-300 text-black focus:ring-black"
+                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
                 checked={draftFilters.wllRange === "5000-10000"}
                 onChange={() => onWllRangeChange("5000-10000")}
                 type="radio"
@@ -253,7 +253,7 @@ function FilterLayout({
             </label>
             <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
               <input
-                className="form-radio border-gray-300 text-black focus:ring-black"
+                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
                 checked={draftFilters.wllRange === "10000+"}
                 onChange={() => onWllRangeChange("10000+")}
                 type="radio"
@@ -262,7 +262,7 @@ function FilterLayout({
             </label>
             <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
               <input
-                className="form-radio border-gray-300 text-black focus:ring-black"
+                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
                 checked={draftFilters.wllRange === ""}
                 onChange={() => onWllRangeChange("")}
                 type="radio"
@@ -288,8 +288,8 @@ function FilterLayout({
                   aria-pressed={isActive}
                   className={
                     isActive
-                      ? "flex w-full items-center justify-between rounded-sm border border-black bg-black px-3 py-2 text-left text-sm font-semibold text-white"
-                      : "flex w-full items-center justify-between rounded-sm border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 transition hover:border-black hover:text-black"
+                      ? "flex w-full items-center justify-between rounded-sm border border-brand-ink bg-brand-ink px-3 py-2 text-left text-sm font-semibold text-white"
+                      : "flex w-full items-center justify-between rounded-sm border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 transition hover:border-brand-ink hover:text-black"
                   }
                   key={option.label}
                   onClick={() => onPriceSortChange(option.value)}
@@ -313,7 +313,7 @@ function FilterLayout({
 
         <div className="flex items-center gap-2">
           <button
-            className="w-full rounded-sm border border-gray-300 bg-white py-2 text-center text-xs font-bold uppercase tracking-wide text-gray-700 transition hover:border-black hover:text-black"
+            className="w-full rounded-sm border border-gray-300 bg-white py-2 text-center text-xs font-bold uppercase tracking-wide text-gray-700 transition hover:border-brand-ink hover:text-black"
             onClick={onReset}
             type="button"
           >
@@ -374,7 +374,7 @@ function FilterLayout({
         <div className="fixed inset-0 z-[80] lg:hidden">
           <button
             aria-label="Close filters"
-            className="absolute inset-0 bg-black/45"
+            className="absolute inset-0 bg-brand-ink/45"
             onClick={() => setIsMobileOpen(false)}
             type="button"
           />
@@ -396,7 +396,7 @@ function FilterLayout({
             {renderFilterCard()}
             <div className="mt-3">
               <Link
-                className="block rounded-sm bg-black py-2 text-center text-xs font-bold uppercase tracking-wide text-white"
+                className="block rounded-sm bg-brand-ink py-2 text-center text-xs font-bold uppercase tracking-wide text-white"
                 href={resetHref}
                 onClick={() => setIsMobileOpen(false)}
               >

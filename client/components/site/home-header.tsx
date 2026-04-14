@@ -20,7 +20,7 @@ async function HomeHeader({
   const categories = await fetchCategories();
 
   return (
-    <header className="relative z-50 border-b border-zinc-800 bg-zinc-900 text-white shadow-lg">
+    <header className="relative z-50 border-b border-white/10 bg-brand-ink text-white shadow-lg">
       <div className="container mx-auto flex h-24 items-center justify-between px-4">
         <HeaderBrand />
         <HeaderDesktopNav
@@ -35,7 +35,7 @@ async function HomeHeader({
             className={
               activePage === "about"
                 ? "font-display text-xs font-bold uppercase tracking-[0.16em] text-primary md:hidden"
-                : "font-display text-xs font-bold uppercase tracking-[0.16em] text-zinc-200 transition hover:text-primary md:hidden"
+                : "font-display text-xs font-bold uppercase tracking-[0.16em] text-white/80 transition hover:text-primary md:hidden"
             }
             href="/about"
           >

@@ -7,7 +7,7 @@ async function HomeFooter() {
   const categories = await fetchCategories();
 
   return (
-    <footer className="border-t border-black bg-zinc-900 pb-8 pt-16 text-white">
+    <footer className="border-t border-white/10 bg-brand-ink pb-8 pt-16 text-white">
       <div className="container mx-auto px-4">
         <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -19,11 +19,11 @@ async function HomeFooter() {
                 </div>
               </div>
             </div>
-            <p className="mb-6 text-sm leading-relaxed text-gray-400">
+            <p className="mb-6 text-sm leading-relaxed text-white/65">
               Allico Industries is the premier provider of heavy-duty towing, recovery,
               and cargo control equipment. Built tough for the toughest jobs on the planet.
             </p>
-            <div className="flex space-x-4 text-gray-500">
+            <div className="flex space-x-4 text-white/45">
               <a className="transition hover:text-primary" href="#">
                 <span className="material-symbols-outlined text-2xl">social_leaderboard</span>
               </a>
@@ -40,7 +40,7 @@ async function HomeFooter() {
             <h4 className="mb-6 border-l-4 border-primary pl-3 text-sm font-bold uppercase tracking-wide text-white">
               Shop Products
             </h4>
-            <ul className="space-y-3 text-sm text-gray-400">
+            <ul className="space-y-3 text-sm text-white/65">
               {categories.map((category) => (
                 <li key={category.slug}>
                   <Link className="flex items-center transition hover:text-primary" href={getCategoryHref(category.slug)}>
@@ -56,7 +56,7 @@ async function HomeFooter() {
             <h4 className="mb-6 border-l-4 border-primary pl-3 text-sm font-bold uppercase tracking-wide text-white">
               Customer Support
             </h4>
-            <ul className="space-y-3 text-sm text-gray-400">
+            <ul className="space-y-3 text-sm text-white/65">
               <li>
                 <a className="transition hover:text-primary" href="#">
                   Order Status
@@ -89,7 +89,7 @@ async function HomeFooter() {
             <h4 className="mb-6 border-l-4 border-primary pl-3 text-sm font-bold uppercase tracking-wide text-white">
               Contact
             </h4>
-            <div className="space-y-4 text-sm text-gray-400">
+            <div className="space-y-4 text-sm text-white/65">
               <div className="flex items-start">
                 <span className="material-symbols-outlined mr-3 mt-1 text-primary">
                   location_on
@@ -109,7 +109,7 @@ async function HomeFooter() {
                 <span>sales@allicoind.com</span>
               </div>
             </div>
-            <div className="mt-6 inline-block rounded border border-zinc-700 bg-black p-3">
+            <div className="mt-6 inline-block rounded border border-white/12 bg-white/6 p-3">
               <div className="flex items-center space-x-2">
                 <span className="material-symbols-outlined text-yellow-500">verified</span>
                 <div className="text-xs font-bold leading-tight text-white">
@@ -122,12 +122,12 @@ async function HomeFooter() {
           </div>
         </div>
 
-        <div className="border-t border-zinc-800 pt-8 text-xs text-gray-600">
+        <div className="border-t border-white/10 pt-8 text-xs text-white/40">
           <div className="mx-auto max-w-xl text-center md:mx-0 md:text-left">
-            <p className="text-[11px] leading-relaxed text-gray-600 sm:text-xs">
+            <p className="text-[11px] leading-relaxed text-white/40 sm:text-xs">
               (c) 2026 Allico Industries. All rights reserved. | Privacy Policy | Terms of Service
             </p>
-            <p className="mt-1 text-[11px] leading-relaxed tracking-[0.08em] text-gray-500">
+            <p className="mt-1 text-[11px] leading-relaxed tracking-[0.08em] text-white/32">
               Develop By Zihang Cheng
             </p>
           </div>

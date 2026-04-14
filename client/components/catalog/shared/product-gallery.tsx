@@ -101,7 +101,7 @@ function ProductGallery({ images, alt, tags = [] }: ProductGalleryProps) {
           {isHovering ? (
             <div className="pointer-events-none absolute inset-0 hidden lg:block">
               <div
-                className="absolute h-52 w-52 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full border-2 border-white shadow-2xl ring-1 ring-black/15"
+                className="absolute h-52 w-52 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full border-2 border-white shadow-2xl ring-1 ring-brand-ink/15"
                 style={{
                   left: `${cursorPosition.x}px`,
                   top: `${cursorPosition.y}px`,
@@ -164,7 +164,7 @@ function ProductGallery({ images, alt, tags = [] }: ProductGalleryProps) {
       </div>
 
       {isLightboxOpen ? (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 p-6">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-brand-ink/90 p-6">
           <button
             className="absolute right-6 top-6 rounded-sm border border-zinc-500 px-3 py-1 text-sm font-bold uppercase text-white transition hover:border-white"
             onClick={() => setIsLightboxOpen(false)}
@@ -194,7 +194,7 @@ function ProductGallery({ images, alt, tags = [] }: ProductGalleryProps) {
                   className={
                     activeIndex === index
                       ? "h-14 w-14 overflow-hidden rounded border-2 border-primary"
-                      : "h-14 w-14 overflow-hidden rounded border border-zinc-500"
+                      : "h-14 w-14 overflow-hidden rounded border border-white/35"
                   }
                   onClick={() => setActiveIndex(index)}
                   type="button"

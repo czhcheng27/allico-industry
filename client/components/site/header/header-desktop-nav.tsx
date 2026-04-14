@@ -33,16 +33,16 @@ function HeaderDesktopNav({
             >
               {category.name}
               {category.subcategories.length > 0 ? (
-                <span className="material-symbols-outlined ml-1 text-sm text-zinc-500 transition-transform group-hover:rotate-180 group-hover:text-primary">
+                <span className="material-symbols-outlined ml-1 text-sm text-white/45 transition-transform group-hover:rotate-180 group-hover:text-primary">
                   expand_more
                 </span>
               ) : null}
             </Link>
 
             {category.subcategories.length > 0 ? (
-              <div className="mega-menu invisible absolute left-0 top-full z-50 w-160 translate-y-2 rounded-b-md border border-zinc-700 border-t-2 border-t-primary bg-zinc-900/95 opacity-0 shadow-2xl backdrop-blur transition-all duration-200">
-                <div className="border-b border-zinc-700/80 px-6 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+              <div className="mega-menu invisible absolute left-0 top-full z-50 w-160 translate-y-2 rounded-b-md border border-white/12 border-t-2 border-t-primary bg-brand-ink/95 opacity-0 shadow-2xl backdrop-blur transition-all duration-200">
+                <div className="border-b border-white/10 px-6 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">
                     Browse {category.name}
                   </p>
                   <Link
@@ -61,13 +61,13 @@ function HeaderDesktopNav({
                     {category.subcategories.map((subcategory) => (
                       <Link
                         key={subcategory.slug}
-                        className="group/item flex items-center justify-between rounded-md border border-zinc-700 bg-zinc-800/70 px-4 py-3 text-left normal-case transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-zinc-800"
+                        className="group/item flex items-center justify-between rounded-md border border-white/12 bg-white/8 px-4 py-3 text-left normal-case transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-white/12"
                         href={getSubcategoryHref(category.slug, subcategory.slug)}
                       >
-                        <span className="font-body text-sm font-semibold text-zinc-200 transition group-hover/item:text-white">
+                        <span className="font-body text-sm font-semibold text-white/80 transition group-hover/item:text-white">
                           {subcategory.name}
                         </span>
-                        <span className="material-symbols-outlined text-base text-zinc-500 transition group-hover/item:text-primary">
+                        <span className="material-symbols-outlined text-base text-white/45 transition group-hover/item:text-primary">
                           chevron_right
                         </span>
                       </Link>

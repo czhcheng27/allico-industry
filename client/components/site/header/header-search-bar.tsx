@@ -7,7 +7,7 @@ function HeaderSearchBar({ keyword }: HeaderSearchBarProps) {
     <div className="mx-6 hidden max-w-md grow items-center md:flex">
       <form action="/products" className="relative w-full" method="get">
         <input
-          className="w-full rounded-sm border border-zinc-700 bg-zinc-800 px-4 py-3 pr-10 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full rounded-sm border border-white/15 bg-white/8 px-4 py-3 pr-10 text-sm text-white placeholder:text-white/45 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           placeholder="Search SKU, Product Name..."
           defaultValue={keyword ?? ""}
           name="keyword"
