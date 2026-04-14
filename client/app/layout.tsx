@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: "Allico Industries - Heavy-Duty Towing & Cargo Solutions",
   description:
     "Allico Industries delivers heavy-duty towing, recovery, and cargo control equipment for commercial fleets.",
+  icons: {
+    icon: [{ url: "/logo.jpg", type: "image/jpeg" }],
+    shortcut: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 };
 
 export default function RootLayout({

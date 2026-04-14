@@ -41,12 +41,13 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   <h1 className="mb-4 font-display text-5xl font-black uppercase leading-[0.9] text-white drop-shadow-xl md:text-7xl">
                     Allico Industries:
                     <br />
-                    <span className="text-primary">Heavy-Duty</span> Towing and
-                    Cargo Solutions
+                    Your <span className="text-primary">Cargo Control</span> and
+                    <span className="text-primary"> Towing Tie-Down</span>{" "}
+                    Solutions
                   </h1>
                   <p className="text-shadow mb-8 max-w-xl text-lg font-light text-gray-200 md:text-2xl">
-                    Engineered for extreme durability. The trusted choice for
-                    professional haulers and industrial operators.
+                    We only supply the most reliable products you are looking
+                    for.
                   </p>
                   <div className="flex flex-col gap-4 sm:flex-row">
                     <Link
