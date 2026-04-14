@@ -10,9 +10,14 @@ import {
 type HeaderDesktopNavProps = {
   categories: Category[];
   activeCategory?: CategorySlug;
+  activePage?: "about";
 };
 
-function HeaderDesktopNav({ categories, activeCategory }: HeaderDesktopNavProps) {
+function HeaderDesktopNav({
+  categories,
+  activeCategory,
+  activePage,
+}: HeaderDesktopNavProps) {
   return (
     <nav className="mr-auto hidden h-full items-center lg:flex">
       <ul className="flex h-full items-center space-x-6 font-display text-sm font-bold uppercase tracking-wide">
@@ -73,6 +78,18 @@ function HeaderDesktopNav({ categories, activeCategory }: HeaderDesktopNavProps)
             ) : null}
           </li>
         ))}
+        <li className="flex h-full items-center">
+          <Link
+            className={
+              activePage === "about"
+                ? "flex cursor-pointer items-center py-8 text-primary"
+                : "flex cursor-pointer items-center py-8 transition hover:text-primary"
+            }
+            href="/about"
+          >
+            About Us
+          </Link>
+        </li>
       </ul>
     </nav>
   );

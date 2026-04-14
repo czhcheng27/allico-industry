@@ -8,11 +8,13 @@ import { HeaderSearchBar } from "@/components/site/header/header-search-bar";
 
 type HomeHeaderProps = {
   activeCategory?: CategorySlug;
+  activePage?: "about";
   keyword?: string;
 };
 
 async function HomeHeader({
   activeCategory,
+  activePage,
   keyword,
 }: HomeHeaderProps = {}) {
   const categories = await fetchCategories();
@@ -21,10 +23,24 @@ async function HomeHeader({
     <header className="relative z-50 border-b border-zinc-800 bg-zinc-900 text-white shadow-lg">
       <div className="container mx-auto flex h-24 items-center justify-between px-4">
         <HeaderBrand />
-        <HeaderDesktopNav categories={categories} activeCategory={activeCategory} />
+        <HeaderDesktopNav
+          activeCategory={activeCategory}
+          activePage={activePage}
+          categories={categories}
+        />
         <HeaderSearchBar keyword={keyword} />
 
         <div className="flex items-center space-x-4">
+          <Link
+            className={
+              activePage === "about"
+                ? "font-display text-xs font-bold uppercase tracking-[0.16em] text-primary md:hidden"
+                : "font-display text-xs font-bold uppercase tracking-[0.16em] text-zinc-200 transition hover:text-primary md:hidden"
+            }
+            href="/about"
+          >
+            About Us
+          </Link>
           <button className="text-white md:hidden">
             <span className="material-symbols-outlined">menu</span>
           </button>
