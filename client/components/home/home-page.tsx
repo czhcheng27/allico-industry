@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { HomeFooter } from "@/components/site/home-footer";
@@ -27,10 +28,14 @@ async function HomePage({ featuredProducts }: HomePageProps) {
         </div>
 
         <section className="relative h-[550px] w-full overflow-hidden bg-brand-ink md:h-[650px]">
-          <img
+          <Image
             alt="Heavy Duty Towing Equipment Background"
-            className="absolute inset-0 h-full w-full object-cover opacity-70"
-            src={siteMedia.heroImage}
+            className="absolute inset-0 h-full w-full object-cover opacity-65"
+            fill
+            priority
+            sizes="100vw"
+            src="/imgs/home/heroBg.jpg"
+            style={{ objectPosition: "62% center" }}
           />
           <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-brand-ink via-brand-ink/80 to-transparent" />
           <div className="absolute right-0 top-0 h-full w-full bg-gradient-to-l from-transparent via-brand-ink/20 to-brand-ink/80" />
