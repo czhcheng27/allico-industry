@@ -45,7 +45,7 @@ function ProductListRow({ product, href }: ProductListRowProps) {
               className={
                 product.status === "In Stock"
                   ? "rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700"
-                  : "rounded-full bg-yellow-50 px-2 py-0.5 text-[11px] font-semibold text-yellow-700"
+                  : "rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
               }
             >
               {product.status}

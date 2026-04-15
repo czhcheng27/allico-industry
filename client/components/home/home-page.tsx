@@ -23,7 +23,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
       <div id="top" className="bg-background-light text-text-light">
         <HomeHeader />
 
-        <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-black">
+        <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-primary-foreground">
           Free Shipping on Orders Over $500 | Certified Quality Assurance
         </div>
 
@@ -56,7 +56,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   </p>
                   <div className="flex flex-col gap-4 sm:flex-row">
                     <Link
-                      className="inline-flex transform items-center justify-center bg-primary px-10 py-4 font-display text-lg font-bold uppercase tracking-wider text-black transition hover:-translate-y-1 hover:bg-yellow-400"
+                      className="inline-flex transform items-center justify-center bg-primary px-10 py-4 font-display text-lg font-bold uppercase tracking-wider text-primary-foreground transition hover:-translate-y-1 hover:bg-primary-hover"
                       href={getCategoryHref("towing")}
                     >
                       Shop Catalog
@@ -221,7 +221,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     </li>
                   </ul>
                   <a
-                    className="border-b-2 border-primary pb-1 text-sm font-bold uppercase tracking-wider text-primary transition hover:text-black"
+                    className="border-b-2 border-primary pb-1 text-sm font-bold uppercase tracking-wider text-primary transition hover:text-primary-hover"
                     href="#"
                   >
                     Read Our Safety Protocols
@@ -266,10 +266,10 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                 </p>
               </div>
               <div className="flex space-x-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-black">
+                <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-primary-foreground">
                   <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-black">
+                <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-primary-foreground">
                   <span className="material-symbols-outlined">
                     arrow_forward
                   </span>
@@ -291,7 +291,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                       src={product.image}
                     />
                     {product.badge ? (
-                      <div className="absolute right-2 top-2 rounded-sm bg-primary px-2 py-1 text-xs font-bold uppercase text-black">
+                      <div className="absolute right-2 top-2 rounded-sm bg-primary px-2 py-1 text-xs font-bold uppercase text-primary-foreground">
                         {product.badge}
                       </div>
                     ) : null}
@@ -306,7 +306,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     <span className="font-display text-lg font-bold text-gray-900">
                       {product.price}
                     </span>
-                    <button className="text-primary hover:text-yellow-400">
+                    <button className="text-primary transition hover:text-primary-hover">
                       <span className="material-symbols-outlined">
                         add_shopping_cart
                       </span>
@@ -318,13 +318,13 @@ async function HomePage({ featuredProducts }: HomePageProps) {
           </div>
         </section>
 
-        <section className="border-t border-yellow-500 bg-primary py-8">
+        <section className="border-t border-primary bg-primary py-8">
           <div className="container mx-auto flex flex-col items-center justify-between px-4 md:flex-row">
             <div className="mb-6 md:mb-0">
-              <h3 className="font-display text-2xl font-black uppercase leading-none text-black">
+              <h3 className="font-display text-2xl font-black uppercase leading-none text-primary-foreground">
                 Join the Allico Network
               </h3>
-              <p className="mt-1 text-sm font-medium text-black/80">
+              <p className="mt-1 text-sm font-medium text-primary-foreground/80">
                 Get exclusive deals on heavy duty equipment and safety tips.
               </p>
             </div>

@@ -56,7 +56,7 @@ function ProductDetailPage({
     <div className="bg-background-light text-text-light">
       <HomeHeader />
 
-      <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-black">
+      <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-primary-foreground">
         Free Shipping on Orders Over $500 | Certified Quality Assurance
       </div>
 
@@ -173,7 +173,7 @@ function ProductDetailPage({
                     <span className="pr-3 text-sm font-medium text-gray-400">ft</span>
                   </div>
                 </div>
-                <button className="flex w-full flex-1 items-center justify-center gap-2 rounded bg-primary px-6 py-3 text-center font-display text-lg font-bold uppercase tracking-wider text-black shadow-md transition hover:-translate-y-0.5 hover:bg-primary-hover">
+                <button className="flex w-full flex-1 items-center justify-center gap-2 rounded bg-primary px-6 py-3 text-center font-display text-lg font-bold uppercase tracking-wider text-primary-foreground shadow-md transition hover:-translate-y-0.5 hover:bg-primary-hover">
                   <span className="material-symbols-outlined">request_quote</span>
                   Request A Quote
                 </button>
@@ -268,7 +268,7 @@ function ProductDetailPage({
                   </ul>
                 </div>
                 <a
-                  className="block w-full rounded bg-primary py-3 text-center font-bold uppercase text-black shadow-lg transition hover:bg-yellow-400"
+                  className="block w-full rounded bg-primary py-3 text-center font-bold uppercase text-primary-foreground shadow-lg transition hover:bg-primary-hover"
                   href="#"
                 >
                   Download Spec Sheet (PDF)
@@ -282,7 +282,7 @@ function ProductDetailPage({
       <HomeFooter />
 
       <a
-        className="fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black shadow-xl transition hover:scale-110 hover:bg-primary-hover"
+        className="fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition hover:scale-110 hover:bg-primary-hover"
         href="#"
       >
         <span className="material-symbols-outlined">chat</span>

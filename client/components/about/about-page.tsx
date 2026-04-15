@@ -8,7 +8,7 @@ async function AboutPage() {
     <div className="min-h-screen bg-background-light text-text-light">
       <HomeHeader activePage="about" />
 
-      <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-black">
+      <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-primary-foreground">
         Supporting fleets, distributors, and industrial buyers across Canada and
         the United States
       </div>
@@ -69,7 +69,7 @@ async function AboutPage() {
 
               <div className="mt-10 flex flex-col gap-3 border-t border-gray-200 pt-8 sm:flex-row">
                 <Link
-                  className="inline-flex items-center justify-center bg-primary px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-black transition hover:bg-yellow-400"
+                  className="inline-flex items-center justify-center bg-primary px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-primary-foreground transition hover:bg-primary-hover"
                   href="/products"
                 >
                   Browse Catalog

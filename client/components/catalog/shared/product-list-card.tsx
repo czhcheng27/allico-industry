@@ -44,7 +44,7 @@ function ProductListCard({ product, href }: ProductListCardProps) {
             className={
               product.status === "In Stock"
                 ? "text-xs font-bold text-green-600"
-                : "text-xs font-bold text-yellow-600"
+                : "text-xs font-bold text-primary"
             }
           >
             {product.status}
@@ -68,7 +68,7 @@ function ProductListCard({ product, href }: ProductListCardProps) {
 
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-display text-xl font-black">{product.price}</span>
-          <button className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-black transition-colors hover:bg-brand-ink hover:text-white">
+          <button className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-brand-ink hover:text-white">
             Add to Cart
           </button>
         </div>

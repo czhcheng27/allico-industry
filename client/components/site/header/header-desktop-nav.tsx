@@ -46,7 +46,7 @@ function HeaderDesktopNav({
                     Browse {category.name}
                   </p>
                   <Link
-                    className="mt-1 inline-flex items-center text-base font-semibold normal-case text-primary transition hover:text-yellow-300"
+                    className="mt-1 inline-flex items-center text-base font-semibold normal-case text-primary transition hover:text-primary-hover"
                     href={getCategoryHref(category.slug)}
                   >
                     View all {category.name}

@@ -111,7 +111,7 @@ async function HomeFooter() {
             </div>
             <div className="mt-6 inline-block rounded border border-white/12 bg-white/6 p-3">
               <div className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-yellow-500">verified</span>
+                <span className="material-symbols-outlined text-primary">verified</span>
                 <div className="text-xs font-bold leading-tight text-white">
                   CERTIFIED
                   <br />

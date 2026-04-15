@@ -45,7 +45,7 @@ async function HomeHeader({
             <span className="material-symbols-outlined">menu</span>
           </button>
           <Link
-            className="group hidden flex-col items-center justify-center rounded-sm bg-primary px-6 py-2 text-black transition-colors hover:bg-yellow-400 md:flex"
+            className="group hidden flex-col items-center justify-center rounded-sm bg-primary px-6 py-2 text-primary-foreground transition-colors hover:bg-primary-hover md:flex"
             href="tel:8885550199"
           >
             <span className="mb-0.5 text-xs font-bold uppercase tracking-wider">

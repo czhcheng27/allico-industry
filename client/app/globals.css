@@ -59,13 +59,20 @@
 }
 
 :root {
-  --brand: #fdc82f;
-  --brand-ink: #5a6672;
-  --primary-hover: #e6c200;
+  /* Theme controls: update these values to retheme the site. */
+  --theme-surface: #737373;
+  --theme-accent: #ff914d;
+  --theme-accent-foreground: #111111;
+  --theme-surface-soft: color-mix(in srgb, var(--theme-surface) 88%, white);
+  --theme-accent-hover: color-mix(in srgb, var(--theme-accent) 88%, white);
+
+  --brand: var(--theme-accent);
+  --brand-ink: var(--theme-surface);
+  --primary-hover: var(--theme-accent-hover);
   --background-light: #f4f4f4;
-  --background-dark: #5a6672;
+  --background-dark: var(--theme-surface);
   --surface-light: #f8f9fa;
-  --surface-dark: #66727e;
+  --surface-dark: var(--theme-surface-soft);
   --text-light: #111111;
   --text-dark: #e5e5e5;
   --allico-blue: #003366;
@@ -76,8 +83,8 @@
   --card-foreground: #111111;
   --popover: #ffffff;
   --popover-foreground: #111111;
-  --primary: #fdc82f;
-  --primary-foreground: #111111;
+  --primary: var(--theme-accent);
+  --primary-foreground: var(--theme-accent-foreground);
   --secondary: #f5f5f5;
   --secondary-foreground: #222222;
   --muted: #f5f5f5;
@@ -104,19 +111,19 @@
 }
 
 .dark {
-  --background: #5a6672;
+  --background: var(--theme-surface);
   --foreground: #e5e5e5;
-  --card: #66727e;
+  --card: var(--theme-surface-soft);
   --card-foreground: #e5e5e5;
-  --popover: #66727e;
+  --popover: var(--theme-surface-soft);
   --popover-foreground: #e5e5e5;
-  --primary: #fdc82f;
-  --primary-foreground: #5a6672;
-  --secondary: #73808c;
+  --primary: var(--theme-accent);
+  --primary-foreground: var(--theme-accent-foreground);
+  --secondary: var(--theme-surface-soft);
   --secondary-foreground: #f2f2f2;
-  --muted: #73808c;
+  --muted: var(--theme-surface-soft);
   --muted-foreground: #9ca3af;
-  --accent: #73808c;
+  --accent: var(--theme-surface-soft);
   --accent-foreground: #f2f2f2;
   --destructive: #ef4444;
   --border: rgb(255 255 255 / 10%);

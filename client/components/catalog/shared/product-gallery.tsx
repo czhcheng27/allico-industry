@@ -132,7 +132,7 @@ function ProductGallery({ images, alt, tags = [] }: ProductGalleryProps) {
               {normalizedTags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-black shadow-sm"
+                  className="rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-primary-foreground shadow-sm"
                 >
                   {tag}
                 </span>

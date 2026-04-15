@@ -29,8 +29,8 @@ function BackToTopButton() {
       aria-label="Back to top"
       className={[
         "fixed bottom-24 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full",
-        "bg-primary text-black shadow-xl transition-all duration-200",
-        "hover:-translate-y-0.5 hover:bg-yellow-400",
+        "bg-primary text-primary-foreground shadow-xl transition-all duration-200",
+        "hover:-translate-y-0.5 hover:bg-primary-hover",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink",
         "sm:bottom-24 sm:right-6",
         visible
