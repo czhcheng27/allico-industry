@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.38.1",
+    "@react-email/components": "^1.0.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.574.0",
@@ -17,6 +18,8 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-email": "^5.2.10",
+    "resend": "^6.11.0",
     "tailwind-merge": "^3.4.1"
   },
   "devDependencies": {

@@ -10,7 +10,7 @@ import {
 type HeaderDesktopNavProps = {
   categories: Category[];
   activeCategory?: CategorySlug;
-  activePage?: "about";
+  activePage?: "about" | "contact";
 };
 
 function HeaderDesktopNav({
@@ -88,6 +88,18 @@ function HeaderDesktopNav({
             href="/about"
           >
             About Us
+          </Link>
+        </li>
+        <li className="flex h-full items-center">
+          <Link
+            className={
+              activePage === "contact"
+                ? "flex cursor-pointer items-center py-8 text-primary"
+                : "flex cursor-pointer items-center py-8 transition hover:text-primary"
+            }
+            href="/contact"
+          >
+            Contact Us
           </Link>
         </li>
       </ul>

@@ -8,7 +8,7 @@ import { HeaderSearchBar } from "@/components/site/header/header-search-bar";
 
 type HomeHeaderProps = {
   activeCategory?: CategorySlug;
-  activePage?: "about";
+  activePage?: "about" | "contact";
   keyword?: string;
 };
 
@@ -31,16 +31,28 @@ async function HomeHeader({
         <HeaderSearchBar keyword={keyword} />
 
         <div className="flex items-center space-x-4">
-          <Link
-            className={
-              activePage === "about"
-                ? "font-display text-xs font-bold uppercase tracking-[0.16em] text-primary md:hidden"
-                : "font-display text-xs font-bold uppercase tracking-[0.16em] text-white/80 transition hover:text-primary md:hidden"
-            }
-            href="/about"
-          >
-            About Us
-          </Link>
+          <div className="hidden items-center gap-3 min-[480px]:flex md:hidden">
+            <Link
+              className={
+                activePage === "about"
+                  ? "font-display text-[11px] font-bold uppercase tracking-[0.14em] text-primary"
+                  : "font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/80 transition hover:text-primary"
+              }
+              href="/about"
+            >
+              About
+            </Link>
+            <Link
+              className={
+                activePage === "contact"
+                  ? "font-display text-[11px] font-bold uppercase tracking-[0.14em] text-primary"
+                  : "font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/80 transition hover:text-primary"
+              }
+              href="/contact"
+            >
+              Contact
+            </Link>
+          </div>
           <button className="text-white md:hidden">
             <span className="material-symbols-outlined">menu</span>
           </button>

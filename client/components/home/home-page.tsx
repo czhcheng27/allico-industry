@@ -24,7 +24,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
         <HomeHeader />
 
         <div className="bg-primary py-1 text-center text-xs font-bold uppercase tracking-wider text-primary-foreground">
-          Free Shipping on Orders Over $500 | Certified Quality Assurance
+          CONTACT US ON HOW TO QUALITY FOR FREE SHIPPING
         </div>
 
         <section className="relative h-[550px] w-full overflow-hidden bg-brand-ink md:h-[650px]">
