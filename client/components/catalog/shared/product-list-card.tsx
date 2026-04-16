@@ -52,7 +52,10 @@ function ProductListCard({ product, href }: ProductListCardProps) {
         </div>
 
         <h3 className="mb-2 min-h-[2.5rem] line-clamp-2 font-display text-base font-bold leading-tight text-gray-900">
-          <Link className="transition-colors hover:text-primary" href={productHref}>
+          <Link
+            className="transition-colors hover:text-primary"
+            href={productHref}
+          >
             {product.name}
           </Link>
         </h3>
@@ -66,12 +69,12 @@ function ProductListCard({ product, href }: ProductListCardProps) {
           ))}
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
+        {/* <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-display text-xl font-black">{product.price}</span>
           <button className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-brand-ink hover:text-white">
             Add to Cart
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

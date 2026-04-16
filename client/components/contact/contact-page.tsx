@@ -23,7 +23,13 @@ const contactDetails = [
   },
 ];
 
-async function ContactPage() {
+type ContactPageProps = {
+  showCustomOrderNotice?: boolean;
+};
+
+async function ContactPage({
+  showCustomOrderNotice = false,
+}: ContactPageProps) {
   return (
     <div className="min-h-screen bg-background-light text-text-light">
       <HomeHeader activePage="contact" />
@@ -48,17 +54,28 @@ async function ContactPage() {
 
         <section className="bg-white py-14 md:py-18">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl border border-gray-200 bg-white p-8 shadow-sm md:p-12">
-              <InquiryForm
-                action="/api/inquiries"
-                description="Fill out the form below and tell us how we can help. All fields are required."
-                formName="Contact Us"
-                helperText="Email delivery will go live once the Resend account and environment variables are configured."
-                source="contact-page"
-                submitLabel="Send Message"
-                successMessage="Thanks for reaching out. Your message has been submitted."
-                title="Send Us a Message"
-              />
+            <div id="contact-form" className="mx-auto max-w-4xl">
+              {showCustomOrderNotice ? (
+                <div className="mb-6 border-l-4 border-primary bg-zinc-50 px-5 py-4">
+                  <p className="text-base leading-7 text-gray-700">
+                    Can&apos;t find that product you like, or you want customization?
+                    Let us know we will get the job done at the best price.
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="border border-gray-200 bg-white p-8 shadow-sm md:p-12">
+                <InquiryForm
+                  action="/api/inquiries"
+                  description="Fill out the form below and tell us how we can help. All fields are required."
+                  formName="Contact Us"
+                  helperText="Email delivery will go live once the Resend account and environment variables are configured."
+                  source="contact-page"
+                  submitLabel="Send Message"
+                  successMessage="Thanks for reaching out. Your message has been submitted."
+                  title="Send Us a Message"
+                />
+              </div>
             </div>
           </div>
         </section>

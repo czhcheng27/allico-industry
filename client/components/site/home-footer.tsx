@@ -15,25 +15,33 @@ async function HomeFooter() {
               <div className="flex flex-col">
                 <div className="font-display text-2xl font-black uppercase leading-none tracking-tighter text-white">
                   Allico
-                  <span className="block text-sm tracking-widest text-primary">Industries</span>
+                  <span className="block text-sm tracking-widest text-primary">
+                    Industries
+                  </span>
                 </div>
               </div>
             </div>
             <p className="mb-6 text-sm leading-relaxed text-white/65">
-              Allico Industries is the premier provider of heavy-duty towing, recovery,
-              and cargo control equipment. Built tough for the toughest jobs on the planet.
+              Allico Industries providing quality towing, recovery, and cargo
+              control equipment at reasonable prices.
             </p>
-            <div className="flex space-x-4 text-white/45">
+            {/* <div className="flex space-x-4 text-white/45">
               <a className="transition hover:text-primary" href="#">
-                <span className="material-symbols-outlined text-2xl">social_leaderboard</span>
+                <span className="material-symbols-outlined text-2xl">
+                  social_leaderboard
+                </span>
               </a>
               <a className="transition hover:text-primary" href="#">
-                <span className="material-symbols-outlined text-2xl">photo_camera</span>
+                <span className="material-symbols-outlined text-2xl">
+                  photo_camera
+                </span>
               </a>
               <a className="transition hover:text-primary" href="#">
-                <span className="material-symbols-outlined text-2xl">smart_display</span>
+                <span className="material-symbols-outlined text-2xl">
+                  smart_display
+                </span>
               </a>
-            </div>
+            </div> */}
           </div>
 
           <div>
@@ -43,8 +51,13 @@ async function HomeFooter() {
             <ul className="space-y-3 text-sm text-white/65">
               {categories.map((category) => (
                 <li key={category.slug}>
-                  <Link className="flex items-center transition hover:text-primary" href={getCategoryHref(category.slug)}>
-                    <span className="material-symbols-outlined mr-2 text-xs">chevron_right</span>
+                  <Link
+                    className="flex items-center transition hover:text-primary"
+                    href={getCategoryHref(category.slug)}
+                  >
+                    <span className="material-symbols-outlined mr-2 text-xs">
+                      chevron_right
+                    </span>
                     {category.name}
                   </Link>
                 </li>
@@ -57,30 +70,23 @@ async function HomeFooter() {
               Customer Support
             </h4>
             <ul className="space-y-3 text-sm text-white/65">
-              <li>
+              {/* <li>
                 <a className="transition hover:text-primary" href="#">
                   Order Status
                 </a>
-              </li>
+              </li> */}
               <li>
-                <a className="transition hover:text-primary" href="#">
-                  Shipping Policy
-                </a>
-              </li>
-              <li>
-                <a className="transition hover:text-primary" href="#">
+                <Link
+                  className="transition hover:text-primary"
+                  href="/returns-and-warranty"
+                >
                   Returns and Warranty
-                </a>
+                </Link>
               </li>
               <li>
-                <a className="transition hover:text-primary" href="#">
-                  Become a Distributor
-                </a>
-              </li>
-              <li>
-                <a className="transition hover:text-primary" href="#">
+                <Link className="transition hover:text-primary" href="/contact">
                   Contact Us
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -95,40 +101,56 @@ async function HomeFooter() {
                   location_on
                 </span>
                 <div>
-                  4500 Industrial Pkwy
+                  Warehouse: 12353 104 Ave
                   <br />
-                  Cleveland, OH 44135
+                  Surrey BC V3V 3H2
+                </div>
+              </div>
+              <div className="flex items-start">
+                <span className="material-symbols-outlined mr-3 mt-1 text-primary">
+                  apartment
+                </span>
+                <div>
+                  Office: 7575 Alderbridge Way
+                  <br />
+                  Richmond BC V6X 4L1
                 </div>
               </div>
               <div className="flex items-center">
-                <span className="material-symbols-outlined mr-3 text-primary">phone</span>
-                <span className="text-lg font-bold text-white">(888) 555-0199</span>
+                <span className="material-symbols-outlined mr-3 text-primary">
+                  email
+                </span>
+                <span>bruce@allicoindustries.ca</span>
               </div>
               <div className="flex items-center">
-                <span className="material-symbols-outlined mr-3 text-primary">email</span>
-                <span>sales@allicoind.com</span>
+                <span className="material-symbols-outlined mr-3 text-primary">
+                  phone
+                </span>
+                <span className="text-lg font-bold text-white">
+                  604-781-8659
+                </span>
               </div>
             </div>
-            <div className="mt-6 inline-block rounded border border-white/12 bg-white/6 p-3">
+            {/* <div className="mt-6 inline-block rounded border border-white/12 bg-white/6 p-3">
               <div className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-primary">verified</span>
+                <span className="material-symbols-outlined text-primary">
+                  verified
+                </span>
                 <div className="text-xs font-bold leading-tight text-white">
                   CERTIFIED
                   <br />
                   <span className="text-primary">ISO 9001:2015</span>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
         <div className="border-t border-white/10 pt-8 text-xs text-white/40">
           <div className="mx-auto max-w-xl text-center md:mx-0 md:text-left">
             <p className="text-[11px] leading-relaxed text-white/40 sm:text-xs">
-              (c) 2026 Allico Industries. All rights reserved. | Privacy Policy | Terms of Service
-            </p>
-            <p className="mt-1 text-[11px] leading-relaxed tracking-[0.08em] text-white/32">
-              Develop By Zihang Cheng
+              (c) 2026 Allico Industries. All rights reserved. | Privacy Policy
+              | Terms of Service
             </p>
           </div>
         </div>
@@ -138,8 +160,3 @@ async function HomeFooter() {
 }
 
 export { HomeFooter };
-
-
-
-
-

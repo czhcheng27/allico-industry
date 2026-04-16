@@ -66,7 +66,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     </Link>
                     <Link
                       className="inline-flex transform items-center justify-center border-2 border-white px-10 py-4 font-display text-lg font-bold uppercase tracking-wider text-white transition hover:-translate-y-1 hover:bg-white hover:text-black"
-                      href={getCategoryHref("industrial-chains")}
+                      href="/contact?intent=custom-order#contact-form"
                     >
                       Custom Orders
                     </Link>
@@ -94,12 +94,6 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   local_shipping
                 </span>
                 Fast Fulfillment
-              </span>
-              <span className="flex items-center">
-                <span className="material-symbols-outlined mr-1 text-base text-primary">
-                  support_agent
-                </span>
-                24/7 Support
               </span>
             </div>
           </div>
@@ -191,41 +185,10 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   </h2>
                   <p className="mb-8 leading-relaxed text-gray-600">
                     At Allico Industries, safety is not just a feature. Every
-                    chain, strap, and hook undergoes rigorous load testing to
-                    meet or exceed NACM, WSTDA, and DOT standards.
+                    new chain, strap, and hook product we bring in undergoes
+                    rigorous load testing to meet or exceed NACM, WSTDA, CVSE,
+                    and DOT standards.
                   </p>
-                  <ul className="mb-8 grid grid-cols-2 gap-4">
-                    <li className="flex items-center text-sm font-bold text-gray-800">
-                      <span className="material-symbols-outlined mr-2 text-green-500">
-                        check_circle
-                      </span>
-                      DOT Compliant
-                    </li>
-                    <li className="flex items-center text-sm font-bold text-gray-800">
-                      <span className="material-symbols-outlined mr-2 text-green-500">
-                        check_circle
-                      </span>
-                      WSTDA Standards
-                    </li>
-                    <li className="flex items-center text-sm font-bold text-gray-800">
-                      <span className="material-symbols-outlined mr-2 text-green-500">
-                        check_circle
-                      </span>
-                      Grade 70/80/100
-                    </li>
-                    <li className="flex items-center text-sm font-bold text-gray-800">
-                      <span className="material-symbols-outlined mr-2 text-green-500">
-                        check_circle
-                      </span>
-                      3x Safety Factor
-                    </li>
-                  </ul>
-                  <a
-                    className="border-b-2 border-primary pb-1 text-sm font-bold uppercase tracking-wider text-primary transition hover:text-primary-hover"
-                    href="#"
-                  >
-                    Read Our Safety Protocols
-                  </a>
                 </div>
 
                 <div className="relative h-80 min-h-[500px] bg-brand-ink md:h-auto md:w-1/2">
@@ -234,6 +197,11 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                     className="absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-overlay"
                     src={siteMedia.safetyImage}
                   />
+                  <div className="absolute inset-x-0 top-0 flex justify-center px-6 pt-8 text-center md:px-8 md:pt-10">
+                    <p className="font-display text-3xl font-black uppercase tracking-[0.08em] text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.7)] md:text-5xl">
+                      Allico Industries
+                    </p>
+                  </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
                     <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-primary bg-brand-ink/60 backdrop-blur-sm">
                       <span className="font-display text-3xl font-black text-white">

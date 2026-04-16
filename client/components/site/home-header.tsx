@@ -67,7 +67,7 @@ async function HomeHeader({
               <span className="material-symbols-outlined mr-1 text-base">
                 phone
               </span>
-              (888) 555-0199
+              (604) 781-8659
             </div>
           </Link>
         </div>

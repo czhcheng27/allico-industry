@@ -75,7 +75,7 @@ const images = {
 
 export const siteMedia = {
   heroImage: images.hero,
-  safetyImage: images.safety,
+  safetyImage: "/imgs/home/safety.png",
 };
 
 export const featuredProductSlugs = [
