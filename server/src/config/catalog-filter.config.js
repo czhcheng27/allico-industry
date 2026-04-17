@@ -2,6 +2,8 @@ const CHAIN_SIZE_OPTIONS = [
   { value: "5-16", label: '5/16"' },
   { value: "3-8", label: '3/8"' },
   { value: "1-2", label: '1/2"' },
+  { value: "5-16_to_3-8", label: '5/16" to 3/8"' },
+  { value: "3-8_to_1-2", label: '3/8" to 1/2"' },
 ];
 
 const CHAIN_LENGTH_OPTIONS = [
@@ -201,14 +203,21 @@ const PROFILE_BY_SUBCATEGORY = new Map([
   ],
 ]);
 
-const MANAGED_SPEC_LABELS = new Set(["size", "chain size", "strap size", "hook size"]);
+const MANAGED_SPEC_LABELS = new Set([
+  "size",
+  "chain size",
+  "strap size",
+  "hook size",
+]);
 const PROFILE_CATEGORY_SLUGS = new Set(
   [...PROFILE_BY_SUBCATEGORY.keys()].map((key) => key.split(":")[0]),
 );
 const PROFILE_SUBCATEGORY_KEYS = new Set(PROFILE_BY_SUBCATEGORY.keys());
 
 function toNormalizedKey(categorySlug, subcategorySlug) {
-  return `${String(categorySlug || "").trim().toLowerCase()}:${String(subcategorySlug || "")
+  return `${String(categorySlug || "")
+    .trim()
+    .toLowerCase()}:${String(subcategorySlug || "")
     .trim()
     .toLowerCase()}`;
 }
@@ -277,7 +286,9 @@ function isAllowedOption(value, options = []) {
     return false;
   }
 
-  return options.some((item) => normalizeOptionValue(item.value) === normalized);
+  return options.some(
+    (item) => normalizeOptionValue(item.value) === normalized,
+  );
 }
 
 function formatNumber(value) {
@@ -324,7 +335,11 @@ export function getCatalogProfile(categorySlug, subcategorySlug) {
 
 export function getCategoryCatalogMetadata(categorySlug) {
   return {
-    locked: PROFILE_CATEGORY_SLUGS.has(String(categorySlug || "").trim().toLowerCase()),
+    locked: PROFILE_CATEGORY_SLUGS.has(
+      String(categorySlug || "")
+        .trim()
+        .toLowerCase(),
+    ),
   };
 }
 
@@ -352,14 +367,18 @@ export function getSubcategoryCatalogMetadata(categorySlug, subcategory) {
         }))
       : [],
     filters: profile
-      ? profile.filters.map((filterKey) => cloneFilterDefinition(filterKey)).filter(Boolean)
+      ? profile.filters
+          .map((filterKey) => cloneFilterDefinition(filterKey))
+          .filter(Boolean)
       : [],
   };
 }
 
 export function decorateCategoryWithCatalogMetadata(category) {
   const plainCategory =
-    category && typeof category.toObject === "function" ? category.toObject() : { ...category };
+    category && typeof category.toObject === "function"
+      ? category.toObject()
+      : { ...category };
   const categorySlug = String(plainCategory?.slug || "").trim();
   const subcategories = Array.isArray(plainCategory?.subcategories)
     ? plainCategory.subcategories
@@ -376,11 +395,17 @@ export function decorateCategoryWithCatalogMetadata(category) {
 }
 
 export function isProtectedCategorySlug(slug) {
-  return PROFILE_CATEGORY_SLUGS.has(String(slug || "").trim().toLowerCase());
+  return PROFILE_CATEGORY_SLUGS.has(
+    String(slug || "")
+      .trim()
+      .toLowerCase(),
+  );
 }
 
 export function isProtectedSubcategorySlug(categorySlug, subcategorySlug) {
-  return PROFILE_SUBCATEGORY_KEYS.has(toNormalizedKey(categorySlug, subcategorySlug));
+  return PROFILE_SUBCATEGORY_KEYS.has(
+    toNormalizedKey(categorySlug, subcategorySlug),
+  );
 }
 
 export function resolveProductType(categorySlug, subcategorySlug, productType) {
@@ -389,9 +414,13 @@ export function resolveProductType(categorySlug, subcategorySlug, productType) {
     return "";
   }
 
-  const normalizedProductType = String(productType || "").trim().toLowerCase();
+  const normalizedProductType = String(productType || "")
+    .trim()
+    .toLowerCase();
   if (normalizedProductType) {
-    const matched = profile.productTypes.find((item) => item.value === normalizedProductType);
+    const matched = profile.productTypes.find(
+      (item) => item.value === normalizedProductType,
+    );
     return matched ? matched.value : "";
   }
 
@@ -415,7 +444,11 @@ function getProductTypeDefinition(categorySlug, subcategorySlug, productType) {
 
   return (
     profile.productTypes.find(
-      (item) => item.value === String(productType || "").trim().toLowerCase(),
+      (item) =>
+        item.value ===
+        String(productType || "")
+          .trim()
+          .toLowerCase(),
     ) || null
   );
 }
@@ -445,7 +478,8 @@ export function normalizeFilterAttributes({
     };
   }
 
-  const source = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+  const source =
+    input && typeof input === "object" && !Array.isArray(input) ? input : {};
 
   const normalizedAttributes = {};
 
@@ -499,7 +533,8 @@ export function normalizeFilterAttributes({
     }
 
     normalizedAttributes.strapLengthFt = strapLengthFt;
-    normalizedAttributes.strapLengthBucket = getStrapLengthBucket(strapLengthFt) || "";
+    normalizedAttributes.strapLengthBucket =
+      getStrapLengthBucket(strapLengthFt) || "";
   }
 
   if (productTypeDefinition.requiredFields.includes("hookSizeCode")) {
@@ -524,7 +559,9 @@ export function normalizeFilterAttributes({
 
 function getLabelForOption(value, options = []) {
   const normalizedValue = normalizeOptionValue(value);
-  const matched = options.find((item) => normalizeOptionValue(item.value) === normalizedValue);
+  const matched = options.find(
+    (item) => normalizeOptionValue(item.value) === normalizedValue,
+  );
   return matched ? matched.label : "";
 }
 
@@ -534,19 +571,32 @@ export function buildManagedSizeSpec(productType, filterAttributes) {
   }
 
   if (productType === "transport-chain") {
-    const sizeLabel = getLabelForOption(filterAttributes.chainSizeCode, CHAIN_SIZE_OPTIONS);
+    const sizeLabel = getLabelForOption(
+      filterAttributes.chainSizeCode,
+      CHAIN_SIZE_OPTIONS,
+    );
     const lengthFt = normalizeNumberValue(filterAttributes.chainLengthFt);
-    return sizeLabel && lengthFt !== null ? `${sizeLabel} x ${formatNumber(lengthFt)}'` : "";
+    return sizeLabel && lengthFt !== null
+      ? `${sizeLabel} x ${formatNumber(lengthFt)}'`
+      : "";
   }
 
   if (productType === "bulk-chain" || productType === "binder") {
-    return getLabelForOption(filterAttributes.chainSizeCode, CHAIN_SIZE_OPTIONS);
+    return getLabelForOption(
+      filterAttributes.chainSizeCode,
+      CHAIN_SIZE_OPTIONS,
+    );
   }
 
   if (productType === "strap") {
-    const widthLabel = getLabelForOption(filterAttributes.strapWidthIn, STRAP_WIDTH_OPTIONS);
+    const widthLabel = getLabelForOption(
+      filterAttributes.strapWidthIn,
+      STRAP_WIDTH_OPTIONS,
+    );
     const lengthFt = normalizeNumberValue(filterAttributes.strapLengthFt);
-    return widthLabel && lengthFt !== null ? `${widthLabel} x ${formatNumber(lengthFt)}'` : "";
+    return widthLabel && lengthFt !== null
+      ? `${widthLabel} x ${formatNumber(lengthFt)}'`
+      : "";
   }
 
   if (productType === "hook") {
@@ -564,7 +614,9 @@ export function syncManagedListSpecs(specs, productType, filterAttributes) {
 
   const nextSizeValue = buildManagedSizeSpec(productType, filterAttributes);
   const unmanagedSpecs = normalizedSpecs.filter((item) => {
-    const label = String(item?.label || "").trim().toLowerCase();
+    const label = String(item?.label || "")
+      .trim()
+      .toLowerCase();
     return label && !MANAGED_SPEC_LABELS.has(label);
   });
 

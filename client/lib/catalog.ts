@@ -65,7 +65,7 @@ export type Category = {
   subcategories: Subcategory[];
 };
 
-export type ProductStatus = "In Stock" | "Low Stock";
+export type ProductStatus = "In Stock" | "Low Stock" | "Out of Stock";
 
 export type ProductSpec = {
   label: string;

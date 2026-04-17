@@ -491,7 +491,10 @@ export const upsertProduct = async (req, res) => {
     const normalizedPrice = String(price || "").trim();
     const normalizedImage = String(image || "").trim();
     const normalizedBadge = String(badge || "").trim();
-    const normalizedStatus = status === "Low Stock" ? "Low Stock" : "In Stock";
+    const normalizedStatus =
+      status === "Low Stock" || status === "Out of Stock"
+        ? status
+        : "In Stock";
     const normalizedSubcategory = String(subcategory || "").trim();
     const normalizedDetailTags = normalizeDetailTags(detailTags);
     const normalizedIsHotSeller = normalizeHotSellerFlag(isHotSeller);

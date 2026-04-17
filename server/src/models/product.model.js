@@ -35,7 +35,7 @@ const productSchema = new mongoose.Schema(
     displayOrder: { type: Number, default: 0 },
     status: {
       type: String,
-      enum: ["In Stock", "Low Stock"],
+      enum: ["In Stock", "Low Stock", "Out of Stock"],
       default: "In Stock",
     },
     badge: { type: String, default: "", trim: true },
