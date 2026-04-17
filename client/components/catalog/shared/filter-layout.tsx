@@ -12,6 +12,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { type Category } from "@/lib/catalog";
 import { type CategoryProductFilters } from "@/lib/catalog-api";
+import {
+  ADVANCED_FILTER_KEYS,
+  type AdvancedFilterKey,
+} from "@/lib/catalog-filtering";
 
 type FilterLayoutProps = {
   activeCategory?: Category;
@@ -27,28 +31,44 @@ type FilterLayoutProps = {
 type DraftFilterState = {
   subcategory: string;
   inStock: boolean;
-  wllRange: "" | "3000-5000" | "5000-10000" | "10000+";
-  priceSort: "" | "asc" | "desc";
+  chainSize: string;
+  chainLengthFt: string;
+  strapWidthIn: string;
+  strapLengthBucket: string;
+  hookSize: string;
+  hookLengthIn: string;
 };
 
-const priceSortOptions: Array<{
-  label: string;
-  value: DraftFilterState["priceSort"];
-}> = [
-  { label: "Default", value: "" },
-  { label: "Low to High", value: "asc" },
-  { label: "High to Low", value: "desc" },
-];
+function clearAdvancedFilterState<T extends DraftFilterState>(state: T): T {
+  return {
+    ...state,
+    chainSize: "",
+    chainLengthFt: "",
+    strapWidthIn: "",
+    strapLengthBucket: "",
+    hookSize: "",
+    hookLengthIn: "",
+  };
+}
 
-function toDraftState(
-  selectedFilters: CategoryProductFilters,
-): DraftFilterState {
+function toDraftState(selectedFilters: CategoryProductFilters): DraftFilterState {
   return {
     subcategory: selectedFilters.subcategory ?? "",
     inStock: Boolean(selectedFilters.inStock),
-    wllRange: selectedFilters.wllRange ?? "",
-    priceSort: selectedFilters.priceSort ?? "",
+    chainSize: selectedFilters.chainSize ?? "",
+    chainLengthFt: selectedFilters.chainLengthFt ?? "",
+    strapWidthIn: selectedFilters.strapWidthIn ?? "",
+    strapLengthBucket: selectedFilters.strapLengthBucket ?? "",
+    hookSize: selectedFilters.hookSize ?? "",
+    hookLengthIn: selectedFilters.hookLengthIn ?? "",
   };
+}
+
+function getDraftFilterValue(
+  state: DraftFilterState,
+  key: AdvancedFilterKey,
+) {
+  return state[key];
 }
 
 function FilterLayout({
@@ -75,14 +95,27 @@ function FilterLayout({
   const shouldShowSubcategory = Boolean(
     showSubcategory && category && category.subcategories.length > 0,
   );
+  const selectedSubcategory = category?.subcategories.find(
+    (item) => item.slug === draftFilters.subcategory,
+  );
+  const selectedSubcategoryConfig = selectedSubcategory?.catalogConfig ?? null;
+
+  const visibleAdvancedFilters =
+    selectedSubcategoryConfig?.supportsAdvancedFilters && draftFilters.subcategory
+      ? selectedSubcategoryConfig.filters
+      : [];
 
   useEffect(() => {
     setDraftFilters(toDraftState(selectedFilters));
   }, [
+    selectedFilters.chainLengthFt,
+    selectedFilters.chainSize,
+    selectedFilters.hookLengthIn,
+    selectedFilters.hookSize,
     selectedFilters.inStock,
-    selectedFilters.priceSort,
+    selectedFilters.strapLengthBucket,
+    selectedFilters.strapWidthIn,
     selectedFilters.subcategory,
-    selectedFilters.wllRange,
   ]);
 
   const navigateWithParams = useCallback(
@@ -95,7 +128,14 @@ function FilterLayout({
       if (!showCategoryInfo) {
         params.delete("category");
       }
-      params.delete("sort");
+
+      params.delete("wllRange");
+      params.delete("priceSort");
+      ADVANCED_FILTER_KEYS.forEach((key) => {
+        if (!showSubcategory) {
+          params.delete(key);
+        }
+      });
 
       update(params);
       params.delete("page");
@@ -110,13 +150,20 @@ function FilterLayout({
   );
 
   const onSubcategoryChange = (value: string) => {
-    setDraftFilters((prev) => ({ ...prev, subcategory: value }));
+    setDraftFilters((prev) => ({
+      ...clearAdvancedFilterState(prev),
+      subcategory: value,
+    }));
     navigateWithParams((params) => {
       if (value) {
         params.set("subcategory", value);
       } else {
         params.delete("subcategory");
       }
+
+      ADVANCED_FILTER_KEYS.forEach((key) => {
+        params.delete(key);
+      });
     });
   };
 
@@ -131,24 +178,13 @@ function FilterLayout({
     });
   };
 
-  const onWllRangeChange = (value: DraftFilterState["wllRange"]) => {
-    setDraftFilters((prev) => ({ ...prev, wllRange: value }));
+  const onAdvancedFilterChange = (key: AdvancedFilterKey, value: string) => {
+    setDraftFilters((prev) => ({ ...prev, [key]: value }));
     navigateWithParams((params) => {
       if (value) {
-        params.set("wllRange", value);
+        params.set(key, value);
       } else {
-        params.delete("wllRange");
-      }
-    });
-  };
-
-  const onPriceSortChange = (value: DraftFilterState["priceSort"]) => {
-    setDraftFilters((prev) => ({ ...prev, priceSort: value }));
-    navigateWithParams((params) => {
-      if (value) {
-        params.set("priceSort", value);
-      } else {
-        params.delete("priceSort");
+        params.delete(key);
       }
     });
   };
@@ -159,6 +195,53 @@ function FilterLayout({
       router.replace(resetHref, { scroll: false });
     });
     setIsMobileOpen(false);
+  };
+
+  const renderAdvancedFilterGroup = (filterKey: AdvancedFilterKey) => {
+    const definition = selectedSubcategoryConfig?.filters.find(
+      (item) => item.key === filterKey,
+    );
+
+    if (!definition) {
+      return null;
+    }
+
+    if (definition.options.length === 0) {
+      return null;
+    }
+
+    return (
+      <div key={definition.key}>
+        <h4 className="mb-2 text-xs font-bold uppercase text-gray-900">
+          {definition.label}
+        </h4>
+        <div className="space-y-1">
+          {definition.options.map((option) => (
+            <label
+              className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50"
+              key={option.value}
+            >
+              <input
+                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
+                checked={getDraftFilterValue(draftFilters, filterKey) === option.value}
+                onChange={() => onAdvancedFilterChange(filterKey, option.value)}
+                type="radio"
+              />
+              <span className="text-sm text-gray-600">{option.label}</span>
+            </label>
+          ))}
+          <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
+            <input
+              className="form-radio border-gray-300 text-black focus:ring-brand-ink"
+              checked={getDraftFilterValue(draftFilters, filterKey) === ""}
+              onChange={() => onAdvancedFilterChange(filterKey, "")}
+              type="radio"
+            />
+            <span className="text-sm text-gray-600">Any</span>
+          </label>
+        </div>
+      </div>
+    );
   };
 
   const renderFilterCard = () => (
@@ -228,88 +311,9 @@ function FilterLayout({
           </label>
         </div>
 
-        <div>
-          <h4 className="mb-2 text-xs font-bold uppercase text-gray-900">
-            Working Load Limit
-          </h4>
-          <div className="space-y-1">
-            <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
-              <input
-                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
-                checked={draftFilters.wllRange === "3000-5000"}
-                onChange={() => onWllRangeChange("3000-5000")}
-                type="radio"
-              />
-              <span className="text-sm text-gray-600">3,000 - 5,000 lbs</span>
-            </label>
-            <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
-              <input
-                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
-                checked={draftFilters.wllRange === "5000-10000"}
-                onChange={() => onWllRangeChange("5000-10000")}
-                type="radio"
-              />
-              <span className="text-sm text-gray-600">5,000 - 10,000 lbs</span>
-            </label>
-            <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
-              <input
-                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
-                checked={draftFilters.wllRange === "10000+"}
-                onChange={() => onWllRangeChange("10000+")}
-                type="radio"
-              />
-              <span className="text-sm text-gray-600">10,000+ lbs</span>
-            </label>
-            <label className="flex cursor-pointer items-center space-x-2 rounded p-1 hover:bg-gray-50">
-              <input
-                className="form-radio border-gray-300 text-black focus:ring-brand-ink"
-                checked={draftFilters.wllRange === ""}
-                onChange={() => onWllRangeChange("")}
-                type="radio"
-              />
-              <span className="text-sm text-gray-600">Any</span>
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <h4 className="mb-2 text-xs font-bold uppercase text-gray-900">
-            Price Order
-          </h4>
-          <div className="grid grid-cols-1 gap-1.5">
-            {priceSortOptions.map((option) => {
-              const isDefault = option.value === "";
-              const isActive = isDefault
-                ? !draftFilters.priceSort
-                : draftFilters.priceSort === option.value;
-
-              return (
-                <button
-                  aria-pressed={isActive}
-                  className={
-                    isActive
-                      ? "flex w-full items-center justify-between rounded-sm border border-brand-ink bg-brand-ink px-3 py-2 text-left text-sm font-semibold text-white"
-                      : "flex w-full items-center justify-between rounded-sm border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 transition hover:border-brand-ink hover:text-black"
-                  }
-                  key={option.label}
-                  onClick={() => onPriceSortChange(option.value)}
-                  type="button"
-                >
-                  <span>{option.label}</span>
-                  <span
-                    className={
-                      isActive
-                        ? "material-symbols-outlined text-base text-white"
-                        : "material-symbols-outlined text-base text-gray-400"
-                    }
-                  >
-                    {isActive ? "check_circle" : "radio_button_unchecked"}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {visibleAdvancedFilters.map((definition) =>
+          renderAdvancedFilterGroup(definition.key as AdvancedFilterKey),
+        )}
 
         <div className="flex items-center gap-2">
           <button

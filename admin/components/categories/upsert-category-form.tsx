@@ -47,6 +47,7 @@ const ICON_OPTIONS = [
 type CategorySubcategoryDraft = CategorySubcategory & {
   originalSlug?: string;
   slugEdited?: number;
+  slugLocked?: boolean;
 };
 
 function toSlugBase(input: string, fallback = "category") {
@@ -176,8 +177,9 @@ export const UpsertCategoryForm = forwardRef<
               ...item,
               originalSlug: item.slug,
               slugEdited: 1,
+              slugLocked: Boolean(item.catalogConfig?.slugLocked),
             }))
-          : [{ slug: "", name: "", originalSlug: "", slugEdited: 0 }],
+          : [{ slug: "", name: "", originalSlug: "", slugEdited: 0, slugLocked: false }],
     });
     slugEditedManuallyRef.current = true;
   }, [form, initData]);
@@ -220,6 +222,7 @@ export const UpsertCategoryForm = forwardRef<
         >
           <Input
             placeholder="auto-generated-from-name"
+            disabled={Boolean(initData?.catalogConfigLocked)}
             onChange={() => {
               if (type === "create" && !slugEditedManuallyRef.current) {
                 slugEditedManuallyRef.current = true;
@@ -284,6 +287,9 @@ export const UpsertCategoryForm = forwardRef<
                 <Form.Item {...restField} name={[name, "slugEdited"]} hidden>
                   <Input type="hidden" />
                 </Form.Item>
+                <Form.Item {...restField} name={[name, "slugLocked"]} hidden>
+                  <Input type="hidden" />
+                </Form.Item>
                 <Form.Item
                   {...restField}
                   name={[name, "name"]}
@@ -320,6 +326,7 @@ export const UpsertCategoryForm = forwardRef<
                 >
                   <Input
                     placeholder="auto-generated-from-name"
+                    disabled={Boolean(form.getFieldValue(["subcategories", name, "slugLocked"]))}
                     onChange={() => {
                       const edited = Boolean(
                         Number(form.getFieldValue(["subcategories", name, "slugEdited"])) === 1,
@@ -330,7 +337,12 @@ export const UpsertCategoryForm = forwardRef<
                     }}
                   />
                 </Form.Item>
-                <Button danger style={{ alignSelf: "flex-start" }} onClick={() => remove(name)}>
+                <Button
+                  danger
+                  disabled={Boolean(form.getFieldValue(["subcategories", name, "slugLocked"]))}
+                  style={{ alignSelf: "flex-start" }}
+                  onClick={() => remove(name)}
+                >
                   Remove
                 </Button>
               </Space>
@@ -343,6 +355,7 @@ export const UpsertCategoryForm = forwardRef<
                   slug: "",
                   originalSlug: "",
                   slugEdited: 0,
+                  slugLocked: false,
                 })
               }
             >

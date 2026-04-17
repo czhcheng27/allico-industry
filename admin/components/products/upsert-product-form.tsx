@@ -10,10 +10,12 @@ import {
   type ReactNode,
 } from "react";
 import {
+  Alert,
   Button,
   Cascader,
   Form,
   Input,
+  InputNumber,
   Select,
   Space,
   Switch,
@@ -125,6 +127,54 @@ function normalizeProductDetail(input: unknown) {
   };
 }
 
+type ProductAttributeFieldKey =
+  | "chainSizeCode"
+  | "chainLengthFt"
+  | "strapWidthIn"
+  | "strapLengthFt"
+  | "hookSizeCode"
+  | "hookLengthIn";
+
+type CategorySubcategoryConfig = NonNullable<
+  CategoryRecord["subcategories"][number]["catalogConfig"]
+>;
+
+type CategoryProductTypeDefinition = CategorySubcategoryConfig["productTypes"][number];
+
+function getSelectedSubcategoryConfig(
+  categories: CategoryRecord[],
+  categorySlug: string,
+  subcategorySlug: string,
+) {
+  const category = categories.find((item) => item.slug === categorySlug);
+  const subcategory = category?.subcategories?.find((item) => item.slug === subcategorySlug);
+  return subcategory?.catalogConfig || null;
+}
+
+function normalizeFilterAttributes(input: unknown) {
+  const filterAttributes =
+    input && typeof input === "object" && !Array.isArray(input)
+      ? (input as Record<string, unknown>)
+      : {};
+  const toOptionalNumber = (value: unknown) => {
+    if (value === null || value === undefined || value === "") {
+      return undefined;
+    }
+
+    const normalized = Number(value);
+    return Number.isFinite(normalized) ? normalized : undefined;
+  };
+
+  return {
+    chainSizeCode: String(filterAttributes.chainSizeCode || "").trim(),
+    chainLengthFt: toOptionalNumber(filterAttributes.chainLengthFt),
+    strapWidthIn: toOptionalNumber(filterAttributes.strapWidthIn),
+    strapLengthFt: toOptionalNumber(filterAttributes.strapLengthFt),
+    hookSizeCode: String(filterAttributes.hookSizeCode || "").trim(),
+    hookLengthIn: toOptionalNumber(filterAttributes.hookLengthIn),
+  };
+}
+
 type UpsertProductFormProps = {
   initData?: Product;
   type?: "edit" | "create";
@@ -169,6 +219,25 @@ export const UpsertProductForm = forwardRef<
   const slugEditedManuallyRef = useRef(type === "edit");
 
   const watchedName = Form.useWatch("name", form);
+  const watchedCategoryPath = Form.useWatch("categoryPath", form);
+  const watchedProductType = Form.useWatch("productType", form);
+  const selectedCategoryPath = normalizeStringList(watchedCategoryPath, {
+    limit: 2,
+  });
+  const selectedCategorySlug = String(selectedCategoryPath[0] || "").trim();
+  const selectedSubcategorySlug = String(selectedCategoryPath[1] || "").trim();
+  const selectedSubcategoryConfig = getSelectedSubcategoryConfig(
+    categories,
+    selectedCategorySlug,
+    selectedSubcategorySlug,
+  );
+  const productTypeOptions = selectedSubcategoryConfig?.productTypes || [];
+  const resolvedProductType =
+    productTypeOptions.length === 1
+      ? productTypeOptions[0].value
+      : String(watchedProductType || "").trim();
+  const selectedProductTypeDefinition =
+    productTypeOptions.find((item) => item.value === resolvedProductType) || null;
 
   const categoryPathOptions = useMemo(
     () =>
@@ -222,6 +291,16 @@ export const UpsertProductForm = forwardRef<
             .filter((item: { label: string; value: string }) => item.label && item.value)
         : [];
       const normalizedBadge = String(values.badge || "").trim();
+      const selectedConfig = getSelectedSubcategoryConfig(
+        categories,
+        normalizedCategory,
+        normalizedSubcategory,
+      );
+      const selectedProductType =
+        selectedConfig?.productTypes.length === 1
+          ? selectedConfig.productTypes[0].value
+          : String(values.productType || "").trim();
+      const normalizedFilterAttributes = normalizeFilterAttributes(values.filterAttributes);
 
       if (
         isHotSellerText(normalizedBadge) ||
@@ -240,11 +319,13 @@ export const UpsertProductForm = forwardRef<
         name: String(values.name || "").trim(),
         category: normalizedCategory,
         subcategory: normalizedSubcategory,
+        productType: selectedProductType,
         sku: String(values.sku || "").trim(),
         price: String(values.price || "").trim(),
         image: mainImage,
         badge: normalizedBadge,
         isHotSeller: Boolean(values.isHotSeller),
+        filterAttributes: normalizedFilterAttributes,
         listSpecs: normalizedSpecs,
         galleryImages: normalizedGalleryImages,
         detailTags: normalizedDetailTags,
@@ -296,6 +377,15 @@ export const UpsertProductForm = forwardRef<
       form.setFieldsValue({
         slug: "",
         categoryPath: [],
+        productType: undefined,
+        filterAttributes: {
+          chainSizeCode: "",
+          chainLengthFt: undefined,
+          strapWidthIn: undefined,
+          strapLengthFt: undefined,
+          hookSizeCode: "",
+          hookLengthIn: undefined,
+        },
         status: "In Stock",
         isHotSeller: false,
         detail: {
@@ -304,7 +394,7 @@ export const UpsertProductForm = forwardRef<
         },
         detailTags: [],
         galleryImages: [],
-        listSpecs: [{ label: "Size", value: "" }],
+        listSpecs: [{ label: "", value: "" }],
       });
       slugEditedManuallyRef.current = false;
       return;
@@ -315,6 +405,8 @@ export const UpsertProductForm = forwardRef<
       categoryPath: initData.subcategory
         ? [initData.category, initData.subcategory]
         : [initData.category],
+      productType: String(initData.productType || "").trim() || undefined,
+      filterAttributes: normalizeFilterAttributes(initData.filterAttributes),
       isHotSeller: getInitialHotSellerValue(initData),
       detail: {
         ...(initData.detail || {}),
@@ -330,7 +422,7 @@ export const UpsertProductForm = forwardRef<
       listSpecs:
         initData.listSpecs?.length > 0
           ? initData.listSpecs
-          : [{ label: "Size", value: "" }],
+          : [{ label: "", value: "" }],
     });
     slugEditedManuallyRef.current = true;
   }, [form, initData]);
@@ -344,10 +436,70 @@ export const UpsertProductForm = forwardRef<
     form.setFieldValue("slug", generated);
   }, [form, type, watchedName]);
 
+  useEffect(() => {
+    if (!selectedSubcategoryConfig) {
+      form.setFieldValue("productType", undefined);
+      return;
+    }
+
+    if (productTypeOptions.length === 1) {
+      const nextValue = productTypeOptions[0].value;
+      if (form.getFieldValue("productType") !== nextValue) {
+        form.setFieldValue("productType", nextValue);
+      }
+      return;
+    }
+
+    const currentValue = String(form.getFieldValue("productType") || "").trim();
+    const isValid = productTypeOptions.some((item) => item.value === currentValue);
+
+    if (!isValid) {
+      form.setFieldValue("productType", undefined);
+    }
+  }, [form, productTypeOptions, selectedSubcategoryConfig]);
+
   const slugHint =
     type === "create"
       ? "Auto from name; editable."
       : "Used for search and related mapping.";
+
+  const renderStructuredField = (field: CategoryProductTypeDefinition["fields"][number]) => {
+    const rules = field.required
+      ? [{ required: true, message: `${field.label} is required` }]
+      : undefined;
+
+    if (field.input === "number") {
+      return (
+        <Form.Item
+          key={field.key}
+          name={["filterAttributes", field.key]}
+          label={field.label}
+          extra={field.unit === "ft" ? "Enter length in feet." : undefined}
+          rules={rules}
+        >
+          <InputNumber min={0} precision={0} style={{ width: "100%" }} />
+        </Form.Item>
+      );
+    }
+
+    return (
+      <Form.Item
+        key={field.key}
+        name={["filterAttributes", field.key]}
+        label={field.label}
+        extra={field.unit === "in" ? "Values are standardized in inches." : undefined}
+        rules={rules}
+      >
+        <Select
+          allowClear={!field.required}
+          options={field.options.map((option) => ({
+            label: option.label,
+            value: option.value,
+          }))}
+        />
+      </Form.Item>
+    );
+  };
 
   return (
     <Form form={form} layout="vertical" scrollToFirstError className="space-y-5">
@@ -446,6 +598,63 @@ export const UpsertProductForm = forwardRef<
           <Switch checkedChildren="Hot Seller" unCheckedChildren="Regular" />
         </Form.Item>
       </FormSection>
+
+      {selectedSubcategoryConfig ? (
+        <FormSection
+          title="Structured Catalog Attributes"
+          description="These controlled fields drive the client-side size and length filters. Matching display specs are synced automatically when the product is saved."
+        >
+          {productTypeOptions.length > 1 ? (
+            <Form.Item
+              name="productType"
+              label="Product Type"
+              rules={[{ required: true, message: "Product type is required" }]}
+            >
+              <Select
+                placeholder="Select product type"
+                options={productTypeOptions.map((item) => ({
+                  label: item.label,
+                  value: item.value,
+                }))}
+              />
+            </Form.Item>
+          ) : productTypeOptions.length === 1 ? (
+            <Alert
+              type="info"
+              showIcon
+              message={`Product Type: ${productTypeOptions[0].label}`}
+            />
+          ) : null}
+
+          {selectedProductTypeDefinition ? (
+            selectedProductTypeDefinition.fields.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {selectedProductTypeDefinition.fields.map((field) =>
+                  renderStructuredField(field),
+                )}
+              </div>
+            ) : (
+              <Alert
+                type="info"
+                showIcon
+                message="This product type does not require additional structured filter attributes."
+              />
+            )
+          ) : productTypeOptions.length > 0 ? (
+            <Alert
+              type="warning"
+              showIcon
+              message="Select a product type to continue entering structured filter attributes."
+            />
+          ) : (
+            <Alert
+              type="info"
+              showIcon
+              message="This subcategory does not expose structured filter fields."
+            />
+          )}
+        </FormSection>
+      ) : null}
 
       <FormSection
         title="Media & Merchandising"

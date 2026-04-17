@@ -12,7 +12,7 @@ export const categorySeedList = [
       { slug: "towing-chains", name: "Towing Chains" },
       { slug: "towing-straps", name: "Towing Straps" },
       { slug: "towing-wire-winch-rope", name: "Towing Wire Winch Rope" },
-      { slug: "towing-accessories", name: "Towing Accessories" },
+      { slug: "towing-accessories", name: "Snatch Blocks / Ratchets / Hooks" },
     ],
   },
   {
@@ -27,7 +27,7 @@ export const categorySeedList = [
     subcategories: [
       {
         slug: "binder-chains-transport-chain",
-        name: "Binder Chains/ Transport Chain",
+        name: "Transport Chains / Binders / Bulk Chains",
       },
       { slug: "winch-and-ratchet-straps", name: "Winch and Ratchet Straps" },
       {
@@ -63,6 +63,9 @@ export const categorySeedList = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuBjms7_7hv84DhP8tIemz30KhU9yGzOeVOxBMt-AKeUV_yPpleSgUl1I1qRx9DpDnbrgevS1LXty52D1SnCaLHSx8KTRZcgHqAfFqPVHZW1wSAxq7hxhy03U3aj3VjLDkxVQxp02d-1yMheF4E7jRutmZaiDLvpldPyEGfIYGNRQ9QkHOiHdKr8KsRkb8kSTm4om-D01BnjLlKRj9xnKlWWcKTL30dr-sGdHv84bvtVV4ns-KKuW9-GV4n-MAQB_l3f3MS6TqJqsk0",
     icon: "anchor",
     sortOrder: 40,
-    subcategories: [],
+    subcategories: [
+      { slug: "insulated-bulkheads", name: "Insulated Bulkheads" },
+      { slug: "hooks", name: "Hooks" },
+    ],
   },
 ];

@@ -5,6 +5,11 @@ import {
   collectCategoryManagedImageUrls,
   finalizeDraftAssets,
 } from "../services/upload-asset.service.js";
+import {
+  decorateCategoryWithCatalogMetadata,
+  isProtectedCategorySlug,
+  isProtectedSubcategorySlug,
+} from "../config/catalog-filter.config.js";
 import { buildUniqueSlug, toSlugBase } from "../utils/slug.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 
@@ -120,6 +125,44 @@ function buildCategoryPayload(input, slug, normalizedSubcategories) {
       name: item.name,
     })),
   };
+}
+
+function validateProtectedCategoryContract({
+  previousCategorySlug,
+  nextCategorySlug,
+  previousSubcategories,
+  nextSubcategories,
+}) {
+  const previousCategory = String(previousCategorySlug || "").trim().toLowerCase();
+  const nextCategory = String(nextCategorySlug || "").trim().toLowerCase();
+
+  if (previousCategory && previousCategory !== nextCategory && isProtectedCategorySlug(previousCategory)) {
+    return "This category slug is locked because it is used by catalog filter profiles";
+  }
+
+  const previousSubcategorySlugs = Array.isArray(previousSubcategories)
+    ? previousSubcategories
+        .map((item) => String(item?.slug || "").trim().toLowerCase())
+        .filter(Boolean)
+    : [];
+  const nextSubcategorySlugSet = new Set(
+    Array.isArray(nextSubcategories)
+      ? nextSubcategories
+          .map((item) => String(item?.slug || "").trim().toLowerCase())
+          .filter(Boolean)
+      : [],
+  );
+
+  const invalidProtectedSubcategory = previousSubcategorySlugs.find(
+    (slug) =>
+      isProtectedSubcategorySlug(previousCategory, slug) && !nextSubcategorySlugSet.has(slug),
+  );
+
+  if (invalidProtectedSubcategory) {
+    return `Subcategory slug "${invalidProtectedSubcategory}" is locked because it is used by catalog filter profiles`;
+  }
+
+  return "";
 }
 
 async function getNextCategorySortOrder() {
@@ -308,6 +351,16 @@ export const upsertCategory = async (req, res) => {
         resolvedSlug,
         normalizedSubcategories,
       );
+      const contractValidationError = validateProtectedCategoryContract({
+        previousCategorySlug: previousSlug,
+        nextCategorySlug: payloadBase.slug,
+        previousSubcategories: category.subcategories,
+        nextSubcategories: payloadBase.subcategories,
+      });
+
+      if (contractValidationError) {
+        return sendError(res, contractValidationError, 409);
+      }
       const nextManagedUrls = collectCategoryManagedImageUrls(payloadBase);
 
       for (let retry = 0; retry <= CATEGORY_SLUG_SAVE_RETRY_LIMIT; retry += 1) {
@@ -578,12 +631,15 @@ export const getCategoryList = async (req, res) => {
 
   try {
     const categories = await findSortedCategories(filter);
+    const decoratedCategories = categories.map((category) =>
+      decorateCategoryWithCatalogMetadata(category),
+    );
 
     return sendSuccess(
       res,
       {
-        categories,
-        total: categories.length,
+        categories: decoratedCategories,
+        total: decoratedCategories.length,
       },
       "Category list fetched successfully",
       200,
@@ -606,7 +662,12 @@ export const getCategoryBySlug = async (req, res) => {
       return sendError(res, "Category not found", 404);
     }
 
-    return sendSuccess(res, category, "Category fetched successfully", 200);
+    return sendSuccess(
+      res,
+      decorateCategoryWithCatalogMetadata(category),
+      "Category fetched successfully",
+      200,
+    );
   } catch (error) {
     console.error("Get Category Error:", error);
     return sendError(res, "Server error", 500);

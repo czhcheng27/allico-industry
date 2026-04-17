@@ -39,11 +39,23 @@ function buildSearchParams(
   if (selectedFilters.inStock) {
     params.set("inStock", "1");
   }
-  if (selectedFilters.wllRange) {
-    params.set("wllRange", selectedFilters.wllRange);
+  if (selectedFilters.chainSize) {
+    params.set("chainSize", selectedFilters.chainSize);
   }
-  if (selectedFilters.priceSort) {
-    params.set("priceSort", selectedFilters.priceSort);
+  if (selectedFilters.chainLengthFt) {
+    params.set("chainLengthFt", selectedFilters.chainLengthFt);
+  }
+  if (selectedFilters.strapWidthIn) {
+    params.set("strapWidthIn", selectedFilters.strapWidthIn);
+  }
+  if (selectedFilters.strapLengthBucket) {
+    params.set("strapLengthBucket", selectedFilters.strapLengthBucket);
+  }
+  if (selectedFilters.hookSize) {
+    params.set("hookSize", selectedFilters.hookSize);
+  }
+  if (selectedFilters.hookLengthIn) {
+    params.set("hookLengthIn", selectedFilters.hookLengthIn);
   }
   if (viewMode === "list") {
     params.set("view", "list");
@@ -90,12 +102,6 @@ function CategoryPage({
   const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
   const previousPage = Math.max(1, currentPage - 1);
   const nextPage = Math.min(totalPages, currentPage + 1);
-  const priceSortLabel =
-    selectedFilters.priceSort === "asc"
-      ? "Low to High"
-      : selectedFilters.priceSort === "desc"
-        ? "High to Low"
-        : "Default";
 
   return (
     <div className="flex min-h-screen flex-col bg-background-light font-body text-text-light">
@@ -140,12 +146,6 @@ function CategoryPage({
               <p className="mt-1 text-xs text-gray-500">{category.description}</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="font-semibold text-black">Price:</span>
-                <span className="rounded-sm border border-gray-200 bg-gray-50 px-2.5 py-1 font-medium">
-                  {priceSortLabel}
-                </span>
-              </div>
               <div className="flex overflow-hidden rounded-sm border border-gray-200">
                 <Link
                   aria-label="Grid view"

@@ -29,28 +29,12 @@ function parseFilters(
 ): ProductSearchFilters {
   const keyword = toSingleValue(searchParams.keyword);
   const inStock = toSingleValue(searchParams.inStock) === "1";
-  const wllRangeRaw = toSingleValue(searchParams.wllRange);
-  const priceSortRaw = toSingleValue(searchParams.priceSort);
-
-  const wllRange =
-    wllRangeRaw === "3000-5000" ||
-    wllRangeRaw === "5000-10000" ||
-    wllRangeRaw === "10000+"
-      ? wllRangeRaw
-      : undefined;
-
-  const priceSort =
-    priceSortRaw === "asc" || priceSortRaw === "desc"
-      ? priceSortRaw
-      : undefined;
 
   return {
     keyword: keyword?.trim() || undefined,
     category: undefined,
     subcategory: undefined,
     inStock,
-    wllRange,
-    priceSort,
   };
 }
 
@@ -72,12 +56,6 @@ function buildSearchParams(
   }
   if (filters.inStock) {
     params.set("inStock", "1");
-  }
-  if (filters.wllRange) {
-    params.set("wllRange", filters.wllRange);
-  }
-  if (filters.priceSort) {
-    params.set("priceSort", filters.priceSort);
   }
   if (viewMode === "list") {
     params.set("view", "list");
@@ -113,12 +91,6 @@ export default async function ProductsRoutePage({
   const title = filters.keyword
     ? `Results for "${filters.keyword}"`
     : "All Products";
-  const priceSortLabel =
-    filters.priceSort === "asc"
-      ? "Low to High"
-      : filters.priceSort === "desc"
-        ? "High to Low"
-        : "Default";
 
   return (
     <div className="bg-background-light text-text-light">
@@ -167,12 +139,6 @@ export default async function ProductsRoutePage({
             <div className="flex items-center gap-3">
               <div className="text-sm font-medium text-gray-600">
                 {products.length} item{products.length === 1 ? "" : "s"}
-              </div>
-              <div className="hidden items-center gap-2 text-sm text-gray-600 sm:flex">
-                <span className="font-semibold text-black">Price:</span>
-                <span className="rounded-sm border border-gray-200 bg-gray-50 px-2.5 py-1 font-medium">
-                  {priceSortLabel}
-                </span>
               </div>
               <div className="flex overflow-hidden rounded-sm border border-gray-200">
                 <Link

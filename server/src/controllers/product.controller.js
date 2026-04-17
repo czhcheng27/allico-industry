@@ -5,6 +5,11 @@ import {
   collectProductManagedImageUrls,
   finalizeDraftAssets,
 } from "../services/upload-asset.service.js";
+import {
+  getProductTypeDefinitions,
+  normalizeFilterAttributes,
+  syncManagedListSpecs,
+} from "../config/catalog-filter.config.js";
 import { buildUniqueSlug, toSlugBase } from "../utils/slug.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 
@@ -464,6 +469,8 @@ export const upsertProduct = async (req, res) => {
     badge = "",
     detailTags = [],
     listSpecs = [],
+    productType = "",
+    filterAttributes = null,
     detail,
     isHotSeller = false,
     uploadDraftId = "",
@@ -488,6 +495,7 @@ export const upsertProduct = async (req, res) => {
     const normalizedSubcategory = String(subcategory || "").trim();
     const normalizedDetailTags = normalizeDetailTags(detailTags);
     const normalizedIsHotSeller = normalizeHotSellerFlag(isHotSeller);
+    const normalizedSpecs = normalizeSpecs(listSpecs);
 
     if (
       !normalizedName ||
@@ -522,17 +530,59 @@ export const upsertProduct = async (req, res) => {
       return sendError(res, categoryValidation.error, 400);
     }
 
+    const productTypeDefinitions = getProductTypeDefinitions(
+      normalizedCategory,
+      categoryValidation.subcategory,
+    );
+    const normalizedRequestedProductType = String(productType || "").trim().toLowerCase();
+
+    if (productTypeDefinitions.length > 1 && !normalizedRequestedProductType) {
+      return sendError(
+        res,
+        "Product type is required for the selected subcategory",
+        400,
+      );
+    }
+
+    const normalizedCatalogAttributes = normalizeFilterAttributes({
+      categorySlug: normalizedCategory,
+      subcategorySlug: categoryValidation.subcategory,
+      productType: normalizedRequestedProductType,
+      input: filterAttributes,
+    });
+
+    if (
+      productTypeDefinitions.length > 0 &&
+      !normalizedCatalogAttributes.productType
+    ) {
+      return sendError(
+        res,
+        "Invalid product type for the selected subcategory",
+        400,
+      );
+    }
+
+    if (normalizedCatalogAttributes.error) {
+      return sendError(res, normalizedCatalogAttributes.error, 400);
+    }
+
     const normalizedPayloadBase = {
       name: normalizedName,
       category: normalizedCategory,
       subcategory: categoryValidation.subcategory,
+      productType: normalizedCatalogAttributes.productType,
       sku: normalizedSku,
       price: normalizedPrice,
       image: normalizedImage,
       status: normalizedStatus,
       badge: normalizedBadge,
       detailTags: normalizedDetailTags,
-      listSpecs: normalizeSpecs(listSpecs),
+      filterAttributes: normalizedCatalogAttributes.filterAttributes,
+      listSpecs: syncManagedListSpecs(
+        normalizedSpecs,
+        normalizedCatalogAttributes.productType,
+        normalizedCatalogAttributes.filterAttributes,
+      ),
       isHotSeller: normalizedIsHotSeller,
     };
 

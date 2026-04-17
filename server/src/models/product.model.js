@@ -8,12 +8,26 @@ const specSchema = new mongoose.Schema(
   { _id: false },
 );
 
+const filterAttributesSchema = new mongoose.Schema(
+  {
+    chainSizeCode: { type: String, default: "", trim: true },
+    chainLengthFt: { type: Number, default: null },
+    strapWidthIn: { type: Number, default: null },
+    strapLengthFt: { type: Number, default: null },
+    strapLengthBucket: { type: String, default: "", trim: true },
+    hookSizeCode: { type: String, default: "", trim: true },
+    hookLengthIn: { type: Number, default: null },
+  },
+  { _id: false },
+);
+
 const productSchema = new mongoose.Schema(
   {
     slug: { type: String, required: true, unique: true, trim: true },
     name: { type: String, required: true, trim: true },
     category: { type: String, required: true, trim: true },
     subcategory: { type: String, default: "", trim: true },
+    productType: { type: String, default: "", trim: true },
     sku: { type: String, required: true, unique: true, trim: true },
     price: { type: String, required: true, trim: true },
     image: { type: String, required: true, trim: true },
@@ -28,6 +42,7 @@ const productSchema = new mongoose.Schema(
     badge: { type: String, default: "", trim: true },
     detailTags: { type: [String], default: [] },
     listSpecs: { type: [specSchema], default: [] },
+    filterAttributes: { type: filterAttributesSchema, default: null },
     detail: { type: mongoose.Schema.Types.Mixed, default: null },
   },
   {

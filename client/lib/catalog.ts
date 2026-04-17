@@ -1,8 +1,59 @@
 export type CategorySlug = string;
 
+export type CatalogFilterKey =
+  | "chainSize"
+  | "chainLengthFt"
+  | "strapWidthIn"
+  | "strapLengthBucket"
+  | "hookSize"
+  | "hookLengthIn";
+
+export type CatalogAttributeKey =
+  | "chainSizeCode"
+  | "chainLengthFt"
+  | "strapWidthIn"
+  | "strapLengthFt"
+  | "hookSizeCode"
+  | "hookLengthIn";
+
+export type CatalogOption = {
+  value: string;
+  label: string;
+};
+
+export type CatalogAttributeField = {
+  key: CatalogAttributeKey;
+  label: string;
+  input: "select" | "number";
+  unit?: "in" | "ft";
+  required: boolean;
+  options: CatalogOption[];
+};
+
+export type CatalogProductType = {
+  value: string;
+  label: string;
+  fields: CatalogAttributeField[];
+};
+
+export type CatalogFilterDefinition = {
+  key: CatalogFilterKey;
+  label: string;
+  attributeKey: CatalogAttributeKey;
+  options: CatalogOption[];
+};
+
+export type SubcategoryCatalogConfig = {
+  slugLocked: boolean;
+  supportsAdvancedFilters: boolean;
+  productTypes: CatalogProductType[];
+  filters: CatalogFilterDefinition[];
+};
+
 export type Subcategory = {
   slug: string;
   name: string;
+  catalogConfig?: SubcategoryCatalogConfig | null;
 };
 
 export type Category = {
@@ -12,6 +63,7 @@ export type Category = {
   description: string;
   cardImage: string;
   icon: string;
+  catalogConfigLocked?: boolean;
   subcategories: Subcategory[];
 };
 
@@ -32,11 +84,22 @@ export type ProductDetailContent = {
   relatedSlugs?: string[];
 };
 
+export type ProductFilterAttributes = {
+  chainSizeCode?: string;
+  chainLengthFt?: number | null;
+  strapWidthIn?: number | null;
+  strapLengthFt?: number | null;
+  strapLengthBucket?: string;
+  hookSizeCode?: string;
+  hookLengthIn?: number | null;
+};
+
 export type Product = {
   slug: string;
   name: string;
   category: CategorySlug;
   subcategory?: string;
+  productType?: string;
   sku: string;
   price: string;
   image: string;
@@ -46,6 +109,7 @@ export type Product = {
   detailTags?: string[];
   status: ProductStatus;
   listSpecs: ProductSpec[];
+  filterAttributes?: ProductFilterAttributes | null;
   badge?: string;
   detail?: ProductDetailContent | null;
 };

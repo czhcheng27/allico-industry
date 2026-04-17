@@ -39,6 +39,46 @@ export type RoleRecord = {
 export type CategorySubcategory = {
   slug: string;
   name: string;
+  catalogConfig?: {
+    slugLocked: boolean;
+    supportsAdvancedFilters: boolean;
+    productTypes: Array<{
+      value: string;
+      label: string;
+      fields: Array<{
+        key:
+          | "chainSizeCode"
+          | "chainLengthFt"
+          | "strapWidthIn"
+          | "strapLengthFt"
+          | "hookSizeCode"
+          | "hookLengthIn";
+        label: string;
+        input: "select" | "number";
+        unit?: "in" | "ft";
+        required: boolean;
+        options: Array<{ value: string; label: string }>;
+      }>;
+    }>;
+    filters: Array<{
+      key:
+        | "chainSize"
+        | "chainLengthFt"
+        | "strapWidthIn"
+        | "strapLengthBucket"
+        | "hookSize"
+        | "hookLengthIn";
+      label: string;
+      attributeKey:
+        | "chainSizeCode"
+        | "chainLengthFt"
+        | "strapWidthIn"
+        | "strapLengthFt"
+        | "hookSizeCode"
+        | "hookLengthIn";
+      options: Array<{ value: string; label: string }>;
+    }>;
+  } | null;
 };
 
 export type CategoryUpsertSubcategory = CategorySubcategory & {
@@ -54,6 +94,7 @@ export type CategoryRecord = {
   cardImage?: string;
   icon?: string;
   sortOrder: number;
+  catalogConfigLocked?: boolean;
   subcategories: CategorySubcategory[];
   createdAt: string;
   updatedAt: string;

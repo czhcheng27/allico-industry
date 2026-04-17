@@ -13,6 +13,7 @@ import { hashPassword } from "../src/lib/hash.js";
 import { routeConfig } from "../src/config/route.config";
 import { productSeedList } from "../src/config/product.seed.js";
 import { categorySeedList } from "../src/config/category.seed.js";
+import { syncManagedListSpecs } from "../src/config/catalog-filter.config.js";
 
 const rawMongoUrl = process.env.MONGO_URL;
 const MONGO_URL = rawMongoUrl
@@ -107,9 +108,18 @@ async function ensureAdminUser(allPermissions: Array<{ route: string; actions: s
 
 async function seedProducts() {
   for (const item of productSeedList) {
+    const payload = {
+      ...item,
+      listSpecs: syncManagedListSpecs(
+        item.listSpecs || [],
+        String(item.productType || "").trim(),
+        item.filterAttributes || null,
+      ),
+    };
+
     await Product.updateOne(
       { sku: item.sku },
-      { $set: item },
+      { $set: payload },
       { upsert: true, setDefaultsOnInsert: true },
     );
   }

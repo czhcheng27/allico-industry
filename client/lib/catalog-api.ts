@@ -4,6 +4,10 @@ import {
   type Product,
   featuredProductSlugs,
 } from "@/lib/catalog";
+import {
+  applyCategoryProductFilters,
+  type CatalogFilterSelections,
+} from "@/lib/catalog-filtering";
 
 const DEFAULT_CATALOG_API_BASE_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:9001/api" : "";
@@ -18,12 +22,9 @@ const PUBLIC_CATEGORY_LIST_ENDPOINT = "/categories/public/getCategoryList";
 const PUBLIC_CATEGORY_DETAIL_ENDPOINT = "/categories/public/getCategory";
 const PAGE_SIZE = 200;
 
-export type CategoryProductFilters = {
+export type CategoryProductFilters = CatalogFilterSelections & {
   keyword?: string;
-  subcategory?: string;
   inStock?: boolean;
-  wllRange?: "3000-5000" | "5000-10000" | "10000+";
-  priceSort?: "asc" | "desc";
 };
 
 export type ProductSearchFilters = CategoryProductFilters & {
@@ -125,71 +126,20 @@ async function fetchAllProducts(query: ProductQuery = {}) {
   return products;
 }
 
-function getSpecValue(product: Product, label: string) {
-  return product.listSpecs.find(
-    (spec) => spec.label.toLowerCase() === label.toLowerCase(),
-  )?.value;
-}
-
-function extractNumber(raw: string) {
-  const matched = raw.replace(/,/g, "").match(/(\d+(\.\d+)?)/);
-  return matched ? Number(matched[1]) : 0;
-}
-
-function getWllValue(product: Product) {
-  const raw = getSpecValue(product, "WLL") ?? "";
-  return extractNumber(raw);
-}
-
-function getPriceValue(product: Product) {
-  return extractNumber(product.price);
-}
-
-function isWithinWllRange(
-  wllValue: number,
-  range: CategoryProductFilters["wllRange"],
-) {
-  if (!range) {
-    return true;
-  }
-
-  if (range === "3000-5000") {
-    return wllValue >= 3000 && wllValue <= 5000;
-  }
-
-  if (range === "5000-10000") {
-    return wllValue > 5000 && wllValue <= 10000;
-  }
-
-  return wllValue > 10000;
-}
-
 function applyClientFilters(
   source: Product[],
-  filters: Pick<CategoryProductFilters, "subcategory" | "wllRange" | "priceSort">,
+  filters: Pick<
+    CategoryProductFilters,
+    | "subcategory"
+    | "chainSize"
+    | "chainLengthFt"
+    | "strapWidthIn"
+    | "strapLengthBucket"
+    | "hookSize"
+    | "hookLengthIn"
+  >,
 ) {
-  let filtered = source.filter((product) => {
-    if (filters.subcategory && product.subcategory !== filters.subcategory) {
-      return false;
-    }
-
-    if (filters.wllRange) {
-      const wllValue = getWllValue(product);
-      if (!isWithinWllRange(wllValue, filters.wllRange)) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-  if (filters.priceSort === "asc") {
-    filtered = filtered.sort((a, b) => getPriceValue(a) - getPriceValue(b));
-  } else if (filters.priceSort === "desc") {
-    filtered = filtered.sort((a, b) => getPriceValue(b) - getPriceValue(a));
-  }
-
-  return filtered;
+  return applyCategoryProductFilters(source, filters);
 }
 
 export async function fetchCategories(): Promise<Category[]> {

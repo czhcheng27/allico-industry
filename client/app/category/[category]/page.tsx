@@ -6,6 +6,7 @@ import {
   fetchCategoryBySlug,
   fetchProductsByCategoryWithFilters,
 } from "@/lib/catalog-api";
+import { applyCategoryProductFilters } from "@/lib/catalog-filtering";
 
 type CategoryRouteProps = {
   params: Promise<{
@@ -16,6 +17,14 @@ type CategoryRouteProps = {
 
 const CATEGORY_PAGE_SIZE = 9;
 type ProductViewMode = "grid" | "list";
+const ADVANCED_FILTER_PARAM_KEYS = [
+  "chainSize",
+  "chainLengthFt",
+  "strapWidthIn",
+  "strapLengthBucket",
+  "hookSize",
+  "hookLengthIn",
+] as const;
 
 function toSingleValue(value: string | string[] | undefined) {
   if (!value) {
@@ -39,25 +48,17 @@ function parseFilters(
   const keyword = toSingleValue(searchParams.keyword);
   const subcategory = toSingleValue(searchParams.subcategory);
   const inStock = toSingleValue(searchParams.inStock) === "1";
-  const wllRangeRaw = toSingleValue(searchParams.wllRange);
-  const priceSortRaw = toSingleValue(searchParams.priceSort);
-
-  const wllRange =
-    wllRangeRaw === "3000-5000" || wllRangeRaw === "5000-10000" || wllRangeRaw === "10000+"
-      ? wllRangeRaw
-      : undefined;
-
-  const priceSort =
-    priceSortRaw === "asc" || priceSortRaw === "desc"
-      ? priceSortRaw
-      : undefined;
 
   return {
     keyword: keyword?.trim() || undefined,
     subcategory: subcategory || undefined,
     inStock,
-    wllRange,
-    priceSort,
+    chainSize: toSingleValue(searchParams.chainSize) || undefined,
+    chainLengthFt: toSingleValue(searchParams.chainLengthFt) || undefined,
+    strapWidthIn: toSingleValue(searchParams.strapWidthIn) || undefined,
+    strapLengthBucket: toSingleValue(searchParams.strapLengthBucket) || undefined,
+    hookSize: toSingleValue(searchParams.hookSize) || undefined,
+    hookLengthIn: toSingleValue(searchParams.hookLengthIn) || undefined,
   };
 }
 
@@ -82,10 +83,30 @@ export default async function CategoryRoutePage({
   }
 
   const filters = parseFilters(parsedSearchParams);
+  const selectedSubcategory = category.subcategories.find(
+    (item) => item.slug === filters.subcategory,
+  );
+  const sanitizedFilters =
+    filters.subcategory && selectedSubcategory?.catalogConfig?.supportsAdvancedFilters
+      ? filters
+      : ADVANCED_FILTER_PARAM_KEYS.reduce(
+          (nextFilters, key) => ({
+            ...nextFilters,
+            [key]: undefined,
+          }),
+          { ...filters, subcategory: filters.subcategory || undefined } as CategoryProductFilters,
+        );
   const viewMode = parseView(parsedSearchParams);
-  const filteredProducts = await fetchProductsByCategoryWithFilters(
+  const filterSourceProducts = await fetchProductsByCategoryWithFilters(
     category.slug,
-    filters,
+    {
+      keyword: sanitizedFilters.keyword,
+      inStock: sanitizedFilters.inStock,
+    },
+  );
+  const filteredProducts = applyCategoryProductFilters(
+    filterSourceProducts,
+    sanitizedFilters,
   );
   const totalProducts = filteredProducts.length;
   const totalPages = Math.max(1, Math.ceil(totalProducts / CATEGORY_PAGE_SIZE));
@@ -100,7 +121,7 @@ export default async function CategoryRoutePage({
       totalProducts={totalProducts}
       currentPage={currentPage}
       totalPages={totalPages}
-      selectedFilters={filters}
+      selectedFilters={sanitizedFilters}
       viewMode={viewMode}
     />
   );

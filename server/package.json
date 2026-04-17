@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "init:app": "tsx scripts/initApp.ts",
     "cleanup:uploads": "tsx scripts/cleanupOrphanUploads.ts",
-    "backfill:product-display-order": "tsx scripts/backfillProductDisplayOrder.ts"
+    "backfill:product-display-order": "tsx scripts/backfillProductDisplayOrder.ts",
+    "backfill:product-filters": "tsx scripts/backfillProductFilters.ts"
   },
   "keywords": [],
   "author": "",
