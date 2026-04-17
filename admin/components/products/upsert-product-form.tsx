@@ -437,6 +437,15 @@ export const UpsertProductForm = forwardRef<
   }, [form, type, watchedName]);
 
   useEffect(() => {
+    if (loadingCategories) {
+      return;
+    }
+
+    if (!selectedSubcategorySlug) {
+      form.setFieldValue("productType", undefined);
+      return;
+    }
+
     if (!selectedSubcategoryConfig) {
       form.setFieldValue("productType", undefined);
       return;
@@ -456,7 +465,13 @@ export const UpsertProductForm = forwardRef<
     if (!isValid) {
       form.setFieldValue("productType", undefined);
     }
-  }, [form, productTypeOptions, selectedSubcategoryConfig]);
+  }, [
+    form,
+    loadingCategories,
+    productTypeOptions,
+    selectedSubcategoryConfig,
+    selectedSubcategorySlug,
+  ]);
 
   const slugHint =
     type === "create"
