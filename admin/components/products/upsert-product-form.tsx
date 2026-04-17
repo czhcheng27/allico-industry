@@ -90,7 +90,11 @@ function normalizeStringList(
 }
 
 function isHotSellerText(value: unknown) {
-  return String(value || "").trim().toUpperCase() === HOT_SELLER_LABEL;
+  return (
+    String(value || "")
+      .trim()
+      .toUpperCase() === HOT_SELLER_LABEL
+  );
 }
 
 function getInitialHotSellerValue(initData?: Product) {
@@ -137,15 +141,13 @@ type FormSectionProps = {
   children: ReactNode;
 };
 
-function FormSection({
-  title,
-  description,
-  children,
-}: FormSectionProps) {
+function FormSection({ title, description, children }: FormSectionProps) {
   return (
     <section className="space-y-3">
       <div className="px-1">
-        <h3 className="text-[15px] font-semibold tracking-tight text-slate-900">{title}</h3>
+        <h3 className="text-[15px] font-semibold tracking-tight text-slate-900">
+          {title}
+        </h3>
         <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
       </div>
       <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 shadow-sm">
@@ -205,10 +207,13 @@ export const UpsertProductForm = forwardRef<
       const normalizedCategory = String(categoryPath[0] || "").trim();
       const normalizedSubcategory = String(categoryPath[1] || "").trim();
       const normalizedSlug = toSlugBase(String(values.slug || ""));
-      const normalizedGalleryImages = normalizeStringList(values.galleryImages, {
-        limit: MAX_GALLERY_IMAGES,
-        removeValue: mainImage,
-      });
+      const normalizedGalleryImages = normalizeStringList(
+        values.galleryImages,
+        {
+          limit: MAX_GALLERY_IMAGES,
+          removeValue: mainImage,
+        },
+      );
       const normalizedDetailTags = stripLegacyHotSellerTags(values.detailTags)
         .map((item) => item.slice(0, 24).trim())
         .filter(Boolean);
@@ -219,7 +224,10 @@ export const UpsertProductForm = forwardRef<
               label: String(item?.label || "").trim(),
               value: String(item?.value || "").trim(),
             }))
-            .filter((item: { label: string; value: string }) => item.label && item.value)
+            .filter(
+              (item: { label: string; value: string }) =>
+                item.label && item.value,
+            )
         : [];
       const normalizedBadge = String(values.badge || "").trim();
 
@@ -320,11 +328,14 @@ export const UpsertProductForm = forwardRef<
         ...(initData.detail || {}),
         description: String(initData.detail?.description || ""),
         features:
-          Array.isArray(initData.detail?.features) && initData.detail.features.length > 0
+          Array.isArray(initData.detail?.features) &&
+          initData.detail.features.length > 0
             ? initData.detail.features.map((item) => String(item || ""))
             : [""],
       },
-      badge: isHotSellerText(initData.badge) ? "" : String(initData.badge || ""),
+      badge: isHotSellerText(initData.badge)
+        ? ""
+        : String(initData.badge || ""),
       detailTags: stripLegacyHotSellerTags(initData.detailTags),
       galleryImages: initData.galleryImages || [],
       listSpecs:
@@ -350,7 +361,12 @@ export const UpsertProductForm = forwardRef<
       : "Used for search and related mapping.";
 
   return (
-    <Form form={form} layout="vertical" scrollToFirstError className="space-y-5">
+    <Form
+      form={form}
+      layout="vertical"
+      scrollToFirstError
+      className="space-y-5"
+    >
       <FormSection
         title="Basic Information"
         description="Define the product identity, where it lives in the catalog, and how it appears in search."
@@ -408,12 +424,20 @@ export const UpsertProductForm = forwardRef<
             placeholder="Select category and subcategory (if available)"
             loading={loadingCategories}
             classNames={{ popup: { root: "product-category-cascader-popup" } }}
-            popupMenuColumnStyle={{ minWidth: 220, height: "auto", maxHeight: 260 }}
+            popupMenuColumnStyle={{
+              minWidth: 220,
+              height: "auto",
+              maxHeight: 260,
+            }}
             style={{ width: "100%" }}
           />
         </Form.Item>
 
-        <Space size="middle" style={{ display: "flex" }}>
+        <Space
+          size="middle"
+          style={{ display: "flex", width: "100%" }}
+          styles={{ item: { flex: 1 } }}
+        >
           <Form.Item
             name="price"
             label="Price"
@@ -432,6 +456,7 @@ export const UpsertProductForm = forwardRef<
               options={[
                 { label: "In Stock", value: "In Stock" },
                 { label: "Low Stock", value: "Low Stock" },
+                { label: "Out of Stock", value: "Out of Stock" },
               ]}
             />
           </Form.Item>
@@ -523,9 +548,14 @@ export const UpsertProductForm = forwardRef<
         <Form.List name={["detail", "features"]}>
           {(fields, { add, remove }) => (
             <div>
-              <div className="admin-section-label">Detail Bullet Points (Optional)</div>
+              <div className="admin-section-label">
+                Detail Bullet Points (Optional)
+              </div>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-3 rounded-xl border border-slate-200 bg-white p-3">
+                <div
+                  key={key}
+                  className="mb-3 rounded-xl border border-slate-200 bg-white p-3"
+                >
                   <Space align="center" style={{ display: "flex" }}>
                     <Form.Item
                       {...restField}
@@ -534,7 +564,11 @@ export const UpsertProductForm = forwardRef<
                     >
                       <Input placeholder="Built for demanding field conditions" />
                     </Form.Item>
-                    <Button danger style={{ alignSelf: "center" }} onClick={() => remove(name)}>
+                    <Button
+                      danger
+                      style={{ alignSelf: "center" }}
+                      onClick={() => remove(name)}
+                    >
                       Remove
                     </Button>
                   </Space>
@@ -582,7 +616,10 @@ export const UpsertProductForm = forwardRef<
             <div>
               <div className="admin-section-label">Specs</div>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-3 rounded-xl border border-slate-200 bg-white p-3">
+                <div
+                  key={key}
+                  className="mb-3 rounded-xl border border-slate-200 bg-white p-3"
+                >
                   <Space align="center" style={{ display: "flex" }}>
                     <Form.Item
                       {...restField}
@@ -600,13 +637,20 @@ export const UpsertProductForm = forwardRef<
                     >
                       <Input placeholder="Value" />
                     </Form.Item>
-                    <Button danger style={{ alignSelf: "center" }} onClick={() => remove(name)}>
+                    <Button
+                      danger
+                      style={{ alignSelf: "center" }}
+                      onClick={() => remove(name)}
+                    >
                       Remove
                     </Button>
                   </Space>
                 </div>
               ))}
-              <Button type="dashed" onClick={() => add({ label: "", value: "" })}>
+              <Button
+                type="dashed"
+                onClick={() => add({ label: "", value: "" })}
+              >
                 Add Spec
               </Button>
             </div>

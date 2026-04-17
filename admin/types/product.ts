@@ -27,7 +27,7 @@ export type Product = {
   isHotSeller?: boolean;
   displayOrder?: number;
   detailTags?: string[];
-  status: "In Stock" | "Low Stock";
+  status: "In Stock" | "Low Stock" | "Out of Stock";
   badge?: string;
   listSpecs: ProductSpec[];
   detail?: ProductDetail | null;
