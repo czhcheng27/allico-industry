@@ -136,7 +136,6 @@ function applyClientFilters(
     | "strapWidthIn"
     | "strapLengthBucket"
     | "hookSize"
-    | "hookLengthIn"
   >,
 ) {
   return applyCategoryProductFilters(source, filters);

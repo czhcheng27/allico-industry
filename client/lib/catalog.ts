@@ -5,16 +5,14 @@ export type CatalogFilterKey =
   | "chainLengthFt"
   | "strapWidthIn"
   | "strapLengthBucket"
-  | "hookSize"
-  | "hookLengthIn";
+  | "hookSize";
 
 export type CatalogAttributeKey =
   | "chainSizeCode"
   | "chainLengthFt"
   | "strapWidthIn"
   | "strapLengthFt"
-  | "hookSizeCode"
-  | "hookLengthIn";
+  | "hookSizeCode";
 
 export type CatalogOption = {
   value: string;
@@ -91,7 +89,6 @@ export type ProductFilterAttributes = {
   strapLengthFt?: number | null;
   strapLengthBucket?: string;
   hookSizeCode?: string;
-  hookLengthIn?: number | null;
 };
 
 export type Product = {

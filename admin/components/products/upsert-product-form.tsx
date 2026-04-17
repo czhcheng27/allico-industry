@@ -136,8 +136,7 @@ type ProductAttributeFieldKey =
   | "chainLengthFt"
   | "strapWidthIn"
   | "strapLengthFt"
-  | "hookSizeCode"
-  | "hookLengthIn";
+  | "hookSizeCode";
 
 type CategorySubcategoryConfig = NonNullable<
   CategoryRecord["subcategories"][number]["catalogConfig"]
@@ -175,7 +174,6 @@ function normalizeFilterAttributes(input: unknown) {
     strapWidthIn: toOptionalNumber(filterAttributes.strapWidthIn),
     strapLengthFt: toOptionalNumber(filterAttributes.strapLengthFt),
     hookSizeCode: String(filterAttributes.hookSizeCode || "").trim(),
-    hookLengthIn: toOptionalNumber(filterAttributes.hookLengthIn),
   };
 }
 
@@ -392,7 +390,6 @@ export const UpsertProductForm = forwardRef<
           strapWidthIn: undefined,
           strapLengthFt: undefined,
           hookSizeCode: "",
-          hookLengthIn: undefined,
         },
         status: "In Stock",
         isHotSeller: false,
@@ -642,7 +639,7 @@ export const UpsertProductForm = forwardRef<
       {selectedSubcategoryConfig ? (
         <FormSection
           title="Structured Catalog Attributes"
-          description="These controlled fields drive the client-side size and length filters. Matching display specs are synced automatically when the product is saved."
+          description="These controlled fields drive the client-side catalog filters. Matching display specs are synced automatically when the product is saved."
         >
           {productTypeOptions.length > 1 ? (
             <Form.Item

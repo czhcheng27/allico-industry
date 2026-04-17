@@ -23,7 +23,6 @@ const ADVANCED_FILTER_PARAM_KEYS = [
   "strapWidthIn",
   "strapLengthBucket",
   "hookSize",
-  "hookLengthIn",
 ] as const;
 
 function toSingleValue(value: string | string[] | undefined) {
@@ -58,7 +57,6 @@ function parseFilters(
     strapWidthIn: toSingleValue(searchParams.strapWidthIn) || undefined,
     strapLengthBucket: toSingleValue(searchParams.strapLengthBucket) || undefined,
     hookSize: toSingleValue(searchParams.hookSize) || undefined,
-    hookLengthIn: toSingleValue(searchParams.hookLengthIn) || undefined,
   };
 }
 

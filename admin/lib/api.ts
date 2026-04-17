@@ -51,8 +51,7 @@ export type CategorySubcategory = {
           | "chainLengthFt"
           | "strapWidthIn"
           | "strapLengthFt"
-          | "hookSizeCode"
-          | "hookLengthIn";
+          | "hookSizeCode";
         label: string;
         input: "select" | "number";
         unit?: "in" | "ft";
@@ -66,16 +65,14 @@ export type CategorySubcategory = {
         | "chainLengthFt"
         | "strapWidthIn"
         | "strapLengthBucket"
-        | "hookSize"
-        | "hookLengthIn";
+        | "hookSize";
       label: string;
       attributeKey:
         | "chainSizeCode"
         | "chainLengthFt"
         | "strapWidthIn"
         | "strapLengthFt"
-        | "hookSizeCode"
-        | "hookLengthIn";
+        | "hookSizeCode";
       options: Array<{ value: string; label: string }>;
     }>;
   } | null;

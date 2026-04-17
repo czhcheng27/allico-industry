@@ -163,8 +163,7 @@ export const productSeedList = [
     subcategory: "towing-accessories",
     productType: "hook",
     filterAttributes: {
-      hookSizeCode: "2",
-      hookLengthIn: 8,
+      hookSizeCode: "8",
     },
     sku: "AL-THA-58",
     price: "$37.40",
@@ -349,8 +348,7 @@ export const productSeedList = [
     subcategory: "hooks",
     productType: "hook",
     filterAttributes: {
-      hookSizeCode: "1",
-      hookLengthIn: 0.3125,
+      hookSizeCode: "0.3125",
     },
     sku: "AL-YFH-516",
     price: "$42.00",
@@ -384,8 +382,7 @@ export const productSeedList = [
     subcategory: "hooks",
     productType: "hook",
     filterAttributes: {
-      hookSizeCode: "3",
-      hookLengthIn: 0.375,
+      hookSizeCode: "0.375",
     },
     sku: "AL-HCL-38",
     price: "$16.80",
@@ -404,8 +401,7 @@ export const productSeedList = [
     subcategory: "hooks",
     productType: "hook",
     filterAttributes: {
-      hookSizeCode: "4",
-      hookLengthIn: 0.5,
+      hookSizeCode: "0.375",
     },
     sku: "AL-EFH-38",
     price: "$29.90",

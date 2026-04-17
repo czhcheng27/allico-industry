@@ -21,7 +21,6 @@ export type ProductFilterAttributes = {
   strapLengthFt?: number | null;
   strapLengthBucket?: string;
   hookSizeCode?: string;
-  hookLengthIn?: number | null;
 };
 
 export type Product = {

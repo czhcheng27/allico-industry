@@ -54,9 +54,6 @@ function buildSearchParams(
   if (selectedFilters.hookSize) {
     params.set("hookSize", selectedFilters.hookSize);
   }
-  if (selectedFilters.hookLengthIn) {
-    params.set("hookLengthIn", selectedFilters.hookLengthIn);
-  }
   if (viewMode === "list") {
     params.set("view", "list");
   }

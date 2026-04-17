@@ -7,7 +7,6 @@ export type CatalogFilterSelections = {
   strapWidthIn?: string;
   strapLengthBucket?: string;
   hookSize?: string;
-  hookLengthIn?: string;
 };
 
 export const ADVANCED_FILTER_KEYS = [
@@ -16,7 +15,6 @@ export const ADVANCED_FILTER_KEYS = [
   "strapWidthIn",
   "strapLengthBucket",
   "hookSize",
-  "hookLengthIn",
 ] as const;
 
 export type AdvancedFilterKey = (typeof ADVANCED_FILTER_KEYS)[number];
@@ -48,7 +46,7 @@ function getProductFilterValue(product: Product, key: AdvancedFilterKey) {
     return normalizeValue(attributes.hookSizeCode);
   }
 
-  return normalizeValue(attributes.hookLengthIn);
+  return "";
 }
 
 function matchesAdvancedFilter(

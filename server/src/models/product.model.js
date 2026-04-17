@@ -16,7 +16,6 @@ const filterAttributesSchema = new mongoose.Schema(
     strapLengthFt: { type: Number, default: null },
     strapLengthBucket: { type: String, default: "", trim: true },
     hookSizeCode: { type: String, default: "", trim: true },
-    hookLengthIn: { type: Number, default: null },
   },
   { _id: false },
 );

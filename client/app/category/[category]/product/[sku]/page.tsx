@@ -45,7 +45,7 @@ function buildBackHref(
   if (inStock === "1") {
     params.set("inStock", "1");
   }
-  ["chainSize", "chainLengthFt", "strapWidthIn", "strapLengthBucket", "hookSize", "hookLengthIn"]
+  ["chainSize", "chainLengthFt", "strapWidthIn", "strapLengthBucket", "hookSize"]
     .map((key) => [key, toSingleValue(searchParams[key])?.trim()] as const)
     .forEach(([key, value]) => {
       if (value) {

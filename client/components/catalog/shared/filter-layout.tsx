@@ -36,7 +36,6 @@ type DraftFilterState = {
   strapWidthIn: string;
   strapLengthBucket: string;
   hookSize: string;
-  hookLengthIn: string;
 };
 
 function clearAdvancedFilterState<T extends DraftFilterState>(state: T): T {
@@ -47,7 +46,6 @@ function clearAdvancedFilterState<T extends DraftFilterState>(state: T): T {
     strapWidthIn: "",
     strapLengthBucket: "",
     hookSize: "",
-    hookLengthIn: "",
   };
 }
 
@@ -60,7 +58,6 @@ function toDraftState(selectedFilters: CategoryProductFilters): DraftFilterState
     strapWidthIn: selectedFilters.strapWidthIn ?? "",
     strapLengthBucket: selectedFilters.strapLengthBucket ?? "",
     hookSize: selectedFilters.hookSize ?? "",
-    hookLengthIn: selectedFilters.hookLengthIn ?? "",
   };
 }
 
@@ -110,7 +107,6 @@ function FilterLayout({
   }, [
     selectedFilters.chainLengthFt,
     selectedFilters.chainSize,
-    selectedFilters.hookLengthIn,
     selectedFilters.hookSize,
     selectedFilters.inStock,
     selectedFilters.strapLengthBucket,

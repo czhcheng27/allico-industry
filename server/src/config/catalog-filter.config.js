@@ -24,19 +24,11 @@ const STRAP_LENGTH_BUCKET_OPTIONS = [
   { value: "40-50", label: "40' to 50'" },
 ];
 
-const HOOK_WIDTH_OPTIONS = [
-  { value: "1", label: '1"' },
-  { value: "2", label: '2"' },
-  { value: "3", label: '3"' },
-  { value: "4", label: '4"' },
-];
-
-const HOOK_LENGTH_OPTIONS = [
+const HOOK_SIZE_OPTIONS = [
   { value: "0.25", label: '1/4"' },
   { value: "0.3125", label: '5/16"' },
   { value: "0.375", label: '3/8"' },
   { value: "0.5", label: '1/2"' },
-  { value: "2", label: '2"' },
   { value: "8", label: '8"' },
   { value: "15", label: '15"' },
 ];
@@ -72,16 +64,9 @@ const ATTRIBUTE_DEFINITIONS = {
   },
   hookSizeCode: {
     key: "hookSizeCode",
-    label: "Hook Width",
+    label: "Size",
     input: "select",
-    options: HOOK_WIDTH_OPTIONS,
-    unit: "in",
-  },
-  hookLengthIn: {
-    key: "hookLengthIn",
-    label: "Hook Length",
-    input: "select",
-    options: HOOK_LENGTH_OPTIONS,
+    options: HOOK_SIZE_OPTIONS,
     unit: "in",
   },
 };
@@ -113,15 +98,9 @@ const FILTER_DEFINITIONS = {
   },
   hookSize: {
     key: "hookSize",
-    label: "Hook Width",
+    label: "Size",
     attributeKey: "hookSizeCode",
-    options: HOOK_WIDTH_OPTIONS,
-  },
-  hookLengthIn: {
-    key: "hookLengthIn",
-    label: "Hook Length",
-    attributeKey: "hookLengthIn",
-    options: HOOK_LENGTH_OPTIONS,
+    options: HOOK_SIZE_OPTIONS,
   },
 };
 
@@ -188,10 +167,10 @@ const PROFILE_BY_SUBCATEGORY = new Map([
           value: "hook",
           label: "Hook",
           requiredFields: ["hookSizeCode"],
-          optionalFields: ["hookLengthIn"],
+          optionalFields: [],
         },
       ],
-      filters: ["hookSize", "hookLengthIn"],
+      filters: ["hookSize"],
     },
   ],
   [
@@ -214,10 +193,10 @@ const PROFILE_BY_SUBCATEGORY = new Map([
           value: "hook",
           label: "Hook",
           requiredFields: ["hookSizeCode"],
-          optionalFields: ["hookLengthIn"],
+          optionalFields: [],
         },
       ],
-      filters: ["hookSize", "hookLengthIn"],
+      filters: ["hookSize"],
     },
   ],
 ]);
@@ -525,32 +504,15 @@ export function normalizeFilterAttributes({
 
   if (productTypeDefinition.requiredFields.includes("hookSizeCode")) {
     const hookSizeCode = normalizeOptionValue(source.hookSizeCode);
-    if (!isAllowedOption(hookSizeCode, HOOK_WIDTH_OPTIONS)) {
+    if (!isAllowedOption(hookSizeCode, HOOK_SIZE_OPTIONS)) {
       return {
         productType: normalizedProductType,
         filterAttributes: null,
-        error: "Hook width is required for the selected product type",
+        error: "Hook size is required for the selected product type",
       };
     }
 
     normalizedAttributes.hookSizeCode = hookSizeCode;
-  }
-
-  if (Object.prototype.hasOwnProperty.call(source, "hookLengthIn")) {
-    const hookLengthIn = normalizeOptionValue(source.hookLengthIn);
-    if (!hookLengthIn) {
-      normalizedAttributes.hookLengthIn = null;
-    } else if (!isAllowedOption(hookLengthIn, HOOK_LENGTH_OPTIONS)) {
-      return {
-        productType: normalizedProductType,
-        filterAttributes: null,
-        error: "Hook length must be one of the configured inch values",
-      };
-    } else {
-      normalizedAttributes.hookLengthIn = Number(hookLengthIn);
-    }
-  } else if (normalizedProductType === "hook") {
-    normalizedAttributes.hookLengthIn = null;
   }
 
   return {
@@ -588,16 +550,7 @@ export function buildManagedSizeSpec(productType, filterAttributes) {
   }
 
   if (productType === "hook") {
-    const widthLabel = getLabelForOption(filterAttributes.hookSizeCode, HOOK_WIDTH_OPTIONS);
-    const lengthLabel = getLabelForOption(
-      filterAttributes.hookLengthIn,
-      HOOK_LENGTH_OPTIONS,
-    );
-    if (!widthLabel) {
-      return "";
-    }
-
-    return lengthLabel ? `${widthLabel} x ${lengthLabel}` : widthLabel;
+    return getLabelForOption(filterAttributes.hookSizeCode, HOOK_SIZE_OPTIONS);
   }
 
   return "";
@@ -628,7 +581,6 @@ export function getFilterOptionSets() {
     chainLengthFt: CHAIN_LENGTH_OPTIONS.map(cloneOption),
     strapWidthIn: STRAP_WIDTH_OPTIONS.map(cloneOption),
     strapLengthBucket: STRAP_LENGTH_BUCKET_OPTIONS.map(cloneOption),
-    hookSize: HOOK_WIDTH_OPTIONS.map(cloneOption),
-    hookLengthIn: HOOK_LENGTH_OPTIONS.map(cloneOption),
+    hookSize: HOOK_SIZE_OPTIONS.map(cloneOption),
   };
 }

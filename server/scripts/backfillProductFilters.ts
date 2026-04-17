@@ -115,6 +115,60 @@ function parseHookLengthFromSize(raw: string) {
   return matched ? Number(matched[1]) : null;
 }
 
+function parseHookSizeCode(raw: string) {
+  const normalized = normalizeText(raw).replace(/[Ã¢â‚¬Ââ€"]/g, '"').toLowerCase();
+  if (!normalized) {
+    return "";
+  }
+
+  const segments = normalized.includes("x")
+    ? normalized.split(/x/i).map((item) => item.trim()).filter(Boolean).reverse()
+    : [];
+  const candidates = [...segments, normalized];
+
+  for (const candidate of candidates) {
+    if (candidate.includes("1/4")) {
+      return "0.25";
+    }
+    if (candidate.includes("5/16")) {
+      return "0.3125";
+    }
+    if (candidate.includes("3/8")) {
+      return "0.375";
+    }
+    if (candidate.includes("1/2")) {
+      return "0.5";
+    }
+
+    const matched = candidate.match(/(\d+(?:\.\d+)?)/);
+    if (!matched) {
+      continue;
+    }
+
+    const size = Number(matched[1]);
+    if (size === 0.25) {
+      return "0.25";
+    }
+    if (size === 0.3125) {
+      return "0.3125";
+    }
+    if (size === 0.375) {
+      return "0.375";
+    }
+    if (size === 0.5) {
+      return "0.5";
+    }
+    if (size === 8) {
+      return "8";
+    }
+    if (size === 15) {
+      return "15";
+    }
+  }
+
+  return "";
+}
+
 function inferProductType(product: {
   category?: string;
   subcategory?: string;
@@ -212,7 +266,9 @@ function inferFilterAttributes(
 
   if (productType === "hook") {
     const hookSizeCode =
-      parseHookWidth(getSpecValue(product, ["Hook Width", "Width", "Size", "Hook Size"])) ||
+      parseHookSizeCode(getSpecValue(product, ["Size", "Hook Size"])) ||
+      parseHookSizeCode(getSpecValue(product, ["Hook Length", "Length"])) ||
+      parseHookSizeCode(getSpecValue(product, ["Hook Width", "Width"])) ||
       "";
     if (!hookSizeCode) {
       return null;
@@ -220,9 +276,6 @@ function inferFilterAttributes(
 
     return {
       hookSizeCode,
-      hookLengthIn: parseHookLengthFromSize(
-        getSpecValue(product, ["Hook Length", "Length", "Size", "Hook Size"]),
-      ),
     };
   }
 
@@ -288,6 +341,9 @@ async function main() {
               productType: inferredProductType,
               filterAttributes: inferredFilterAttributes,
               listSpecs: nextListSpecs,
+            },
+            $unset: {
+              "filterAttributes.hookLengthIn": "",
             },
           },
         },
