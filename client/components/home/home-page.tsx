@@ -270,7 +270,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                   <p className="mb-3 text-xs text-gray-500">
                     {product.listSpecs.map((spec) => spec.value).join(" | ")}
                   </p>
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <span className="font-display text-lg font-bold text-gray-900">
                       {product.price}
                     </span>
@@ -279,7 +279,7 @@ async function HomePage({ featuredProducts }: HomePageProps) {
                         add_shopping_cart
                       </span>
                     </button>
-                  </div>
+                  </div> */}
                 </Link>
               ))}
             </div>
