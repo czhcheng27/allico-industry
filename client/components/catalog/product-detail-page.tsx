@@ -123,7 +123,7 @@ function ProductDetailPage({
             </h1>
 
             <div className="mb-6 flex flex-wrap items-center gap-4 border-b border-gray-200 pb-6">
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <div className="flex text-primary">
                   <span className="material-symbols-outlined text-sm">
                     star
@@ -144,7 +144,7 @@ function ProductDetailPage({
                 <span className="ml-2 cursor-pointer text-sm text-gray-500 underline decoration-dotted hover:text-primary">
                   Read 24 Reviews
                 </span>
-              </div>
+              </div> */}
               <div className="flex items-center text-sm text-gray-500">
                 <span className="material-symbols-outlined mr-1 text-base">
                   verified
