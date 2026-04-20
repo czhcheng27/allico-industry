@@ -40,7 +40,8 @@ function ProductDetailPage({
         ? product.detail.table
         : product.listSpecs,
     thumbImages:
-      Array.isArray(product.detail?.thumbImages) && product.detail.thumbImages.length > 0
+      Array.isArray(product.detail?.thumbImages) &&
+      product.detail.thumbImages.length > 0
         ? product.detail.thumbImages
         : [product.image],
     relatedSlugs: Array.isArray(product.detail?.relatedSlugs)
@@ -67,12 +68,21 @@ function ProductDetailPage({
               <Link className="transition hover:text-primary" href="/">
                 Home
               </Link>
-              <span className="material-symbols-outlined mx-1 text-xs text-gray-400">chevron_right</span>
-              <Link className="transition hover:text-primary" href={getCategoryHref(category.slug)}>
+              <span className="material-symbols-outlined mx-1 text-xs text-gray-400">
+                chevron_right
+              </span>
+              <Link
+                className="transition hover:text-primary"
+                href={getCategoryHref(category.slug)}
+              >
                 {category.name}
               </Link>
-              <span className="material-symbols-outlined mx-1 text-xs text-gray-400">chevron_right</span>
-              <span className="truncate font-semibold text-gray-700">{detailContent.headline}</span>
+              <span className="material-symbols-outlined mx-1 text-xs text-gray-400">
+                chevron_right
+              </span>
+              <span className="truncate font-semibold text-gray-700">
+                {detailContent.headline}
+              </span>
             </nav>
 
             <Link
@@ -115,34 +125,61 @@ function ProductDetailPage({
             <div className="mb-6 flex flex-wrap items-center gap-4 border-b border-gray-200 pb-6">
               <div className="flex items-center">
                 <div className="flex text-primary">
-                  <span className="material-symbols-outlined text-sm">star</span>
-                  <span className="material-symbols-outlined text-sm">star</span>
-                  <span className="material-symbols-outlined text-sm">star</span>
-                  <span className="material-symbols-outlined text-sm">star</span>
-                  <span className="material-symbols-outlined text-sm">star</span>
+                  <span className="material-symbols-outlined text-sm">
+                    star
+                  </span>
+                  <span className="material-symbols-outlined text-sm">
+                    star
+                  </span>
+                  <span className="material-symbols-outlined text-sm">
+                    star
+                  </span>
+                  <span className="material-symbols-outlined text-sm">
+                    star
+                  </span>
+                  <span className="material-symbols-outlined text-sm">
+                    star
+                  </span>
                 </div>
                 <span className="ml-2 cursor-pointer text-sm text-gray-500 underline decoration-dotted hover:text-primary">
                   Read 24 Reviews
                 </span>
               </div>
               <div className="flex items-center text-sm text-gray-500">
-                <span className="material-symbols-outlined mr-1 text-base">verified</span>
+                <span className="material-symbols-outlined mr-1 text-base">
+                  verified
+                </span>
                 Certified Testing
               </div>
               <div className="flex items-center text-sm text-gray-500">
-                <span className="material-symbols-outlined mr-1 text-base">local_shipping</span>
+                <span className="material-symbols-outlined mr-1 text-base">
+                  local_shipping
+                </span>
                 Ships Today
               </div>
             </div>
 
-            <div className={`mb-8 grid gap-8 ${hasIntroContent ? "md:grid-cols-2" : ""}`}>
+            <div
+              className={`mb-8 grid gap-8 ${hasIntroContent ? "md:grid-cols-2" : ""}`}
+            >
               {hasIntroContent ? (
                 <div className="text-gray-600">
-                  {detailContent.description ? <p>{detailContent.description}</p> : null}
+                  {detailContent.description ? (
+                    <p>{detailContent.description}</p>
+                  ) : null}
                   {detailContent.features.length > 0 ? (
-                    <ul className={detailContent.description ? "mt-4 space-y-2" : "space-y-2"}>
+                    <ul
+                      className={
+                        detailContent.description
+                          ? "mt-4 space-y-2"
+                          : "space-y-2"
+                      }
+                    >
                       {detailContent.features.map((feature, index) => (
-                        <li key={`${feature}-${index}`} className="flex items-start">
+                        <li
+                          key={`${feature}-${index}`}
+                          className="flex items-start"
+                        >
                           <span className="material-symbols-outlined mr-2 mt-0.5 text-sm text-primary">
                             check_circle
                           </span>
@@ -170,21 +207,29 @@ function ProductDetailPage({
                       min={1}
                       type="number"
                     />
-                    <span className="pr-3 text-sm font-medium text-gray-400">ft</span>
+                    <span className="pr-3 text-sm font-medium text-gray-400">
+                      ft
+                    </span>
                   </div>
                 </div>
                 <button className="flex w-full flex-1 items-center justify-center gap-2 rounded bg-primary px-6 py-3 text-center font-display text-lg font-bold uppercase tracking-wider text-primary-foreground shadow-md transition hover:-translate-y-0.5 hover:bg-primary-hover">
-                  <span className="material-symbols-outlined">request_quote</span>
+                  <span className="material-symbols-outlined">
+                    request_quote
+                  </span>
                   Request A Quote
                 </button>
               </div>
               <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm text-green-600">check</span>
+                  <span className="material-symbols-outlined text-sm text-green-600">
+                    check
+                  </span>
                   Volume discounts available
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm text-green-600">check</span>
+                  <span className="material-symbols-outlined text-sm text-green-600">
+                    check
+                  </span>
                   Custom cut lengths
                 </span>
               </div>
@@ -196,12 +241,12 @@ function ProductDetailPage({
       <section className="border-t border-gray-200 bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col gap-12 lg:flex-row">
-            <div className="lg:w-2/3">
+            <div className="w-full">
               <h3 className="mb-6 flex items-center gap-2 font-display text-2xl font-bold uppercase text-gray-900">
                 <span className="block h-8 w-2 rounded-sm bg-primary" />
                 Related Accessories
               </h3>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-5">
                 {relatedProducts.map((relatedProduct) => (
                   <div
                     key={relatedProduct.slug}
@@ -222,7 +267,8 @@ function ProductDetailPage({
                     </h4>
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-500">
-                        {relatedProduct.listSpecs[0]?.label}: {relatedProduct.listSpecs[0]?.value}
+                        {relatedProduct.listSpecs[0]?.label}:{" "}
+                        {relatedProduct.listSpecs[0]?.value}
                       </span>
                       <Link
                         className="text-sm font-bold text-primary hover:underline"
@@ -233,46 +279,6 @@ function ProductDetailPage({
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="lg:w-1/3">
-              <div className="rounded-lg bg-brand-ink p-8 text-white shadow-xl">
-                <h4 className="mb-4 border-b border-white/12 pb-4 font-display text-2xl font-bold uppercase">
-                  Safe Lifting Assurance
-                </h4>
-                <div className="mb-8 space-y-4 text-white/80">
-                  <p className="text-sm leading-relaxed">
-                    Allico Industries chains undergo rigorous testing to ensure maximum
-                    safety on your job site.
-                  </p>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-primary">
-                        verified_user
-                      </span>
-                      100% Proof Tested
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-primary">
-                        verified_user
-                      </span>
-                      4:1 Design Safety Factor
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-primary">
-                        verified_user
-                      </span>
-                      Full Traceability
-                    </li>
-                  </ul>
-                </div>
-                <a
-                  className="block w-full rounded bg-primary py-3 text-center font-bold uppercase text-primary-foreground shadow-lg transition hover:bg-primary-hover"
-                  href="#"
-                >
-                  Download Spec Sheet (PDF)
-                </a>
               </div>
             </div>
           </div>

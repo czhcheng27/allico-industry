@@ -45,7 +45,13 @@ function buildBackHref(
   if (inStock === "1") {
     params.set("inStock", "1");
   }
-  ["chainSize", "chainLengthFt", "strapWidthIn", "strapLengthBucket", "hookSize"]
+  [
+    "chainSize",
+    "chainLengthFt",
+    "strapWidthIn",
+    "strapLengthBucket",
+    "hookSize",
+  ]
     .map((key) => [key, toSingleValue(searchParams[key])?.trim()] as const)
     .forEach(([key, value]) => {
       if (value) {
@@ -78,13 +84,16 @@ export default async function ProductRoutePage({
     notFound();
   }
 
-  const product = await fetchProductByCategoryAndSku(category.slug, normalizedSku);
+  const product = await fetchProductByCategoryAndSku(
+    category.slug,
+    normalizedSku,
+  );
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = await fetchRelatedProducts(product, 3);
+  const relatedProducts = await fetchRelatedProducts(product, 5);
   const backHref = buildBackHref(category.slug, parsedSearchParams);
 
   return (
