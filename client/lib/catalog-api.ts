@@ -2,7 +2,6 @@ import {
   type Category,
   type CategorySlug,
   type Product,
-  featuredProductSlugs,
 } from "@/lib/catalog";
 import {
   applyCategoryProductFilters,
@@ -35,6 +34,7 @@ type ProductQuery = {
   keyword?: string;
   category?: string;
   status?: string;
+  isFeatured?: string;
 };
 
 type ApiResponse<T> = {
@@ -252,21 +252,12 @@ export async function fetchRelatedProducts(
   return [...picked, ...fallback].slice(0, max);
 }
 
-export async function fetchFeaturedProducts(limit = 5): Promise<Product[]> {
-  const allProducts = await fetchAllProducts();
-  const productBySlug = new Map(
-    allProducts.map((item) => [item.slug, item] as const),
-  );
+export async function fetchFeaturedProducts(limit?: number): Promise<Product[]> {
+  const featuredProducts = await fetchAllProducts({ isFeatured: "1" });
 
-  const picked = featuredProductSlugs
-    .map((slug) => productBySlug.get(slug))
-    .filter((item): item is Product => Boolean(item));
-
-  if (picked.length >= limit) {
-    return picked.slice(0, limit);
+  if (typeof limit === "number" && Number.isFinite(limit) && limit > 0) {
+    return featuredProducts.slice(0, limit);
   }
 
-  const pickedSlugSet = new Set(picked.map((item) => item.slug));
-  const fallback = allProducts.filter((item) => !pickedSlugSet.has(item.slug));
-  return [...picked, ...fallback].slice(0, limit);
+  return featuredProducts;
 }

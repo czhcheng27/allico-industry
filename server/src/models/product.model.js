@@ -33,6 +33,8 @@ const productSchema = new mongoose.Schema(
     galleryImages: { type: [String], default: [] },
     isHotSeller: { type: Boolean, default: false },
     displayOrder: { type: Number, default: 0 },
+    isFeatured: { type: Boolean, default: false },
+    featuredOrder: { type: Number, default: null },
     status: {
       type: String,
       enum: ["In Stock", "Low Stock", "Out of Stock"],

@@ -91,7 +91,7 @@ export const productSeedList = [
     status: "In Stock",
     listSpecs: [
       { label: "Capacity", value: "8,000 lbs" },
-      { label: "Sheave", value: "3\" Steel" },
+      { label: "Sheave", value: '3" Steel' },
       { label: "Weight", value: "4.2 lbs" },
     ],
   },
@@ -321,14 +321,14 @@ export const productSeedList = [
     image: images.winchCable,
     status: "In Stock",
     listSpecs: [
-      { label: "Pitch", value: "3/4\"" },
+      { label: "Pitch", value: '3/4"' },
       { label: "Material", value: "Heat Treated" },
       { label: "Type", value: "Welded Steel" },
     ],
   },
   {
     slug: "yoke-trigger-kit",
-    name: "Yoke 3/4\" Trigger Kit",
+    name: 'Yoke 3/4" Trigger Kit',
     category: "hooks-and-accessories",
     subcategory: "hooks",
     sku: "AL-YTK-34",
@@ -355,7 +355,7 @@ export const productSeedList = [
     image: images.foundryHook,
     status: "In Stock",
     listSpecs: [
-      { label: "Size", value: "5/16\"" },
+      { label: "Size", value: '5/16"' },
       { label: "WLL", value: "5,700 lbs" },
       { label: "Grade", value: "G100" },
     ],
@@ -389,7 +389,7 @@ export const productSeedList = [
     image: images.hammerlock,
     status: "In Stock",
     listSpecs: [
-      { label: "Size", value: "3/8\"" },
+      { label: "Size", value: '3/8"' },
       { label: "Grade", value: "G100" },
       { label: "Use", value: "Chain Repair" },
     ],
@@ -409,7 +409,7 @@ export const productSeedList = [
     status: "In Stock",
     listSpecs: [
       { label: "WLL", value: "5,700 lbs" },
-      { label: "Size", value: "3/8\"" },
+      { label: "Size", value: '3/8"' },
       { label: "Grade", value: "G100" },
     ],
   },
@@ -450,7 +450,7 @@ export const productSeedList = [
     image: images.axleStrap,
     status: "In Stock",
     listSpecs: [
-      { label: "Size", value: "2\" x 24\"" },
+      { label: "Size", value: '2" x 24"' },
       { label: "Material", value: "Polyester" },
       { label: "Protection", value: "Sleeve Included" },
     ],

@@ -103,6 +103,8 @@ export type Product = {
   galleryImages?: string[];
   isHotSeller?: boolean;
   displayOrder?: number;
+  isFeatured?: boolean;
+  featuredOrder?: number | null;
   detailTags?: string[];
   status: ProductStatus;
   listSpecs: ProductSpec[];
@@ -138,14 +140,6 @@ export const siteMedia = {
   heroImage: images.hero,
   safetyImage: "/imgs/home/safety.png",
 };
-
-export const featuredProductSlugs = [
-  "retractable-ratchet-strap",
-  "yoke-trigger-kit",
-  "yoke-g100-foundry-hook",
-  "heavy-duty-axle-strap",
-  "g70-transport-chain",
-];
 
 export function getCategoryHref(category: CategorySlug) {
   return `/category/${category}`;

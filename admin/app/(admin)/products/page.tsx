@@ -278,6 +278,13 @@ export default function ProductsPage() {
                 value ? <Tag color="red">HOT SELLER</Tag> : <span style={{ color: "#94a3b8" }}>-</span>,
             },
             {
+              title: "Featured",
+              dataIndex: "isFeatured",
+              width: 120,
+              render: (value: Product["isFeatured"]) =>
+                value ? <Tag color="gold">FEATURED</Tag> : <span style={{ color: "#94a3b8" }}>-</span>,
+            },
+            {
               title: "Updated At",
               dataIndex: "updatedAt",
               width: 180,

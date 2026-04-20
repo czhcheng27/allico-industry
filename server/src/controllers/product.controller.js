@@ -133,6 +133,10 @@ function normalizeHotSellerFlag(value) {
   return false;
 }
 
+function normalizeFeaturedFlag(value) {
+  return normalizeHotSellerFlag(value);
+}
+
 function getDisplayOrderValue(value) {
   const normalized = Number(value);
   return Number.isFinite(normalized) ? normalized : null;
@@ -156,6 +160,31 @@ function compareProductsForDisplay(a, b) {
   } else if (aDisplayOrder !== null) {
     return -1;
   } else if (bDisplayOrder !== null) {
+    return 1;
+  }
+
+  const aUpdatedAt = new Date(a?.updatedAt || 0).getTime();
+  const bUpdatedAt = new Date(b?.updatedAt || 0).getTime();
+  if (aUpdatedAt !== bUpdatedAt) {
+    return bUpdatedAt - aUpdatedAt;
+  }
+
+  return String(a?._id || a?.id || "").localeCompare(
+    String(b?._id || b?.id || ""),
+  );
+}
+
+function compareProductsForFeatured(a, b) {
+  const aFeaturedOrder = getDisplayOrderValue(a?.featuredOrder);
+  const bFeaturedOrder = getDisplayOrderValue(b?.featuredOrder);
+
+  if (aFeaturedOrder !== null && bFeaturedOrder !== null) {
+    if (aFeaturedOrder !== bFeaturedOrder) {
+      return aFeaturedOrder - bFeaturedOrder;
+    }
+  } else if (aFeaturedOrder !== null) {
+    return -1;
+  } else if (bFeaturedOrder !== null) {
     return 1;
   }
 
@@ -300,6 +329,25 @@ async function getNextDisplayOrder(category, isHotSeller, excludeId = null) {
   }, -1);
 
   return highestDisplayOrder + 1;
+}
+
+async function getNextFeaturedOrder(excludeId = null) {
+  const filter = {
+    isFeatured: true,
+  };
+
+  if (excludeId) {
+    filter._id = { $ne: excludeId };
+  }
+
+  const products = await Product.find(filter).select("featuredOrder updatedAt");
+  const sortedProducts = [...products].sort(compareProductsForFeatured);
+  const highestFeaturedOrder = sortedProducts.reduce((max, product) => {
+    const featuredOrder = getDisplayOrderValue(product.featuredOrder);
+    return featuredOrder === null ? max : Math.max(max, featuredOrder);
+  }, -1);
+
+  return highestFeaturedOrder + 1;
 }
 
 async function validateCategoryAndSubcategory(categorySlug, subcategorySlug) {
@@ -473,6 +521,7 @@ export const upsertProduct = async (req, res) => {
     filterAttributes = null,
     detail,
     isHotSeller = false,
+    isFeatured = false,
     uploadDraftId = "",
   } = req.body;
 
@@ -498,6 +547,7 @@ export const upsertProduct = async (req, res) => {
     const normalizedSubcategory = String(subcategory || "").trim();
     const normalizedDetailTags = normalizeDetailTags(detailTags);
     const normalizedIsHotSeller = normalizeHotSellerFlag(isHotSeller);
+    const normalizedIsFeatured = normalizeFeaturedFlag(isFeatured);
     const normalizedSpecs = normalizeSpecs(listSpecs);
 
     if (
@@ -587,6 +637,7 @@ export const upsertProduct = async (req, res) => {
         normalizedCatalogAttributes.filterAttributes,
       ),
       isHotSeller: normalizedIsHotSeller,
+      isFeatured: normalizedIsFeatured,
     };
 
     if (id) {
@@ -600,6 +651,8 @@ export const upsertProduct = async (req, res) => {
       const previousCategory = String(product.category || "").trim();
       const previousIsHotSeller = Boolean(product.isHotSeller);
       const previousDisplayOrder = getDisplayOrderValue(product.displayOrder);
+      const previousIsFeatured = Boolean(product.isFeatured);
+      const previousFeaturedOrder = getDisplayOrderValue(product.featuredOrder);
 
       const duplicateSku = await Product.findOne({
         sku: normalizedSku,
@@ -630,12 +683,21 @@ export const upsertProduct = async (req, res) => {
       const nextDisplayOrder = shouldReassignDisplayOrder
         ? await getNextDisplayOrder(normalizedCategory, normalizedIsHotSeller, id)
         : previousDisplayOrder;
+      const shouldReassignFeaturedOrder =
+        normalizedIsFeatured &&
+        (!previousIsFeatured || previousFeaturedOrder === null);
+      const nextFeaturedOrder = normalizedIsFeatured
+        ? shouldReassignFeaturedOrder
+          ? await getNextFeaturedOrder(id)
+          : previousFeaturedOrder
+        : null;
       const payload = {
         ...normalizedPayloadBase,
         slug: resolvedSlug,
         galleryImages: normalizeGallery(galleryImages, normalizedImage),
         detail: normalizedDetail,
         displayOrder: nextDisplayOrder,
+        featuredOrder: nextFeaturedOrder,
       };
       const nextManagedUrls = collectProductManagedImageUrls(payload);
 
@@ -709,6 +771,9 @@ export const upsertProduct = async (req, res) => {
       normalizedCategory,
       normalizedIsHotSeller,
     );
+    const nextFeaturedOrder = normalizedIsFeatured
+      ? await getNextFeaturedOrder()
+      : null;
 
     for (let retry = 0; retry <= SLUG_SAVE_RETRY_LIMIT; retry += 1) {
       try {
@@ -718,6 +783,7 @@ export const upsertProduct = async (req, res) => {
           galleryImages: normalizeGallery(galleryImages, normalizedImage),
           detail: normalizedDetail,
           displayOrder: nextDisplayOrder,
+          featuredOrder: nextFeaturedOrder,
         };
 
         created = await Product.create(payload);
@@ -770,6 +836,7 @@ export const getProductList = async (req, res) => {
   const keyword = String(req.query.keyword || "").trim();
   const category = String(req.query.category || "").trim();
   const status = String(req.query.status || "").trim();
+  const isFeaturedQuery = String(req.query.isFeatured ?? "").trim();
   const isPublicRequest = String(req.originalUrl || "").includes("/public/");
 
   const filter = {};
@@ -786,6 +853,9 @@ export const getProductList = async (req, res) => {
   if (status) {
     filter.status = status;
   }
+  if (isFeaturedQuery !== "") {
+    filter.isFeatured = normalizeFeaturedFlag(isFeaturedQuery);
+  }
 
   const skip = (page - 1) * pageSize;
 
@@ -795,6 +865,25 @@ export const getProductList = async (req, res) => {
       Pragma: "no-cache",
       Expires: "0",
     });
+
+    if (isPublicRequest && filter.isFeatured === true) {
+      const products = await Product.find(filter);
+      const orderedProducts = [...products].sort(compareProductsForFeatured);
+      const total = orderedProducts.length;
+
+      return sendSuccess(
+        res,
+        {
+          products: orderedProducts.slice(skip, skip + pageSize),
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        },
+        "Product list fetched successfully",
+        200,
+      );
+    }
 
     if (isPublicRequest && category) {
       const products = await Product.find(filter);

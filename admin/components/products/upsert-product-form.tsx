@@ -331,6 +331,7 @@ export const UpsertProductForm = forwardRef<
         image: mainImage,
         badge: normalizedBadge,
         isHotSeller: Boolean(values.isHotSeller),
+        isFeatured: Boolean(values.isFeatured),
         filterAttributes: normalizedFilterAttributes,
         listSpecs: normalizedSpecs,
         galleryImages: normalizedGalleryImages,
@@ -393,6 +394,7 @@ export const UpsertProductForm = forwardRef<
         },
         status: "In Stock",
         isHotSeller: false,
+        isFeatured: false,
         detail: {
           description: "",
           features: [""],
@@ -413,6 +415,7 @@ export const UpsertProductForm = forwardRef<
       productType: String(initData.productType || "").trim() || undefined,
       filterAttributes: normalizeFilterAttributes(initData.filterAttributes),
       isHotSeller: getInitialHotSellerValue(initData),
+      isFeatured: Boolean(initData.isFeatured),
       detail: {
         ...(initData.detail || {}),
         description: String(initData.detail?.description || ""),
@@ -633,6 +636,15 @@ export const UpsertProductForm = forwardRef<
           extra="Controls whether this product appears in the Hot Seller group and shows the HOT SELLER label on the client."
         >
           <Switch checkedChildren="Hot Seller" unCheckedChildren="Regular" />
+        </Form.Item>
+
+        <Form.Item
+          name="isFeatured"
+          label="Featured"
+          valuePropName="checked"
+          extra="Controls whether this product appears in the homepage Featured Products carousel."
+        >
+          <Switch checkedChildren="Featured" unCheckedChildren="Standard" />
         </Form.Item>
       </FormSection>
 

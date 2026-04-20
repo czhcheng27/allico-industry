@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { FeaturedProductsCarousel } from "@/components/home/featured-products-carousel";
 import { HomeFooter } from "@/components/site/home-footer";
 import { HomeHeader } from "@/components/site/home-header";
 import {
   type Product,
   getCategoryHref,
-  getProductHref,
   siteMedia,
 } from "@/lib/catalog";
 import { fetchCategories } from "@/lib/catalog-api";
@@ -222,69 +222,9 @@ async function HomePage({ featuredProducts }: HomePageProps) {
           </div>
         </section>
 
-        <section className="bg-white py-20">
-          <div className="container mx-auto px-4">
-            <div className="mb-10 flex items-end justify-between border-b border-gray-200 pb-4">
-              <div>
-                <h2 className="font-display text-3xl font-black uppercase tracking-tight text-gray-900">
-                  Featured <span className="text-primary">Products</span>
-                </h2>
-                <p className="mt-2 text-gray-500">
-                  Top-rated equipment for the toughest jobs.
-                </p>
-              </div>
-              <div className="flex space-x-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-primary-foreground">
-                  <span className="material-symbols-outlined">arrow_back</span>
-                </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-600 transition hover:border-primary hover:bg-primary hover:text-primary-foreground">
-                  <span className="material-symbols-outlined">
-                    arrow_forward
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5">
-              {featuredProducts.map((product) => (
-                <Link
-                  key={product.slug}
-                  className="group cursor-pointer rounded-sm border border-transparent bg-white p-4 transition hover:border-gray-200 hover:shadow-lg"
-                  href={getProductHref(product)}
-                >
-                  <div className="relative mb-4 flex h-48 items-center justify-center overflow-hidden rounded-sm bg-gray-50">
-                    <img
-                      alt={product.name}
-                      className="max-h-32 object-contain mix-blend-multiply transition duration-500 group-hover:scale-110"
-                      src={product.image}
-                    />
-                    {product.badge ? (
-                      <div className="absolute right-2 top-2 rounded-sm bg-primary px-2 py-1 text-xs font-bold uppercase text-primary-foreground">
-                        {product.badge}
-                      </div>
-                    ) : null}
-                  </div>
-                  <h4 className="mb-1 text-base font-bold uppercase leading-tight text-gray-900 transition group-hover:text-primary">
-                    {product.name}
-                  </h4>
-                  <p className="mb-3 text-xs text-gray-500">
-                    {product.listSpecs.map((spec) => spec.value).join(" | ")}
-                  </p>
-                  {/* <div className="flex items-center justify-between">
-                    <span className="font-display text-lg font-bold text-gray-900">
-                      {product.price}
-                    </span>
-                    <button className="text-primary transition hover:text-primary-hover">
-                      <span className="material-symbols-outlined">
-                        add_shopping_cart
-                      </span>
-                    </button>
-                  </div> */}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+        {featuredProducts.length > 0 ? (
+          <FeaturedProductsCarousel products={featuredProducts} />
+        ) : null}
 
         <section className="border-t border-primary bg-primary py-8">
           <div className="container mx-auto flex flex-col items-center justify-between px-4 md:flex-row">

@@ -36,6 +36,8 @@ export type Product = {
   galleryImages?: string[];
   isHotSeller?: boolean;
   displayOrder?: number;
+  isFeatured?: boolean;
+  featuredOrder?: number | null;
   detailTags?: string[];
   status: "In Stock" | "Low Stock" | "Out of Stock";
   badge?: string;
