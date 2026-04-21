@@ -65,13 +65,14 @@ function ProductListRow({ product, href }: ProductListRowProps) {
                 className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700"
                 key={spec.label}
               >
-                <span className="font-semibold">{spec.label}:</span> {spec.value}
+                <span className="font-semibold">{spec.label}:</span>{" "}
+                {spec.value}
               </span>
             ))}
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 pt-3 md:w-44 md:flex-col md:items-end md:justify-start md:border-t-0 md:pt-0">
+        {/* <div className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 pt-3 md:w-44 md:flex-col md:items-end md:justify-start md:border-t-0 md:pt-0">
           <div className="font-display text-2xl font-black text-gray-900">
             {product.price}
           </div>
@@ -81,7 +82,7 @@ function ProductListRow({ product, href }: ProductListRowProps) {
           >
             View Details
           </Link>
-        </div>
+        </div> */}
       </div>
     </article>
   );
