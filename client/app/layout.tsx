@@ -19,7 +19,7 @@ const robotoCondensed = Roboto_Condensed({
 export const metadata: Metadata = {
   title: "Allico Industries - Heavy-Duty Towing & Cargo Solutions",
   description:
-    "Allico Industries delivers heavy-duty towing, recovery, and cargo control equipment for commercial fleets.",
+    "Allico Industries delivers Cargo Control solutions for commercial fleets.",
   icons: {
     icon: [{ url: "/logo.jpg", type: "image/jpeg" }],
     shortcut: "/logo.jpg",
@@ -40,7 +40,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${roboto.variable} ${robotoCondensed.variable} font-sans antialiased`}>
+      <body
+        className={`${roboto.variable} ${robotoCondensed.variable} font-sans antialiased`}
+      >
         {children}
         <BackToTopButton />
       </body>
