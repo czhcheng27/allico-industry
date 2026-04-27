@@ -120,7 +120,7 @@ async function HomeFooter() {
                 <span className="material-symbols-outlined mr-3 text-primary">
                   email
                 </span>
-                <span>bruce@allicoindustries.ca</span>
+                <span>sales@allicoindustries.ca</span>
               </div>
               <div className="flex items-center">
                 <span className="material-symbols-outlined mr-3 text-primary">
