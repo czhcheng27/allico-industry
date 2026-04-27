@@ -13,8 +13,8 @@ const contactDetails = [
   },
   {
     label: "Email",
-    value: "bruce@allicoindustries.ca",
-    href: "mailto:bruce@allicoindustries.ca",
+    value: "sales@allicoindustries.ca",
+    href: "mailto:sales@allicoindustries.ca",
   },
   {
     label: "Phone",
@@ -58,8 +58,9 @@ async function ContactPage({
               {showCustomOrderNotice ? (
                 <div className="mb-6 border-l-4 border-primary bg-zinc-50 px-5 py-4">
                   <p className="text-base leading-7 text-gray-700">
-                    Can&apos;t find that product you like, or you want customization?
-                    Let us know we will get the job done at the best price.
+                    Can&apos;t find that product you like, or you want
+                    customization? Let us know we will get the job done at the
+                    best price.
                   </p>
                 </div>
               ) : null}
