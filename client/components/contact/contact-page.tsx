@@ -69,10 +69,10 @@ async function ContactPage({
                   action="/api/inquiries"
                   description="Fill out the form below and tell us how we can help. All fields are required."
                   formName="Contact Us"
-                  helperText="Email delivery will go live once the Resend account and environment variables are configured."
+                  helperText="Our team will review your inquiry, and you'll receive a confirmation email after submission."
                   source="contact-page"
                   submitLabel="Send Message"
-                  successMessage="Thanks for reaching out. Your message has been submitted."
+                  successMessage="Thanks for reaching out. Your message has been sent, and a confirmation email is on the way."
                   title="Send Us a Message"
                 />
               </div>

@@ -4,6 +4,7 @@ import { type CategorySlug } from "@/lib/catalog";
 import { fetchCategories } from "@/lib/catalog-api";
 import { HeaderBrand } from "@/components/site/header/header-brand";
 import { HeaderDesktopNav } from "@/components/site/header/header-desktop-nav";
+import { HeaderMobileNav } from "@/components/site/header/header-mobile-nav";
 import { HeaderSearchBar } from "@/components/site/header/header-search-bar";
 
 type HomeHeaderProps = {
@@ -53,12 +54,15 @@ async function HomeHeader({
               Contact
             </Link>
           </div>
-          <button className="text-white md:hidden">
-            <span className="material-symbols-outlined">menu</span>
-          </button>
+          <HeaderMobileNav
+            activeCategory={activeCategory}
+            activePage={activePage}
+            categories={categories}
+            keyword={keyword}
+          />
           <Link
             className="group hidden flex-col items-center justify-center rounded-sm bg-primary px-6 py-2 text-primary-foreground transition-colors hover:bg-primary-hover md:flex"
-            href="tel:8885550199"
+            href="tel:6047818659"
           >
             <span className="mb-0.5 text-xs font-bold uppercase tracking-wider">
               Call for Quote
