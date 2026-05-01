@@ -17,8 +17,7 @@ const robotoCondensed = Roboto_Condensed({
 });
 
 export const metadata: Metadata = {
-  title:
-    "Allico Industries - Cargo Control and Towing partsHeavy-Duty Towing & Cargo Solutions",
+  title: "Allico Industries - Cargo Control and Towing parts",
   description:
     "Allico Industries provides Cargo Control, and Towing parts solutions.",
   icons: {
